@@ -95,7 +95,10 @@ add_action('enqueue_block_editor_assets', function () {
     true
   );
 
-  wp_localize_script('gscseo-editor', 'gscseo_indexnow_nonce', wp_create_nonce('gscseo_manual_indexnow'));
+  wp_localize_script('gscseo-editor', 'gscseoData', [
+    'ajaxurl' => admin_url('admin-ajax.php'),
+    'indexnowNonce' => wp_create_nonce('gscseo_manual_indexnow')
+  ]);
 });
 
 add_action('wp_head', function () {

@@ -366,7 +366,41 @@ class GSCSEO_Admin_Settings {
       </div>
 
       <div class="gscseo-card">
-        <h2><span class="dashicons dashicons-twitter"></span> Social Profiles</h2>
+        <h2><span class="dashicons dashicons-share"></span> Supported Social Media Platforms</h2>
+        <p style="margin-bottom: 20px;">This plugin automatically generates optimized meta tags for all major social media platforms:</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #2271b1; border-radius: 3px;">
+            <strong>✓ Facebook</strong><br><small>Open Graph + App ID</small>
+          </div>
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #0077b5; border-radius: 3px;">
+            <strong>✓ LinkedIn</strong><br><small>Article metadata</small>
+          </div>
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #e60023; border-radius: 3px;">
+            <strong>✓ Pinterest</strong><br><small>Rich Pins support</small>
+          </div>
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #25d366; border-radius: 3px;">
+            <strong>✓ WhatsApp</strong><br><small>Preview cards</small>
+          </div>
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #5865f2; border-radius: 3px;">
+            <strong>✓ Discord</strong><br><small>Rich embeds</small>
+          </div>
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #0088cc; border-radius: 3px;">
+            <strong>✓ Telegram</strong><br><small>Instant View</small>
+          </div>
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #611f69; border-radius: 3px;">
+            <strong>✓ Slack</strong><br><small>Link unfurling</small>
+          </div>
+          <div style="padding: 10px; background: #f0f6fc; border-left: 3px solid #1da1f2; border-radius: 3px;">
+            <strong>✓ Twitter/X</strong><br><small>Large image cards</small>
+          </div>
+        </div>
+        <p style="padding: 12px; background: #fff7ed; border-left: 3px solid #f59e0b; border-radius: 3px; margin-bottom: 20px;">
+          <strong>📌 Note:</strong> Most platforms use Open Graph tags automatically. Only Twitter and Facebook require specific configuration below.
+        </p>
+      </div>
+
+      <div class="gscseo-card">
+        <h2><span class="dashicons dashicons-twitter"></span> Platform Configuration</h2>
         <table class="form-table">
           <tr>
             <th scope="row">

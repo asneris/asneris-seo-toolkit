@@ -3,7 +3,7 @@ import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
 import { PanelBody, TextControl, TextareaControl, ToggleControl, SelectControl, Button, ExternalLink, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 
 const IndexNowSubmit = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,29 +15,34 @@ const IndexNowSubmit = () => {
     setIsSubmitting(true);
     setNotice(null);
     
-    window.jQuery.ajax({
-      url: window.ajaxurl,
-      type: 'POST',
-      data: {
+    const ajaxurl = window.gscseoData?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php';
+    const nonce = window.gscseoData?.indexnowNonce || window.gscseo_indexnow_nonce;
+    
+    fetch(ajaxurl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
         action: 'gscseo_manual_indexnow',
-        nonce: window.gscseo_indexnow_nonce,
+        nonce: nonce,
         post_id: postId
-      },
-      success: (response) => {
-        setIsSubmitting(false);
-        if (response.success) {
-          setNotice({ type: 'success', message: response.data.message });
-        } else {
-          setNotice({ type: 'error', message: response.data.message });
-        }
-        // Clear notice after 5 seconds
-        setTimeout(() => setNotice(null), 5000);
-      },
-      error: () => {
-        setIsSubmitting(false);
-        setNotice({ type: 'error', message: __('Request failed', 'bfseo') });
-        setTimeout(() => setNotice(null), 5000);
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      setIsSubmitting(false);
+      if (data.success) {
+        setNotice({ type: 'success', message: data.data.message });
+      } else {
+        setNotice({ type: 'error', message: data.data.message || __('Failed to submit', 'bfseo') });
       }
+      setTimeout(() => setNotice(null), 5000);
+    })
+    .catch(error => {
+      setIsSubmitting(false);
+      setNotice({ type: 'error', message: __('Request failed', 'bfseo') });
+      setTimeout(() => setNotice(null), 5000);
     });
   };
   
@@ -141,7 +146,7 @@ const CharacterCount = ({ text, maxLength, optimal }) => {
 
 const SEOScore = () => {
   const meta = useSelect(select => select('core/editor').getEditedPostAttribute('meta'));
-  const title = useSelect(select => select('core/editor').getEditedPostTitle());
+  const title = useSelect(select => select('core/editor').getEditedPostAttribute('title'));
   
   const [score, setScore] = useState(0);
   const [suggestions, setSuggestions] = useState([]);
@@ -193,7 +198,7 @@ const SEOScore = () => {
   };
   
   // Recalculate on meta changes
-  useState(() => {
+  useEffect(() => {
     calculateScore();
   }, [meta]);
   
