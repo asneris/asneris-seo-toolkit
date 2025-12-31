@@ -59,6 +59,11 @@ class GSCSEO_Admin_Settings {
       'business_type'       => sanitize_text_field($opt['business_type'] ?? 'LocalBusiness'),
       'business_phone'      => sanitize_text_field($opt['business_phone'] ?? ''),
       'business_address'    => sanitize_textarea_field($opt['business_address'] ?? ''),
+      'business_hours'      => sanitize_textarea_field($opt['business_hours'] ?? ''),
+      'service_area'        => sanitize_textarea_field($opt['service_area'] ?? ''),
+      'price_range'         => sanitize_text_field($opt['price_range'] ?? ''),
+      'payment_methods'     => sanitize_text_field($opt['payment_methods'] ?? ''),
+      'languages_spoken'    => sanitize_text_field($opt['languages_spoken'] ?? ''),
       'title_separator'     => sanitize_text_field($opt['title_separator'] ?? '|'),
       'title_templates'     => isset($opt['title_templates']) && is_array($opt['title_templates']) ? array_map('sanitize_text_field', $opt['title_templates']) : [],
       'description_templates' => isset($opt['description_templates']) && is_array($opt['description_templates']) ? array_map('sanitize_textarea_field', $opt['description_templates']) : [],
@@ -105,6 +110,9 @@ class GSCSEO_Admin_Settings {
         <a href="?page=clarity-first-seo&tab=advanced" class="nav-tab <?php echo $current_tab === 'advanced' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-admin-tools"></span> Advanced
         </a>
+        <a href="?page=clarity-first-seo&tab=diagnostics" class="nav-tab <?php echo $current_tab === 'diagnostics' ? 'nav-tab-active' : ''; ?>">
+          <span class="dashicons dashicons-analytics"></span> Diagnostics
+        </a>
       </nav>
 
       <form method="post" action="options.php" class="gscseo-settings-form">
@@ -124,20 +132,124 @@ class GSCSEO_Admin_Settings {
           <?php self::render_templates_tab(); ?>
         <?php elseif ($current_tab === 'advanced'): ?>
           <?php self::render_advanced_tab(); ?>
+        <?php elseif ($current_tab === 'diagnostics'): ?>
+          <?php self::render_diagnostics_tab(); ?>
         <?php endif; ?>
 
-        <?php submit_button('Save Settings', 'primary large'); ?>
+        <?php if ($current_tab !== 'diagnostics'): ?>
+          <?php submit_button('Save Settings', 'primary large'); ?>
+        <?php endif; ?>
       </form>
 
       <!-- Sidebar Info -->
       <div class="gscseo-sidebar">
         <div class="gscseo-info-box">
           <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
-          <ul>
-            <li>Configure verification codes to connect with Google Search Console and Bing Webmaster Tools</li>
-            <li>Enable IndexNow for instant search engine indexing</li>
-            <li>Set default social media images for better sharing</li>
-            <li>Use Schema markup to enhance search results</li>
+          
+          <!-- General Tab Tips -->
+          <ul id="gscseo-quick-tips-general" style="display: none;">
+            <li><strong>🎯 General Settings:</strong></li>
+            <li>📊 Set your organization name for consistent branding</li>
+            <li>🖼️ Upload a logo (recommended: 600x60px or square)</li>
+            <li>🎨 Choose a theme color for mobile browser UI</li>
+            <li>✅ Enable breadcrumbs for better site navigation</li>
+            <li>💡 Tip: Keep settings simple and consistent across your site</li>
+          </ul>
+          
+          <!-- Verification Tab Tips -->
+          <ul id="gscseo-quick-tips-verification" style="display: none;">
+            <li><strong>🔍 Search Console Verification:</strong></li>
+            <li>📈 Google Search Console tracks your site's performance</li>
+            <li>🛠️ Bing Webmaster Tools monitors Bing/Yahoo rankings</li>
+            <li>🌐 Yandex is essential for Russian/CIS markets</li>
+            <li>💡 Get verification codes from each platform's admin panel</li>
+            <li>⚡ Verification enables IndexNow, sitemap submission, and analytics</li>
+          </ul>
+          
+          <!-- IndexNow Tab Tips -->
+          <ul id="gscseo-quick-tips-indexnow" style="display: none;">
+            <li><strong>⚡ IndexNow Instant Indexing:</strong></li>
+            <li>🚀 Get new/updated pages indexed within minutes</li>
+            <li>🌍 Supported by Bing, Yandex, Seznam, Naver</li>
+            <li>🔄 Auto-submits on publish/update (no manual work!)</li>
+            <li>📊 Check "IndexNow" button in block editor sidebar</li>
+            <li>💡 Tip: Enable this if you publish time-sensitive content</li>
+          </ul>
+          
+          <!-- Social Tab Tips -->
+          <ul id="gscseo-quick-tips-social" style="display: none;">
+            <li><strong>📱 Social Media Optimization:</strong></li>
+            <li>🖼️ Default OG image shown when pages don't have featured images</li>
+            <li>🐦 Twitter username enables Twitter Cards with author attribution</li>
+            <li>📘 Facebook App ID provides detailed analytics and insights</li>
+            <li>📏 Recommended image size: 1200x630px (1.91:1 ratio)</li>
+            <li>💡 Override per-page OG settings in the block editor sidebar</li>
+          </ul>
+          
+          <!-- Schema Tab Tips -->
+          <ul id="gscseo-quick-tips-schema" style="display: none;">
+            <li><strong>🏪 Local Business Schema helps you:</strong></li>
+            <li>🗺️ Show up in Google Maps "near me" searches</li>
+            <li>⭐ Display ratings and reviews in search results</li>
+            <li>📍 Appear in Google's Local Pack (top 3 results)</li>
+            <li>📞 Show contact info directly in search</li>
+            <li>🏪 Get verified knowledge panel on Google</li>
+            <li>🕐 Display opening hours in search results</li>
+            <li>💰 Show price range to help customers decide</li>
+            <li>💳 Display accepted payment methods</li>
+            <li>🌍 Indicate service areas and languages supported</li>
+            <li><strong>Important:</strong> Match your <a href="https://business.google.com" target="_blank">Google Business Profile</a> data exactly for best results!</li>
+          </ul>
+          
+          <!-- Templates Tab Tips -->
+          <ul id="gscseo-quick-tips-templates" style="display: none;">
+            <li><strong>📝 SEO Templates:</strong></li>
+            <li>🏷️ Use <code>%title%</code> for post/page title</li>
+            <li>🌐 Use <code>%sitename%</code> for your site name</li>
+            <li>🗂️ <code>%category%</code> shows the primary category</li>
+            <li>📅 <code>%date%</code> adds publish date</li>
+            <li>✍️ <code>%author%</code> displays author name</li>
+            <li>💡 Tip: Keep titles under 60 chars, descriptions under 160 chars</li>
+          </ul>
+          
+          <!-- Advanced Tab Tips -->
+          <ul id="gscseo-quick-tips-advanced" style="display: none;">
+            <li><strong>⚙️ Advanced Settings:</strong></li>
+            <li>🤖 Default robots settings apply to all pages (unless overridden)</li>
+            <li>✅ "Index" tells search engines to include the page</li>
+            <li>🔗 "Follow" tells search engines to follow links on the page</li>
+            <li>🚫 "Noindex" prevents page from appearing in search results</li>
+            <li>⛔ "Nofollow" tells search engines not to follow links</li>
+            <li>💡 Override per-page in block editor sidebar when needed</li>
+          </ul>
+          
+          <!-- Redirect Tab Tips -->
+          <ul id="gscseo-quick-tips-redirect" style="display: none;">
+            <li><strong>🔄 Understanding Redirects:</strong></li>
+            <li><strong>🛠️ A maintenance tool</strong> — Redirects keep your site working smoothly when change is unavoidable, like routine maintenance for your website's URL structure.</li>
+            <li><strong>🛡️ A SEO safety net</strong> — They catch accidental mistakes (deleted pages, renamed slugs) before search engines and users hit dead ends.</li>
+            <li><strong>🧹 A technical hygiene feature</strong> — Used correctly, redirects keep your site clean: fewer crawl errors, no redirect chains, consolidated link signals.</li>
+            <li>⚠️ <strong>Remember:</strong> Redirects preserve value — they don't create it.</li>
+            <li><strong>📋 Redirect Types:</strong></li>
+            <li>✅ <strong>301 (Permanent):</strong> Permanently move a page and preserve SEO value</li>
+            <li>⏳ <strong>302/307 (Temporary):</strong> Only use when the original URL will return</li>
+            <li><strong>What our Redirects feature does:</strong></li>
+            <li>✅ Create 301 (permanent) redirects safely</li>
+            <li>✅ Validate that redirects work correctly</li>
+            <li>✅ Prevent redirect loops and chains</li>
+            <li>✅ Ensure destination pages are indexable</li>
+            <li>✅ Help maintain a clean URL structure</li>
+          </ul>
+          
+          <!-- Diagnostics Tab Tips -->
+          <ul id="gscseo-quick-tips-diagnostics" style="display: none;">
+            <li><strong>🔍 Site Health Diagnostics:</strong></li>
+            <li><strong>🗺️ Sitemap Visibility:</strong> We validate your existing sitemaps (not generate them) to ensure search engines can find and access them properly.</li>
+            <li><strong>⚠️ Duplicate Detector:</strong> Identifies if multiple SEO plugins are active and potentially outputting conflicting meta tags.</li>
+            <li><strong>🔗 HTTP Status Checks:</strong> Test URLs for proper status codes, redirect chains, and canonical destination validity.</li>
+            <li>💡 <strong>Tip:</strong> These are diagnostic tools — they help you identify issues, not optimize content.</li>
+            <li>✅ All checks are lightweight and won't impact site performance</li>
+            <li>🛠️ Use these tools regularly to maintain a healthy SEO foundation</li>
           </ul>
         </div>
         
@@ -147,6 +259,75 @@ class GSCSEO_Admin_Settings {
         </div>
       </div>
     </div>
+    
+    <script>
+    jQuery(document).ready(function($) {
+      // Toggle quick tips based on current tab
+      const currentTab = '<?php echo $current_tab; ?>';
+      
+      // Hide all tips first
+      $('[id^="gscseo-quick-tips-"]').hide();
+      
+      // Show tips for current tab
+      const tipsId = '#gscseo-quick-tips-' + currentTab;
+      if ($(tipsId).length) {
+        $(tipsId).show();
+      } else {
+        // Default to general tips if tab-specific tips don't exist
+        $('#gscseo-quick-tips-general').show();
+      }
+      
+      // HTTP Test functionality
+      $('#gscseo_run_http_test').on('click', function() {
+        const url = $('#gscseo_test_url').val();
+        const $button = $(this);
+        const $results = $('#gscseo_http_results');
+        const $tbody = $('#gscseo_http_results_body');
+        
+        if (!url) {
+          alert('Please enter a URL to test');
+          return;
+        }
+        
+        $button.prop('disabled', true).text('Testing...');
+        $tbody.html('<tr><td colspan="3">Running diagnostics...</td></tr>');
+        $results.show();
+        
+        $.ajax({
+          url: ajaxurl,
+          method: 'POST',
+          data: {
+            action: 'gscseo_http_test',
+            url: url,
+            nonce: '<?php echo wp_create_nonce('gscseo_http_test'); ?>'
+          },
+          success: function(response) {
+            if (response.success) {
+              let html = '';
+              response.data.checks.forEach(function(check) {
+                const statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
+                const statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
+                html += '<tr>';
+                html += '<td><strong>' + check.label + '</strong></td>';
+                html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
+                html += '<td>' + check.details + '</td>';
+                html += '</tr>';
+              });
+              $tbody.html(html);
+            } else {
+              $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
+            }
+          },
+          error: function() {
+            $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
+          },
+          complete: function() {
+            $button.prop('disabled', false).text('Run Diagnostics');
+          }
+        });
+      });
+    });
+    </script>
     <?php
   }
 
@@ -475,6 +656,15 @@ class GSCSEO_Admin_Settings {
                 <span class="gscseo-toggle-slider"></span>
               </label>
               <p class="description">Add local business schema for better local search visibility.</p>
+              
+              <div style="margin-top: 12px; padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                <strong style="color: #856404;">📍 Important: Google Business Profile</strong>
+                <p style="margin: 8px 0 0 0; color: #856404; line-height: 1.6;">
+                  Have you registered your business on <a href="https://business.google.com" target="_blank" style="color: #0073aa; text-decoration: underline;">Google Business Profile</a>?<br>
+                  If yes, <strong>make sure the Name, Address, and Phone number below EXACTLY match</strong> your Google Business Profile.<br>
+                  Consistent information = better local search rankings!
+                </p>
+              </div>
             </td>
           </tr>
           <tr class="gscseo-conditional" data-depends="enable_local_business">
@@ -483,11 +673,105 @@ class GSCSEO_Admin_Settings {
             </th>
             <td>
               <select id="business_type" name="<?php echo self::OPT; ?>[business_type]">
-                <option value="LocalBusiness" <?php selected(self::get('business_type', 'LocalBusiness'), 'LocalBusiness'); ?>>Local Business</option>
-                <option value="Restaurant" <?php selected(self::get('business_type'), 'Restaurant'); ?>>Restaurant</option>
-                <option value="Store" <?php selected(self::get('business_type'), 'Store'); ?>>Store</option>
-                <option value="ProfessionalService" <?php selected(self::get('business_type'), 'ProfessionalService'); ?>>Professional Service</option>
-                <option value="HealthAndBeautyBusiness" <?php selected(self::get('business_type'), 'HealthAndBeautyBusiness'); ?>>Health & Beauty</option>
+                <option value="LocalBusiness" <?php selected(self::get('business_type', 'LocalBusiness'), 'LocalBusiness'); ?>>Local Business (General)</option>
+                
+                <optgroup label="Food & Dining">
+                  <option value="Restaurant" <?php selected(self::get('business_type'), 'Restaurant'); ?>>Restaurant</option>
+                  <option value="FastFoodRestaurant" <?php selected(self::get('business_type'), 'FastFoodRestaurant'); ?>>Fast Food Restaurant</option>
+                  <option value="Cafe" <?php selected(self::get('business_type'), 'Cafe'); ?>>Cafe / Coffee Shop</option>
+                  <option value="Bakery" <?php selected(self::get('business_type'), 'Bakery'); ?>>Bakery</option>
+                  <option value="BarOrPub" <?php selected(self::get('business_type'), 'BarOrPub'); ?>>Bar / Pub</option>
+                  <option value="Winery" <?php selected(self::get('business_type'), 'Winery'); ?>>Winery</option>
+                </optgroup>
+                
+                <optgroup label="Retail">
+                  <option value="Store" <?php selected(self::get('business_type'), 'Store'); ?>>Store (General)</option>
+                  <option value="ClothingStore" <?php selected(self::get('business_type'), 'ClothingStore'); ?>>Clothing Store</option>
+                  <option value="FurnitureStore" <?php selected(self::get('business_type'), 'FurnitureStore'); ?>>Furniture Store</option>
+                  <option value="HardwareStore" <?php selected(self::get('business_type'), 'HardwareStore'); ?>>Hardware Store</option>
+                  <option value="JewelryStore" <?php selected(self::get('business_type'), 'JewelryStore'); ?>>Jewelry Store</option>
+                  <option value="ShoeStore" <?php selected(self::get('business_type'), 'ShoeStore'); ?>>Shoe Store</option>
+                  <option value="SportsStore" <?php selected(self::get('business_type'), 'SportsStore'); ?>>Sports Store</option>
+                  <option value="ToyStore" <?php selected(self::get('business_type'), 'ToyStore'); ?>>Toy Store</option>
+                  <option value="ConvenienceStore" <?php selected(self::get('business_type'), 'ConvenienceStore'); ?>>Convenience Store</option>
+                </optgroup>
+                
+                <optgroup label="Health & Beauty">
+                  <option value="HealthAndBeautyBusiness" <?php selected(self::get('business_type'), 'HealthAndBeautyBusiness'); ?>>Health & Beauty (General)</option>
+                  <option value="HairSalon" <?php selected(self::get('business_type'), 'HairSalon'); ?>>Hair Salon</option>
+                  <option value="BeautySalon" <?php selected(self::get('business_type'), 'BeautySalon'); ?>>Beauty Salon</option>
+                  <option value="DaySpa" <?php selected(self::get('business_type'), 'DaySpa'); ?>>Day Spa</option>
+                  <option value="NailSalon" <?php selected(self::get('business_type'), 'NailSalon'); ?>>Nail Salon</option>
+                  <option value="TattooParlor" <?php selected(self::get('business_type'), 'TattooParlor'); ?>>Tattoo Parlor</option>
+                </optgroup>
+                
+                <optgroup label="Medical">
+                  <option value="Dentist" <?php selected(self::get('business_type'), 'Dentist'); ?>>Dentist</option>
+                  <option value="Physician" <?php selected(self::get('business_type'), 'Physician'); ?>>Physician / Doctor</option>
+                  <option value="MedicalClinic" <?php selected(self::get('business_type'), 'MedicalClinic'); ?>>Medical Clinic</option>
+                  <option value="Pharmacy" <?php selected(self::get('business_type'), 'Pharmacy'); ?>>Pharmacy</option>
+                  <option value="VeterinaryCare" <?php selected(self::get('business_type'), 'VeterinaryCare'); ?>>Veterinary Care</option>
+                </optgroup>
+                
+                <optgroup label="Professional Services">
+                  <option value="ProfessionalService" <?php selected(self::get('business_type'), 'ProfessionalService'); ?>>Professional Service (General)</option>
+                  <option value="Attorney" <?php selected(self::get('business_type'), 'Attorney'); ?>>Attorney / Lawyer</option>
+                  <option value="Accountant" <?php selected(self::get('business_type'), 'Accountant'); ?>>Accountant</option>
+                  <option value="RealEstateAgent" <?php selected(self::get('business_type'), 'RealEstateAgent'); ?>>Real Estate Agent</option>
+                  <option value="Notary" <?php selected(self::get('business_type'), 'Notary'); ?>>Notary</option>
+                  <option value="InsuranceAgency" <?php selected(self::get('business_type'), 'InsuranceAgency'); ?>>Insurance Agency</option>
+                </optgroup>
+                
+                <optgroup label="Home Services">
+                  <option value="HomeAndConstructionBusiness" <?php selected(self::get('business_type'), 'HomeAndConstructionBusiness'); ?>>Home Services (General)</option>
+                  <option value="Electrician" <?php selected(self::get('business_type'), 'Electrician'); ?>>Electrician</option>
+                  <option value="Plumber" <?php selected(self::get('business_type'), 'Plumber'); ?>>Plumber</option>
+                  <option value="HousePainter" <?php selected(self::get('business_type'), 'HousePainter'); ?>>House Painter</option>
+                  <option value="Locksmith" <?php selected(self::get('business_type'), 'Locksmith'); ?>>Locksmith</option>
+                  <option value="MovingCompany" <?php selected(self::get('business_type'), 'MovingCompany'); ?>>Moving Company</option>
+                  <option value="HVACBusiness" <?php selected(self::get('business_type'), 'HVACBusiness'); ?>>HVAC Business</option>
+                  <option value="Roofing" <?php selected(self::get('business_type'), 'Roofing'); ?>>Roofing Contractor</option>
+                </optgroup>
+                
+                <optgroup label="Automotive">
+                  <option value="AutomotiveBusiness" <?php selected(self::get('business_type'), 'AutomotiveBusiness'); ?>>Automotive (General)</option>
+                  <option value="AutoRepair" <?php selected(self::get('business_type'), 'AutoRepair'); ?>>Auto Repair</option>
+                  <option value="AutoDealer" <?php selected(self::get('business_type'), 'AutoDealer'); ?>>Auto Dealer</option>
+                  <option value="AutoPartsStore" <?php selected(self::get('business_type'), 'AutoPartsStore'); ?>>Auto Parts Store</option>
+                  <option value="AutoRental" <?php selected(self::get('business_type'), 'AutoRental'); ?>>Auto Rental</option>
+                  <option value="AutoWash" <?php selected(self::get('business_type'), 'AutoWash'); ?>>Auto Wash</option>
+                  <option value="GasStation" <?php selected(self::get('business_type'), 'GasStation'); ?>>Gas Station</option>
+                </optgroup>
+                
+                <optgroup label="Lodging">
+                  <option value="LodgingBusiness" <?php selected(self::get('business_type'), 'LodgingBusiness'); ?>>Lodging (General)</option>
+                  <option value="Hotel" <?php selected(self::get('business_type'), 'Hotel'); ?>>Hotel</option>
+                  <option value="Motel" <?php selected(self::get('business_type'), 'Motel'); ?>>Motel</option>
+                  <option value="Resort" <?php selected(self::get('business_type'), 'Resort'); ?>>Resort</option>
+                  <option value="BedAndBreakfast" <?php selected(self::get('business_type'), 'BedAndBreakfast'); ?>>Bed & Breakfast</option>
+                  <option value="Hostel" <?php selected(self::get('business_type'), 'Hostel'); ?>>Hostel</option>
+                  <option value="Campground" <?php selected(self::get('business_type'), 'Campground'); ?>>Campground</option>
+                </optgroup>
+                
+                <optgroup label="Fitness & Recreation">
+                  <option value="SportsActivityLocation" <?php selected(self::get('business_type'), 'SportsActivityLocation'); ?>>Sports / Recreation (General)</option>
+                  <option value="FitnessCenter" <?php selected(self::get('business_type'), 'FitnessCenter'); ?>>Fitness Center / Gym</option>
+                  <option value="GolfCourse" <?php selected(self::get('business_type'), 'GolfCourse'); ?>>Golf Course</option>
+                  <option value="PublicSwimmingPool" <?php selected(self::get('business_type'), 'PublicSwimmingPool'); ?>>Swimming Pool</option>
+                  <option value="TennisComplex" <?php selected(self::get('business_type'), 'TennisComplex'); ?>>Tennis Complex</option>
+                </optgroup>
+                
+                <optgroup label="Entertainment">
+                  <option value="EntertainmentBusiness" <?php selected(self::get('business_type'), 'EntertainmentBusiness'); ?>>Entertainment (General)</option>
+                  <option value="MovieTheater" <?php selected(self::get('business_type'), 'MovieTheater'); ?>>Movie Theater</option>
+                  <option value="NightClub" <?php selected(self::get('business_type'), 'NightClub'); ?>>Night Club</option>
+                </optgroup>
+                
+                <optgroup label="Other">
+                  <option value="AnimalShelter" <?php selected(self::get('business_type'), 'AnimalShelter'); ?>>Animal Shelter</option>
+                  <option value="ChildCare" <?php selected(self::get('business_type'), 'ChildCare'); ?>>Child Care</option>
+                  <option value="SelfStorage" <?php selected(self::get('business_type'), 'SelfStorage'); ?>>Self Storage</option>
+                </optgroup>
               </select>
             </td>
           </tr>
@@ -506,6 +790,57 @@ class GSCSEO_Admin_Settings {
             <td>
               <textarea id="business_address" class="large-text" rows="3" name="<?php echo self::OPT; ?>[business_address]"><?php echo esc_textarea(self::get('business_address')); ?></textarea>
               <p class="description">Full business address for local SEO.</p>
+            </td>
+          </tr>
+          <tr class="gscseo-conditional" data-depends="enable_local_business">
+            <th scope="row">
+              <label for="business_hours">Opening Hours</label>
+            </th>
+            <td>
+              <textarea id="business_hours" class="large-text" rows="4" name="<?php echo self::OPT; ?>[business_hours]" placeholder="Monday-Friday: 9:00 AM - 5:00 PM&#10;Saturday: 10:00 AM - 2:00 PM&#10;Sunday: Closed"><?php echo esc_textarea(self::get('business_hours')); ?></textarea>
+              <p class="description">Business operating hours. One day per line (e.g., "Monday: 9:00 AM - 5:00 PM").</p>
+            </td>
+          </tr>
+          <tr class="gscseo-conditional" data-depends="enable_local_business">
+            <th scope="row">
+              <label for="service_area">Service Area</label>
+            </th>
+            <td>
+              <textarea id="service_area" class="large-text" rows="2" name="<?php echo self::OPT; ?>[service_area]" placeholder="Singapore, Pasir Ris, Tampines"><?php echo esc_textarea(self::get('service_area')); ?></textarea>
+              <p class="description">Cities, regions, or areas you serve (comma-separated).</p>
+            </td>
+          </tr>
+          <tr class="gscseo-conditional" data-depends="enable_local_business">
+            <th scope="row">
+              <label for="price_range">Price Range</label>
+            </th>
+            <td>
+              <select id="price_range" name="<?php echo self::OPT; ?>[price_range]">
+                <option value="" <?php selected(self::get('price_range'), ''); ?>>Not specified</option>
+                <option value="$" <?php selected(self::get('price_range'), '$'); ?>>$ (Budget-friendly)</option>
+                <option value="$$" <?php selected(self::get('price_range'), '$$'); ?>>$$ (Moderate)</option>
+                <option value="$$$" <?php selected(self::get('price_range'), '$$$'); ?>>$$$ (Expensive)</option>
+                <option value="$$$$" <?php selected(self::get('price_range'), '$$$$'); ?>>$$$$ (Luxury)</option>
+              </select>
+              <p class="description">Relative price indicator for your services/products.</p>
+            </td>
+          </tr>
+          <tr class="gscseo-conditional" data-depends="enable_local_business">
+            <th scope="row">
+              <label for="payment_methods">Payment Methods</label>
+            </th>
+            <td>
+              <input type="text" id="payment_methods" class="large-text" name="<?php echo self::OPT; ?>[payment_methods]" value="<?php echo esc_attr(self::get('payment_methods')); ?>" placeholder="Cash, Credit Card, PayPal, Bank Transfer">
+              <p class="description">Accepted payment methods (comma-separated).</p>
+            </td>
+          </tr>
+          <tr class="gscseo-conditional" data-depends="enable_local_business">
+            <th scope="row">
+              <label for="languages_spoken">Languages Spoken</label>
+            </th>
+            <td>
+              <input type="text" id="languages_spoken" class="large-text" name="<?php echo self::OPT; ?>[languages_spoken]" value="<?php echo esc_attr(self::get('languages_spoken')); ?>" placeholder="English, Mandarin, Malay">
+              <p class="description">Languages your business supports (comma-separated).</p>
             </td>
           </tr>
         </table>
@@ -665,6 +1000,234 @@ class GSCSEO_Admin_Settings {
     </div>
     <?php
   }
+
+  private static function render_diagnostics_tab() {
+    $site_url = home_url();
+    ?>
+    <div class="gscseo-tab-content">
+      
+      <!-- Sitemap Visibility -->
+      <div class="gscseo-card">
+        <h2><span class="dashicons dashicons-networking"></span> Sitemap Visibility</h2>
+        <p style="margin-top: 0; color: #646970;">Validate existing sitemaps (we don't generate them)</p>
+        <?php 
+        $sitemap_status = self::check_sitemap_visibility();
+        ?>
+        <table class="widefat striped">
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Sitemap URL</strong></td>
+              <td><?php echo $sitemap_status['found'] ? '<span style="color: #46b450;">✓ Found</span>' : '<span style="color: #dc3232;">✗ Not Found</span>'; ?></td>
+              <td><?php echo esc_html($sitemap_status['url']); ?></td>
+            </tr>
+            <tr>
+              <td><strong>HTTP Status</strong></td>
+              <td><?php echo $sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ 200 OK</span>' : '<span style="color: #dc3232;">✗ ' . esc_html($sitemap_status['http_status']) . '</span>'; ?></td>
+              <td><?php echo esc_html($sitemap_status['http_message']); ?></td>
+            </tr>
+            <tr>
+              <td><strong>Robots.txt Reference</strong></td>
+              <td><?php echo $sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Referenced</span>' : '<span style="color: #f0ad4e;">⚠ Not Found</span>'; ?></td>
+              <td><?php echo esc_html($sitemap_status['robots_message']); ?></td>
+            </tr>
+            <tr>
+              <td><strong>Controlled By</strong></td>
+              <td colspan="2"><?php echo wp_kses_post($sitemap_status['controller']); ?></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Duplicate Output Detector -->
+      <div class="gscseo-card">
+        <h2><span class="dashicons dashicons-warning"></span> Duplicate Output Detector</h2>
+        <p style="margin-top: 0; color: #646970;">Detect multiple SEO plugins causing conflicts</p>
+        <?php 
+        $duplicate_status = self::detect_duplicate_outputs();
+        $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_status['duplicates']);
+        ?>
+        <?php if ($has_issues): ?>
+          <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
+            <strong>⚠️ Potential Conflicts Detected</strong>
+            <p style="margin: 5px 0 0 0;">Multiple SEO plugins may be outputting duplicate meta tags.</p>
+          </div>
+        <?php else: ?>
+          <div style="background: #d4edda; border-left: 4px solid #46b450; padding: 12px; margin-bottom: 15px;">
+            <strong>✓ No Conflicts Detected</strong>
+            <p style="margin: 5px 0 0 0;">Your site appears to be configured correctly.</p>
+          </div>
+        <?php endif; ?>
+        
+        <table class="widefat striped">
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Active SEO Plugins</strong></td>
+              <td><?php echo empty($duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Only This Plugin</span>' : '<span style="color: #dc3232;">✗ Multiple Detected</span>'; ?></td>
+              <td><?php echo empty($duplicate_status['active_plugins']) ? 'No conflicts' : esc_html(implode(', ', $duplicate_status['active_plugins'])); ?></td>
+            </tr>
+            <?php foreach (['title', 'description', 'canonical', 'robots', 'schema'] as $type): ?>
+              <tr>
+                <td><strong><?php echo ucfirst($type); ?> Tags</strong></td>
+                <td><?php echo empty($duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Single Output</span>' : '<span style="color: #dc3232;">✗ Duplicate Found</span>'; ?></td>
+                <td><?php echo empty($duplicate_status['duplicates'][$type]) ? 'No duplicates' : esc_html($duplicate_status['duplicates'][$type]); ?></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- HTTP Status Validation -->
+      <div class="gscseo-card">
+        <h2><span class="dashicons dashicons-performance"></span> HTTP & Status Validation</h2>
+        <p style="margin-top: 0; color: #646970;">Lightweight diagnostic checks for common issues</p>
+        <table class="form-table">
+          <tr>
+            <th scope="row"><label for="gscseo_test_url">Test URL</label></th>
+            <td>
+              <input type="url" id="gscseo_test_url" class="large-text" placeholder="<?php echo esc_attr($site_url); ?>/page-to-test/" value="<?php echo esc_attr($site_url); ?>/">
+              <button type="button" class="button" id="gscseo_run_http_test">Run Diagnostics</button>
+              <p class="description">Test any URL for status code, redirects, and canonical destination status</p>
+            </td>
+          </tr>
+        </table>
+        <div id="gscseo_http_results" style="display: none; margin-top: 15px;">
+          <table class="widefat striped">
+            <thead>
+              <tr>
+                <th>Check</th>
+                <th>Result</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="gscseo_http_results_body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <?php
+  }
+
+  /**
+   * Check sitemap visibility and status
+   */
+  private static function check_sitemap_visibility() {
+    $site_url = home_url();
+    $sitemap_urls = [
+      $site_url . '/wp-sitemap.xml', // WordPress Core
+      $site_url . '/sitemap.xml',
+      $site_url . '/sitemap_index.xml',
+    ];
+    
+    $result = [
+      'found' => false,
+      'url' => 'Not found',
+      'http_status' => 0,
+      'http_message' => 'Not checked',
+      'in_robots' => false,
+      'robots_message' => 'Not found in robots.txt',
+      'controller' => 'Unknown'
+    ];
+    
+    // Check which sitemap exists
+    foreach ($sitemap_urls as $url) {
+      $response = wp_remote_head($url, ['timeout' => 5, 'sslverify' => false]);
+      if (!is_wp_error($response)) {
+        $status = wp_remote_retrieve_response_code($response);
+        if ($status === 200) {
+          $result['found'] = true;
+          $result['url'] = $url;
+          $result['http_status'] = $status;
+          $result['http_message'] = 'Sitemap is accessible';
+          break;
+        }
+      }
+    }
+    
+    // Check robots.txt
+    if ($result['found']) {
+      $robots_url = $site_url . '/robots.txt';
+      $robots_response = wp_remote_get($robots_url, ['timeout' => 5, 'sslverify' => false]);
+      if (!is_wp_error($robots_response)) {
+        $robots_content = wp_remote_retrieve_body($robots_response);
+        if (stripos($robots_content, 'sitemap:') !== false && stripos($robots_content, basename($result['url'])) !== false) {
+          $result['in_robots'] = true;
+          $result['robots_message'] = 'Sitemap is declared in robots.txt';
+        }
+      }
+    }
+    
+    // Detect controller
+    if (function_exists('wp_sitemaps_get_server')) {
+      $result['controller'] = '<strong>WordPress Core</strong> (Built-in sitemaps since WP 5.5)';
+    } elseif (defined('WPSEO_VERSION')) {
+      $result['controller'] = '<strong>Yoast SEO</strong> (Version ' . WPSEO_VERSION . ')';
+    } elseif (class_exists('RankMath')) {
+      $result['controller'] = '<strong>Rank Math</strong>';
+    } elseif (class_exists('AIOSEO\\Plugin\\AIOSEO')) {
+      $result['controller'] = '<strong>All in One SEO</strong>';
+    } elseif (function_exists('the_seo_framework')) {
+      $result['controller'] = '<strong>The SEO Framework</strong>';
+    } else {
+      $result['controller'] = 'Unknown plugin or theme generating sitemaps';
+    }
+    
+    return $result;
+  }
+
+  /**
+   * Detect duplicate SEO outputs
+   */
+  private static function detect_duplicate_outputs() {
+    $active_seo_plugins = [];
+    $known_plugins = [
+      'wordpress-seo/wp-seo.php' => 'Yoast SEO',
+      'seo-by-rank-math/rank-math.php' => 'Rank Math',
+      'all-in-one-seo-pack/all_in_one_seo_pack.php' => 'All in One SEO',
+      'autodescription/autodescription.php' => 'The SEO Framework',
+      'wp-seopress/seopress.php' => 'SEOPress',
+      'squirrly-seo/squirrly.php' => 'Squirrly SEO',
+    ];
+    
+    foreach ($known_plugins as $plugin_file => $plugin_name) {
+      if (is_plugin_active($plugin_file)) {
+        $active_seo_plugins[] = $plugin_name;
+      }
+    }
+    
+    // We can't easily detect duplicate tags without loading a frontend page
+    // This would require a separate AJAX call to check the actual HTML output
+    // For now, we'll just warn if multiple plugins are active
+    
+    $duplicates = [];
+    if (count($active_seo_plugins) > 0) {
+      $duplicates['title'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['description'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['canonical'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['robots'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['schema'] = 'Multiple SEO plugins detected - check homepage source';
+    }
+    
+    return [
+      'active_plugins' => $active_seo_plugins,
+      'duplicates' => $duplicates
+    ];
+  }
+  
   /**
    * AJAX handler for exporting settings
    */

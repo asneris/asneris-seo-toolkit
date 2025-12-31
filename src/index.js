@@ -397,11 +397,34 @@ registerPlugin('gscseo-sidebar', {
             initialOpen={false}
           >
             <ToggleControl
-              label={__('Enable Article Schema', 'bfseo')}
+              label={__('Enable Schema', 'bfseo')}
               checked={schemaEnabled}
               onChange={(v) => editPost({ meta: { _gscseo_schema_enabled: v } })}
-              help="Adds Article schema markup for better search results"
+              help="Adds structured data markup for better search results"
             />
+            
+            {schemaEnabled && (
+              <RobotsControl
+                label={__('Schema Type', 'bfseo')}
+                metaKey="_gscseo_schema_type"
+                options={[
+                  { label: 'Auto-detect (recommended)', value: '' },
+                  { label: 'Article / Blog Post', value: 'Article' },
+                  { label: 'News Article', value: 'NewsArticle' },
+                  { label: 'Blog Posting', value: 'BlogPosting' },
+                  { label: 'Web Page', value: 'WebPage' },
+                  { label: 'Product', value: 'Product' },
+                  { label: 'Event', value: 'Event' },
+                  { label: 'Course', value: 'Course' },
+                  { label: 'Recipe', value: 'Recipe' },
+                  { label: 'Video', value: 'VideoObject' },
+                  { label: 'FAQ Page', value: 'FAQPage' },
+                  { label: 'How-To', value: 'HowTo' },
+                  { label: 'Job Posting', value: 'JobPosting' },
+                  { label: 'Service', value: 'Service' },
+                ]}
+              />
+            )}
           </PanelBody>
 
           <PanelBody 

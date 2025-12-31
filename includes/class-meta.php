@@ -12,6 +12,7 @@ class GSCSEO_Meta {
     '_gscseo_og_description' => 'string',
     '_gscseo_og_image' => 'string',
     '_gscseo_schema_enabled' => 'boolean',
+    '_gscseo_schema_type' => 'string',
   ];
 
   public static function register_post_meta(): void {

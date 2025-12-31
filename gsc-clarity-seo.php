@@ -36,11 +36,13 @@ require_once GSCSEO_DIR . 'includes/class-templates.php';
 require_once GSCSEO_DIR . 'includes/class-bulk-edit.php';
 require_once GSCSEO_DIR . 'includes/class-redirects.php';
 require_once GSCSEO_DIR . 'includes/class-validation.php';
+require_once GSCSEO_DIR . 'includes/class-robots.php';
 
 add_action('init', function () {
   GSCSEO_Meta::register_post_meta();
   GSCSEO_IndexNow::register_rewrite();
   GSCSEO_Redirects::init();
+  GSCSEO_Robots::init();
 });
 
 add_action('admin_menu', function () {
@@ -69,6 +71,7 @@ add_action('admin_menu', function () {
   GSCSEO_Validation::register_menu();
   GSCSEO_Bulk_Edit::register_menu();
   GSCSEO_Redirects::register_menu();
+  GSCSEO_Robots::register_menu();
 });
 
 add_action('admin_init', function () {
