@@ -1,0 +1,27 @@
+<?php
+/**
+ * Top-level Tools Menu for Clarity-First SEO
+ * 
+ * @package Clarity_First_SEO
+ * @since 0.2.0
+ */
+
+if (!defined('ABSPATH')) exit;
+
+class GSCSEO_Tools_Menu {
+  
+  /**
+   * Register top-level menu (just creates the parent, dashboard handled by settings)
+   */
+  public static function register_top_level_menu() {
+    add_menu_page(
+      __('Clarity-First SEO', 'bfseo'),
+      __('Clarity-First SEO', 'bfseo'),
+      'manage_options',
+      'clarity-first-seo',
+      '', // No callback - will be handled by first submenu (Dashboard/Settings)
+      'dashicons-chart-line',
+      26 // Position after Comments
+    );
+  }
+}
