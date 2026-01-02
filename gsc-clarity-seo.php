@@ -36,6 +36,7 @@ require_once GSCSEO_DIR . 'includes/class-templates.php';
 require_once GSCSEO_DIR . 'includes/class-bulk-edit.php';
 require_once GSCSEO_DIR . 'includes/class-redirects.php';
 require_once GSCSEO_DIR . 'includes/class-validation.php';
+require_once GSCSEO_DIR . 'includes/class-diagnostics.php';
 require_once GSCSEO_DIR . 'includes/class-robots.php';
 
 add_action('init', function () {
@@ -180,6 +181,7 @@ add_action('before_delete_post', function ($post_id) {
 add_action('wp_ajax_gscseo_export_settings', ['GSCSEO_Admin_Settings', 'ajax_export_settings']);
 add_action('wp_ajax_gscseo_import_settings', ['GSCSEO_Admin_Settings', 'ajax_import_settings']);
 add_action('wp_ajax_gscseo_reset_settings', ['GSCSEO_Admin_Settings', 'ajax_reset_settings']);
+add_action('wp_ajax_gscseo_http_test', ['GSCSEO_Diagnostics', 'ajax_http_test']);
 add_action('wp_ajax_gscseo_manual_indexnow', ['GSCSEO_IndexNow', 'ajax_manual_submit']);
 add_action('wp_ajax_gscseo_bulk_save', ['GSCSEO_Bulk_Edit', 'ajax_bulk_save']);
 

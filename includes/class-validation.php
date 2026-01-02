@@ -9,8 +9,8 @@ class GSCSEO_Validation {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Validation', 'bfseo'),
-      __('Validation', 'bfseo'),
+      __('SEO Config Validation', 'bfseo'),
+      __('SEO Config Validation', 'bfseo'),
       'manage_options',
       'gscseo-validation',
       [__CLASS__, 'render_page']
@@ -107,17 +107,14 @@ class GSCSEO_Validation {
     if (is_wp_error($response)) {
       return [
         'error' => $response->get_error_message(),
-        'http_status' => 0,
         'url' => $url
       ];
     }
     
     $html = wp_remote_retrieve_body($response);
-    $status_code = wp_remote_retrieve_response_code($response);
     
     $results = [
       'url' => $url,
-      'http_status' => $status_code,
       'title' => [],
       'canonical' => [],
       'robots' => [],
@@ -286,40 +283,7 @@ class GSCSEO_Validation {
     return $result;
   }
   
-  /**
-   * Validate canonical URL is accessible and indexable
-   */
-  public static function validate_canonical_url($canonical_url) {
-    $result = [
-      'status' => 'fail',
-      'message' => 'Unknown error',
-    ];
-    
-    $canonical_url = self::normalize_url($canonical_url);
-    $response = wp_remote_get($canonical_url, ['timeout' => 10]);
-    
-    if (is_wp_error($response)) {
-      $result['message'] = 'Cannot access canonical URL: ' . $response->get_error_message();
-      return $result;
-    }
-    
-    $status_code = wp_remote_retrieve_response_code($response);
-    if ($status_code !== 200) {
-      $result['message'] = 'Canonical URL returns ' . $status_code . ' (should be 200)';
-      return $result;
-    }
-    
-    // Check if canonical page has noindex
-    $html = wp_remote_retrieve_body($response);
-    if (stripos($html, 'noindex') !== false) {
-      $result['message'] = 'Canonical URL has noindex directive';
-      return $result;
-    }
-    
-    $result['status'] = 'pass';
-    $result['message'] = 'Canonical URL is valid';
-    return $result;
-  }
+
   
   /**
    * Analyze heading structure
@@ -523,7 +487,6 @@ class GSCSEO_Validation {
       'headings' => null,
       'images' => null,
       'links' => null,
-      'canonical_check' => null,
       'schema_check' => null,
       'indexnow' => null,
       'score' => null,
@@ -567,7 +530,6 @@ class GSCSEO_Validation {
         // Run additional analyses
         $data['sitemap'] = self::analyze_sitemap();
         $data['robots'] = self::analyze_robots_txt();
-        $data['canonical_check'] = !empty($results['canonical']) ? self::validate_canonical_url($results['canonical'][0]) : ['status' => 'fail', 'message' => 'No canonical URL'];
         $data['schema_check'] = !empty($results['schema']) ? self::validate_schema_blocks($results['schema']) : ['status' => 'fail', 'message' => 'No schema found'];
         $data['indexnow'] = self::get_indexnow_status();
         
@@ -605,29 +567,14 @@ class GSCSEO_Validation {
     ];
     
     // CRITICAL (60% weight) - Blocks indexing or causes major issues
-    $checks['critical']['total'] = 2;
-    if (isset($results['http_status']) && $results['http_status'] === 200) {
-      $checks['critical']['passed']++;
-    }
-    // Check for noindex in robots meta
-    $has_noindex = false;
-    if (!empty($results['robots'])) {
-      foreach ($results['robots'] as $robots_content) {
-        if (stripos($robots_content, 'noindex') !== false) {
-          $has_noindex = true;
-          break;
-        }
-      }
-    }
-    if (!$has_noindex) {
-      $checks['critical']['passed']++;
-    }
+    // Note: HTTP status and robots indexability checks moved to Diagnostics
+    $checks['critical']['total'] = 0;
     
     // RECOMMENDED (30% weight) - Presentation & discovery
-    $checks['recommended']['total'] = 6;
+    $checks['recommended']['total'] = 5;
     if (count($results['title']) === 1) $checks['recommended']['passed']++;
     if (count($results['description']) === 1) $checks['recommended']['passed']++;
-    if ($data['canonical_check'] && $data['canonical_check']['status'] === 'pass') $checks['recommended']['passed']++;
+    if (count($results['canonical']) === 1) $checks['recommended']['passed']++;
     if ($data['sitemap'] && isset($data['sitemap']['status']) && $data['sitemap']['status'] === 'exists') $checks['recommended']['passed']++;
     if ($data['robots'] && isset($data['robots']['status']) && $data['robots']['status'] === 'exists') $checks['recommended']['passed']++;
     if ($data['headings'] && $data['headings']['has_h1']) $checks['recommended']['passed']++;
@@ -653,31 +600,21 @@ class GSCSEO_Validation {
     // Performance (1)
     if ($data['indexnow'] && $data['indexnow']['configured']) $checks['optimization']['passed']++;
     
-    // Calculate weighted score
-    $critical_score = $checks['critical']['total'] > 0 
-      ? ($checks['critical']['passed'] / $checks['critical']['total']) * 60 
-      : 0;
+    // Calculate weighted score (critical checks moved to Diagnostics)
     $recommended_score = $checks['recommended']['total'] > 0 
-      ? ($checks['recommended']['passed'] / $checks['recommended']['total']) * 30 
+      ? ($checks['recommended']['passed'] / $checks['recommended']['total']) * 70 
       : 0;
     $optimization_score = $checks['optimization']['total'] > 0 
-      ? ($checks['optimization']['passed'] / $checks['optimization']['total']) * 10 
+      ? ($checks['optimization']['passed'] / $checks['optimization']['total']) * 30 
       : 0;
     
-    $percentage = round($critical_score + $recommended_score + $optimization_score);
+    $percentage = round($recommended_score + $optimization_score);
     
     $total_passed = $checks['critical']['passed'] + $checks['recommended']['passed'] + $checks['optimization']['passed'];
     $total_checks = $checks['critical']['total'] + $checks['recommended']['total'] + $checks['optimization']['total'];
     
-    // Determine color and status based on critical checks first
-    $critical_pct = $checks['critical']['total'] > 0 
-      ? ($checks['critical']['passed'] / $checks['critical']['total']) * 100 
-      : 0;
-    
-    if ($critical_pct < 100) {
-      $color = '#d63638';
-      $status_text = __('Critical Issues', 'bfseo');
-    } elseif ($percentage >= 90) {
+    // Determine color and status based on percentage
+    if ($percentage >= 90) {
       $color = '#00a32a';
       $status_text = __('Excellent', 'bfseo');
     } elseif ($percentage >= 70) {
@@ -702,6 +639,108 @@ class GSCSEO_Validation {
   }
   
   /**
+   * Check sitemap visibility and status
+   */
+  public static function check_sitemap_visibility() {
+    $site_url = home_url();
+    $sitemap_urls = [
+      $site_url . '/wp-sitemap.xml', // WordPress Core
+      $site_url . '/sitemap.xml',
+      $site_url . '/sitemap_index.xml',
+    ];
+    
+    $result = [
+      'found' => false,
+      'url' => 'Not found',
+      'http_status' => 0,
+      'http_message' => 'Not checked',
+      'in_robots' => false,
+      'robots_message' => 'Not found in robots.txt',
+      'controller' => 'Unknown'
+    ];
+    
+    // Check which sitemap exists
+    foreach ($sitemap_urls as $url) {
+      $response = wp_remote_head($url, ['timeout' => 5, 'sslverify' => false]);
+      if (!is_wp_error($response)) {
+        $status = wp_remote_retrieve_response_code($response);
+        if ($status === 200) {
+          $result['found'] = true;
+          $result['url'] = $url;
+          $result['http_status'] = $status;
+          $result['http_message'] = 'Sitemap is accessible';
+          break;
+        }
+      }
+    }
+    
+    // Check robots.txt
+    if ($result['found']) {
+      $robots_url = $site_url . '/robots.txt';
+      $robots_response = wp_remote_get($robots_url, ['timeout' => 5, 'sslverify' => false]);
+      if (!is_wp_error($robots_response)) {
+        $robots_content = wp_remote_retrieve_body($robots_response);
+        if (stripos($robots_content, 'sitemap:') !== false && stripos($robots_content, basename($result['url'])) !== false) {
+          $result['in_robots'] = true;
+          $result['robots_message'] = 'Sitemap is declared in robots.txt';
+        }
+      }
+    }
+    
+    // Detect controller
+    if (function_exists('wp_sitemaps_get_server')) {
+      $result['controller'] = '<strong>WordPress Core</strong> (Built-in sitemaps since WP 5.5)';
+    } elseif (defined('WPSEO_VERSION')) {
+      $result['controller'] = '<strong>Yoast SEO</strong> (Version ' . WPSEO_VERSION . ')';
+    } elseif (class_exists('RankMath')) {
+      $result['controller'] = '<strong>Rank Math</strong>';
+    } elseif (class_exists('AIOSEO\\Plugin\\AIOSEO')) {
+      $result['controller'] = '<strong>All in One SEO</strong>';
+    } elseif (function_exists('the_seo_framework')) {
+      $result['controller'] = '<strong>The SEO Framework</strong>';
+    } else {
+      $result['controller'] = 'Unknown plugin or theme generating sitemaps';
+    }
+    
+    return $result;
+  }
+
+  /**
+   * Detect duplicate SEO outputs
+   */
+  public static function detect_duplicate_outputs() {
+    $active_seo_plugins = [];
+    $known_plugins = [
+      'wordpress-seo/wp-seo.php' => 'Yoast SEO',
+      'seo-by-rank-math/rank-math.php' => 'Rank Math',
+      'all-in-one-seo-pack/all_in_one_seo_pack.php' => 'All in One SEO',
+      'autodescription/autodescription.php' => 'The SEO Framework',
+      'wp-seopress/seopress.php' => 'SEOPress',
+      'squirrly-seo/squirrly.php' => 'Squirrly SEO',
+    ];
+    
+    foreach ($known_plugins as $plugin_file => $plugin_name) {
+      if (is_plugin_active($plugin_file)) {
+        $active_seo_plugins[] = $plugin_name;
+      }
+    }
+    
+    $duplicates = [];
+    if (count($active_seo_plugins) > 0) {
+      $duplicates['title'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['description'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['canonical'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['robots'] = 'Multiple SEO plugins detected - check homepage source';
+      $duplicates['schema'] = 'Multiple SEO plugins detected - check homepage source';
+    }
+    
+    return [
+      'active_plugins' => $active_seo_plugins,
+      'duplicates' => $duplicates
+    ];
+  }
+
+  /**
    * Render validation checklist page
    */
   public static function render_page() {
@@ -709,36 +748,22 @@ class GSCSEO_Validation {
     $data = self::prepare_validation_data();
     extract($data);
     
+    // Get current tab
+    $current_validation_tab = isset($_GET['validation_tab']) ? sanitize_text_field($_GET['validation_tab']) : 'seo';
+    
     // Load template parts
     $template_dir = plugin_dir_path(dirname(__FILE__)) . 'templates/validation/';
     
-    // Page header
+    // Page header (includes tab navigation)
     include $template_dir . 'page-header.php';
     
-    // URL selector form
-    include $template_dir . 'url-selector.php';
-    
-    // Show results if validation was run
-    if ($results && !isset($results['error'])) {
-      // Overall score
-      include $template_dir . 'overall-score.php';
-      
-      // Function groups
-      include $template_dir . 'group-identity.php';
-      include $template_dir . 'group-indexing.php';
-      include $template_dir . 'group-discovery.php';
-      include $template_dir . 'group-social.php';
-      include $template_dir . 'group-schema.php';
-      include $template_dir . 'group-content.php';
-      include $template_dir . 'group-console.php';
-      include $template_dir . 'group-performance.php';
-    } elseif ($results && isset($results['error'])) {
-      // Show error
-      ?>
-      <div class="notice notice-error">
-        <p><strong><?php _e('Error:', 'bfseo'); ?></strong> <?php echo esc_html($results['error']); ?></p>
-      </div>
-      <?php
+    // Render based on selected tab
+    if ($current_validation_tab === 'diagnostics') {
+      // Site Diagnostics Tab
+      include $template_dir . 'tab-diagnostics.php';
+    } else {
+      // SEO Validation Tab (default)
+      include $template_dir . 'tab-seo-validation.php';
     }
     
     // Page footer (CSS + JS)
