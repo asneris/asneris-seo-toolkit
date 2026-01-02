@@ -5,13 +5,13 @@
 if (!defined('ABSPATH')) exit;
 
 // Get diagnostic data
-$sitemap_status = GSCSEO_Validation::check_sitemap_visibility();
-$duplicate_status = GSCSEO_Validation::detect_duplicate_outputs();
+$sitemap_status = CFSEO_Validation::check_sitemap_visibility();
+$duplicate_status = CFSEO_Validation::detect_duplicate_outputs();
 $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_status['duplicates']);
 ?>
 
 <!-- Sitemap Visibility -->
-<div class="gscseo-card">
+<div class="cfseo-card">
   <h2><span class="dashicons dashicons-networking"></span> Sitemap Visibility</h2>
   <p style="margin-top: 0; color: #646970;">Validate existing sitemaps (we don't generate them)</p>
   <table class="widefat striped">
@@ -47,7 +47,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 </div>
 
 <!-- Duplicate Output Detector -->
-<div class="gscseo-card">
+<div class="cfseo-card">
   <h2><span class="dashicons dashicons-warning"></span> Duplicate Output Detector</h2>
   <p style="margin-top: 0; color: #646970;">Detect multiple SEO plugins causing conflicts</p>
   <?php if ($has_issues): ?>
@@ -87,30 +87,395 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
   </table>
 </div>
 
-<!-- Indexing Validation -->
-<div class="gscseo-card">
-  <h2><span class="dashicons dashicons-performance"></span> Indexing Validation</h2>
-  <p style="margin-top: 0; color: #646970;">Validate HTTP status, redirects, and indexability for any URL</p>
-  <table class="form-table">
-    <tr>
-      <th scope="row"><label for="gscseo_test_url">Test URL</label></th>
-      <td>
-        <input type="url" id="gscseo_test_url" class="large-text" placeholder="<?php echo esc_url(home_url('/')); ?>page-to-test/" value="<?php echo esc_url(home_url('/')); ?>">
-        <button type="button" class="button button-primary" id="gscseo_run_http_test">Run Indexing Validation</button>
-        <p class="description">Test any URL for status code, redirects, canonical destination, and indexability</p>
-      </td>
-    </tr>
-  </table>
-  <div id="gscseo_http_results" style="display: none; margin-top: 15px;">
-    <table class="widefat striped">
-      <thead>
+<!-- Indexing Safety (Patterns) -->
+<div class="cfseo-card">
+  <h2><span class="dashicons dashicons-shield"></span> Indexing Safety (Patterns)</h2>
+  <p style="margin-top: 0; color: #646970;">Detect site-wide signals that may prevent indexing</p>
+  <?php
+  // Check for site-wide indexing safety patterns
+  $indexing_warnings = [];
+  
+  // 1. Check if site is set to discourage search engines (global noindex)
+  if (get_option('blog_public') == '0') {
+    $indexing_warnings[] = [
+      'check' => 'Global Noindex',
+      'status' => 'conflict',
+      'details' => '❌ Site is set to discourage search engines (Settings → Reading)',
+      'why' => 'This prevents all pages from being indexed'
+    ];
+  } else {
+    $indexing_warnings[] = [
+      'check' => 'Global Noindex',
+      'status' => 'pass',
+      'details' => '✅ No global noindex detected'
+    ];
+  }
+  
+  // 2. Check robots.txt for blocks affecting large sections
+  $robots_url = home_url('/robots.txt');
+  $robots_response = wp_remote_get($robots_url, ['timeout' => 5, 'sslverify' => false]);
+  if (!is_wp_error($robots_response) && wp_remote_retrieve_response_code($robots_response) === 200) {
+    $robots_content = wp_remote_retrieve_body($robots_response);
+    $blocked_sections = [];
+    
+    // Check for common large-section blocks
+    if (preg_match('/Disallow:\s*\/\s*$/m', $robots_content)) {
+      $blocked_sections[] = 'entire site';
+    }
+    if (stripos($robots_content, 'Disallow: /wp-content') !== false) {
+      $blocked_sections[] = '/wp-content';
+    }
+    if (stripos($robots_content, 'Disallow: /category') !== false) {
+      $blocked_sections[] = '/category';
+    }
+    if (stripos($robots_content, 'Disallow: /tag') !== false) {
+      $blocked_sections[] = '/tag';
+    }
+    
+    if (!empty($blocked_sections)) {
+      $indexing_warnings[] = [
+        'check' => 'Robots.txt Large Blocks',
+        'status' => 'warning',
+        'details' => '⚠️ Robots.txt blocks: ' . implode(', ', $blocked_sections),
+        'why' => 'These rules may prevent crawling of large sections'
+      ];
+    } else {
+      $indexing_warnings[] = [
+        'check' => 'Robots.txt Large Blocks',
+        'status' => 'pass',
+        'details' => '✅ No large-section blocks in robots.txt'
+      ];
+    }
+  } else {
+    $indexing_warnings[] = [
+      'check' => 'Robots.txt Large Blocks',
+      'status' => 'pass',
+      'details' => '✅ No robots.txt or accessible'
+    ];
+  }
+  
+  // 3. Check sitemap URLs returning non-200
+  $sitemap_check = CFSEO_Validation::check_sitemap_visibility();
+  if ($sitemap_check['found'] && $sitemap_check['http_status'] !== 200) {
+    $indexing_warnings[] = [
+      'check' => 'Sitemap Accessibility',
+      'status' => 'warning',
+      'details' => '⚠️ Sitemap returns HTTP ' . $sitemap_check['http_status'],
+      'why' => 'Search engines cannot access your sitemap for URL discovery'
+    ];
+  } else if ($sitemap_check['found']) {
+    $indexing_warnings[] = [
+      'check' => 'Sitemap Accessibility',
+      'status' => 'pass',
+      'details' => '✅ Sitemap accessible (HTTP 200)'
+    ];
+  } else {
+    $indexing_warnings[] = [
+      'check' => 'Sitemap Accessibility',
+      'status' => 'pass',
+      'details' => '✅ No sitemap configured'
+    ];
+  }
+  
+  // 4. Check for redirect chains (sample homepage and a few posts)
+  $test_urls = [home_url('/')];
+  $recent_posts = get_posts(['numberposts' => 3, 'post_status' => 'publish']);
+  foreach ($recent_posts as $post) {
+    $test_urls[] = get_permalink($post->ID);
+  }
+  
+  $redirect_chains = 0;
+  foreach ($test_urls as $url) {
+    $response = wp_remote_head($url, ['timeout' => 5, 'redirection' => 0, 'sslverify' => false]);
+    if (!is_wp_error($response)) {
+      $code = wp_remote_retrieve_response_code($response);
+      if (in_array($code, [301, 302, 307, 308])) {
+        $redirect_chains++;
+      }
+    }
+  }
+  
+  if ($redirect_chains > 0) {
+    $indexing_warnings[] = [
+      'check' => 'Redirect Chains',
+      'status' => 'warning',
+      'details' => '⚠️ ' . $redirect_chains . ' of ' . count($test_urls) . ' sampled URLs redirect',
+      'why' => 'Repeated redirects can delay or prevent indexing'
+    ];
+  } else {
+    $indexing_warnings[] = [
+      'check' => 'Redirect Chains',
+      'status' => 'pass',
+      'details' => '✅ No redirects detected in sample'
+    ];
+  }
+  
+  // Determine overall status
+  $has_conflicts = false;
+  $has_warnings = false;
+  foreach ($indexing_warnings as $item) {
+    if ($item['status'] === 'conflict') {
+      $has_conflicts = true;
+      break;
+    }
+    if ($item['status'] === 'warning') {
+      $has_warnings = true;
+    }
+  }
+  ?>
+  
+  <?php if ($has_conflicts): ?>
+    <div style="background: #f8d7da; border-left: 4px solid #dc3232; padding: 12px; margin-bottom: 15px;">
+      <strong>❌ Global noindex detected</strong>
+      <p style="margin: 5px 0 0 0;">Your site has settings that prevent search engine indexing.</p>
+    </div>
+  <?php elseif ($has_warnings): ?>
+    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
+      <strong>⚠️ Some URLs blocked by robots.txt</strong>
+      <p style="margin: 5px 0 0 0;">Review these patterns to ensure they match your intent.</p>
+    </div>
+  <?php else: ?>
+    <div style="background: #d4edda; border-left: 4px solid #46b450; padding: 12px; margin-bottom: 15px;">
+      <strong>✅ No site-wide indexing blocks detected</strong>
+      <p style="margin: 5px 0 0 0;">No patterns that prevent indexing were found.</p>
+    </div>
+  <?php endif; ?>
+  
+  <table class="widefat striped">
+    <thead>
+      <tr>
+        <th>Check</th>
+        <th style="width: 60%;">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php foreach ($indexing_warnings as $item): ?>
         <tr>
-          <th>Check</th>
-          <th>Result</th>
-          <th>Details</th>
+          <td><strong><?php echo esc_html($item['check']); ?></strong></td>
+          <td>
+            <?php echo esc_html($item['details']); ?>
+            <?php if (isset($item['why'])): ?>
+              <br><span style="color: #646970; font-size: 13px;"><?php echo esc_html($item['why']); ?></span>
+            <?php endif; ?>
+          </td>
         </tr>
-      </thead>
-      <tbody id="gscseo_http_results_body"></tbody>
-    </table>
-  </div>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
+
+<!-- Canonical Consistency (Patterns) -->
+<div class="cfseo-card">
+  <h2><span class="dashicons dashicons-admin-links"></span> Canonical Consistency (Patterns)</h2>
+  <p style="margin-top: 0; color: #646970;">Ensure canonical usage is consistent across the site</p>
+  <?php
+  // Check canonical patterns across the site
+  global $wpdb;
+  $canonical_checks = [];
+  $home_url_normalized = untrailingslashit(strtolower(home_url('/')));
+  
+  // 1. Detect pages canonicalizing to homepage
+  $pages_to_home = $wpdb->get_var($wpdb->prepare("
+    SELECT COUNT(*) 
+    FROM {$wpdb->postmeta} pm
+    INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+    WHERE pm.meta_key = '_CFSEO_canonical'
+    AND LOWER(TRIM(TRAILING '/' FROM pm.meta_value)) = %s
+    AND p.post_status = 'publish'
+    AND p.ID != %d
+  ", $home_url_normalized, get_option('page_on_front')));
+  
+  if ($pages_to_home > 5) {
+    $canonical_checks[] = [
+      'check' => 'Pages Canonicalizing to Homepage',
+      'status' => 'warning',
+      'details' => '⚠️ ' . $pages_to_home . ' pages point their canonical to homepage',
+      'why' => 'This may indicate duplicate content or misconfiguration'
+    ];
+  } else if ($pages_to_home > 0) {
+    $canonical_checks[] = [
+      'check' => 'Pages Canonicalizing to Homepage',
+      'status' => 'pass',
+      'details' => '✅ ' . $pages_to_home . ' pages (within normal range)'
+    ];
+  } else {
+    $canonical_checks[] = [
+      'check' => 'Pages Canonicalizing to Homepage',
+      'status' => 'pass',
+      'details' => '✅ No pages canonicalize to homepage'
+    ];
+  }
+  
+  // 2. Detect canonical loops (pages canonicalizing to each other)
+  $canonical_urls = $wpdb->get_results("
+    SELECT p.ID, pm.meta_value as canonical_url, p.guid
+    FROM {$wpdb->postmeta} pm
+    INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+    WHERE pm.meta_key = '_CFSEO_canonical'
+    AND pm.meta_value != ''
+    AND p.post_status = 'publish'
+    LIMIT 100
+  ");
+  
+  $loop_detected = false;
+  $canonical_map = [];
+  foreach ($canonical_urls as $row) {
+    $canonical_map[$row->ID] = untrailingslashit(strtolower($row->canonical_url));
+  }
+  
+  // Simple loop detection (A->B->A pattern)
+  foreach ($canonical_map as $post_id => $canonical_url) {
+    $reverse_match = array_search(untrailingslashit(strtolower(get_permalink($post_id))), $canonical_map);
+    if ($reverse_match && $reverse_match != $post_id) {
+      $loop_detected = true;
+      break;
+    }
+  }
+  
+  if ($loop_detected) {
+    $canonical_checks[] = [
+      'check' => 'Canonical Loops',
+      'status' => 'conflict',
+      'details' => '❌ Canonical loop detected (pages pointing to each other)',
+      'why' => 'This creates ambiguity about which page is canonical'
+    ];
+  } else {
+    $canonical_checks[] = [
+      'check' => 'Canonical Loops',
+      'status' => 'pass',
+      'details' => '✅ No canonical loops detected'
+    ];
+  }
+  
+  // 3. Detect canonicals pointing to redirected URLs (sample check)
+  $redirected_canonicals = 0;
+  $sampled_urls = array_slice($canonical_urls, 0, 10);
+  foreach ($sampled_urls as $row) {
+    $response = wp_remote_head($row->canonical_url, ['timeout' => 3, 'redirection' => 0, 'sslverify' => false]);
+    if (!is_wp_error($response)) {
+      $code = wp_remote_retrieve_response_code($response);
+      if (in_array($code, [301, 302, 307, 308])) {
+        $redirected_canonicals++;
+      }
+    }
+  }
+  
+  if ($redirected_canonicals > 0) {
+    $canonical_checks[] = [
+      'check' => 'Canonicals to Redirected URLs',
+      'status' => 'warning',
+      'details' => '⚠️ ' . $redirected_canonicals . ' of ' . count($sampled_urls) . ' sampled canonicals redirect',
+      'why' => 'Canonical URLs should point to the final destination'
+    ];
+  } else if (!empty($sampled_urls)) {
+    $canonical_checks[] = [
+      'check' => 'Canonicals to Redirected URLs',
+      'status' => 'pass',
+      'details' => '✅ Sampled canonicals point to final URLs'
+    ];
+  } else {
+    $canonical_checks[] = [
+      'check' => 'Canonicals to Redirected URLs',
+      'status' => 'pass',
+      'details' => '✅ No custom canonicals to check'
+    ];
+  }
+  
+  // 4. Detect mixed protocol (http/https)
+  $site_protocol = parse_url(home_url('/'), PHP_URL_SCHEME);
+  $mixed_protocol = $wpdb->get_var($wpdb->prepare("
+    SELECT COUNT(*) 
+    FROM {$wpdb->postmeta} pm
+    INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+    WHERE pm.meta_key = '_CFSEO_canonical'
+    AND pm.meta_value LIKE %s
+    AND p.post_status = 'publish'
+  ", ($site_protocol === 'https' ? 'http://%' : 'https://%')));
+  
+  if ($mixed_protocol > 0) {
+    $canonical_checks[] = [
+      'check' => 'Mixed Protocol (http/https)',
+      'status' => 'warning',
+      'details' => '⚠️ ' . $mixed_protocol . ' canonicals use different protocol than site',
+      'why' => 'All canonicals should use consistent protocol (https recommended)'
+    ];
+  } else {
+    $canonical_checks[] = [
+      'check' => 'Mixed Protocol (http/https)',
+      'status' => 'pass',
+      'details' => '✅ Consistent protocol usage'
+    ];
+  }
+  
+  // 5. Detect missing canonicals on many pages
+  $total_posts = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ('post', 'page')");
+  $posts_with_canonical = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_CFSEO_canonical' AND meta_value != ''");
+  
+  if ($total_posts > 0 && $posts_with_canonical > 0) {
+    $percentage_with = round(($posts_with_canonical / $total_posts) * 100);
+    $canonical_checks[] = [
+      'check' => 'Custom Canonical Usage',
+      'status' => 'pass',
+      'details' => '✅ ' . $posts_with_canonical . ' of ' . $total_posts . ' posts (' . $percentage_with . '%) have custom canonicals'
+    ];
+  } else {
+    $canonical_checks[] = [
+      'check' => 'Custom Canonical Usage',
+      'status' => 'pass',
+      'details' => '✅ Using default WordPress permalinks as canonicals'
+    ];
+  }
+  
+  // Determine overall status
+  $has_conflicts = false;
+  $has_warnings = false;
+  foreach ($canonical_checks as $item) {
+    if ($item['status'] === 'conflict') {
+      $has_conflicts = true;
+      break;
+    }
+    if ($item['status'] === 'warning') {
+      $has_warnings = true;
+    }
+  }
+  ?>
+  
+  <?php if ($has_conflicts): ?>
+    <div style="background: #f8d7da; border-left: 4px solid #dc3232; padding: 12px; margin-bottom: 15px;">
+      <strong>❌ Canonical loop detected</strong>
+      <p style="margin: 5px 0 0 0;">Pages are pointing to each other creating circular references.</p>
+    </div>
+  <?php elseif ($has_warnings): ?>
+    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
+      <strong>⚠️ Multiple pages canonicalize to homepage</strong>
+      <p style="margin: 5px 0 0 0;">Review canonical patterns to ensure they match your intent.</p>
+    </div>
+  <?php else: ?>
+    <div style="background: #d4edda; border-left: 4px solid #46b450; padding: 12px; margin-bottom: 15px;">
+      <strong>✅ Canonical usage appears consistent</strong>
+      <p style="margin: 5px 0 0 0;">No structural issues detected with canonical URLs.</p>
+    </div>
+  <?php endif; ?>
+  
+  <table class="widefat striped">
+    <thead>
+      <tr>
+        <th>Check</th>
+        <th style="width: 60%;">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php foreach ($canonical_checks as $item): ?>
+        <tr>
+          <td><strong><?php echo esc_html($item['check']); ?></strong></td>
+          <td>
+            <?php echo esc_html($item['details']); ?>
+            <?php if (isset($item['why'])): ?>
+              <br><span style="color: #646970; font-size: 13px;"><?php echo esc_html($item['why']); ?></span>
+            <?php endif; ?>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
 </div>

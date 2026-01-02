@@ -1,7 +1,7 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class GSCSEO_Sitemap_Helper {
+class CFSEO_Sitemap_Helper {
   
   /**
    * Get WordPress core sitemap URL
@@ -39,8 +39,8 @@ class GSCSEO_Sitemap_Helper {
       'url' => self::get_sitemap_url(),
       'accessible' => $accessible,
       'message' => $accessible 
-        ? __('Sitemap is accessible', 'bfseo')
-        : __('Sitemap may not be accessible. Check your permalink settings.', 'bfseo')
+        ? __('Sitemap is accessible', 'cfseo')
+        : __('Sitemap may not be accessible. Check your permalink settings.', 'cfseo')
     ];
   }
 
@@ -50,24 +50,24 @@ class GSCSEO_Sitemap_Helper {
   public static function render_sitemap_info() {
     $status = self::get_sitemap_status();
     $icon_class = $status['accessible'] ? 'dashicons-yes-alt' : 'dashicons-warning';
-    $box_class = $status['accessible'] ? 'gscseo-success-box' : '';
+    $box_class = $status['accessible'] ? 'cfseo-success-box' : '';
     ?>
-    <div class="gscseo-info-box <?php echo esc_attr($box_class); ?>">
+    <div class="cfseo-info-box <?php echo esc_attr($box_class); ?>">
       <h3>
         <span class="dashicons <?php echo esc_attr($icon_class); ?>"></span> 
-        <?php _e('XML Sitemap', 'bfseo'); ?>
+        <?php _e('XML Sitemap', 'cfseo'); ?>
       </h3>
       <p>
-        <?php _e('WordPress automatically generates an XML sitemap for your site.', 'bfseo'); ?>
+        <?php _e('WordPress automatically generates an XML sitemap for your site.', 'cfseo'); ?>
       </p>
       <p>
-        <strong><?php _e('Sitemap URL:', 'bfseo'); ?></strong><br>
+        <strong><?php _e('Sitemap URL:', 'cfseo'); ?></strong><br>
         <code style="background: #fff; padding: 5px 10px; display: inline-block; margin: 5px 0;">
           <?php echo esc_html($status['url']); ?>
         </code>
         <a href="<?php echo esc_url($status['url']); ?>" target="_blank" class="button button-small">
           <span class="dashicons dashicons-external" style="margin-top: 4px;"></span>
-          <?php _e('View Sitemap', 'bfseo'); ?>
+          <?php _e('View Sitemap', 'cfseo'); ?>
         </a>
       </p>
       <p style="color: #646970; font-size: 13px;">
@@ -76,21 +76,21 @@ class GSCSEO_Sitemap_Helper {
       
       <hr style="margin: 15px 0; border: none; border-top: 1px solid #e0e0e0;">
       
-      <p><strong><?php _e('Submit to Search Engines:', 'bfseo'); ?></strong></p>
+      <p><strong><?php _e('Submit to Search Engines:', 'cfseo'); ?></strong></p>
       <ul style="margin: 8px 0 0 20px; line-height: 1.8;">
         <li>
           <a href="https://search.google.com/search-console" target="_blank">
-            <?php _e('Google Search Console', 'bfseo'); ?> 
+            <?php _e('Google Search Console', 'cfseo'); ?> 
             <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
           </a>
-          - <?php _e('Sitemaps section', 'bfseo'); ?>
+          - <?php _e('Sitemaps section', 'cfseo'); ?>
         </li>
         <li>
           <a href="https://www.bing.com/webmasters" target="_blank">
-            <?php _e('Bing Webmaster Tools', 'bfseo'); ?>
+            <?php _e('Bing Webmaster Tools', 'cfseo'); ?>
             <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
           </a>
-          - <?php _e('Sitemaps section', 'bfseo'); ?>
+          - <?php _e('Sitemaps section', 'cfseo'); ?>
         </li>
       </ul>
     </div>

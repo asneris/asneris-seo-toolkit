@@ -1,8 +1,8 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class GSCSEO_Admin_Settings {
-  const OPT = 'gscseo_settings';
+class CFSEO_Admin_Settings {
+  const OPT = 'CFSEO_settings';
 
   public static function register_menu() {
     add_options_page(
@@ -22,15 +22,15 @@ class GSCSEO_Admin_Settings {
    * Enqueue admin styles and scripts
    */
   public static function enqueue_admin_assets($hook) {
-    if ($hook !== 'settings_page_gscseo') return;
+    if ($hook !== 'clarity-first-seo_page_cfseo-settings') return;
     
-    wp_enqueue_style('gscseo-admin', GSCSEO_URL . 'assets/css/admin-style.css', [], GSCSEO_VERSION);
-    wp_enqueue_script('gscseo-admin', GSCSEO_URL . 'assets/js/admin-script.js', ['jquery'], GSCSEO_VERSION, true);
+    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
+    wp_enqueue_script('cfseo-admin', CFSEO_URL . 'assets/js/admin-script.js', ['jquery'], CFSEO_VERSION, true);
     wp_enqueue_media(); // For media uploader
     
-    wp_localize_script('gscseo-admin', 'gscseoAdmin', [
+    wp_localize_script('cfseo-admin', 'gscseoAdmin', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
-      'nonce' => wp_create_nonce('gscseo_admin_nonce'),
+      'nonce' => wp_create_nonce('CFSEO_admin_nonce'),
     ]);
   }
 
@@ -70,7 +70,7 @@ class GSCSEO_Admin_Settings {
     ];
 
     if ($clean['indexnow_enabled'] && $clean['indexnow_key'] === '') {
-      $clean['indexnow_key'] = GSCSEO_IndexNow::generate_key();
+      $clean['indexnow_key'] = CFSEO_IndexNow::generate_key();
     }
     return $clean;
   }
@@ -80,40 +80,40 @@ class GSCSEO_Admin_Settings {
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
-    <div class="wrap gscseo-admin-wrap">
+    <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-search"></span>
         Clarity-First SEO
       </h1>
-      <p class="gscseo-subtitle">Clear, Simple SEO Configuration for WordPress</p>
+      <p class="cfseo-subtitle">Clear, Simple SEO Configuration for WordPress</p>
 
       <!-- Tab Navigation -->
-      <nav class="nav-tab-wrapper gscseo-nav-tab-wrapper">
-        <a href="?page=clarity-first-seo&tab=general" class="nav-tab <?php echo $current_tab === 'general' ? 'nav-tab-active' : ''; ?>">
+      <nav class="nav-tab-wrapper cfseo-nav-tab-wrapper">
+        <a href="?page=cfseo-settings&tab=general" class="nav-tab <?php echo $current_tab === 'general' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-admin-generic"></span> General
         </a>
-        <a href="?page=clarity-first-seo&tab=verification" class="nav-tab <?php echo $current_tab === 'verification' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=cfseo-settings&tab=verification" class="nav-tab <?php echo $current_tab === 'verification' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-yes-alt"></span> Verification
         </a>
-        <a href="?page=clarity-first-seo&tab=indexnow" class="nav-tab <?php echo $current_tab === 'indexnow' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=cfseo-settings&tab=indexnow" class="nav-tab <?php echo $current_tab === 'indexnow' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-update"></span> IndexNow
         </a>
-        <a href="?page=clarity-first-seo&tab=social" class="nav-tab <?php echo $current_tab === 'social' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=cfseo-settings&tab=social" class="nav-tab <?php echo $current_tab === 'social' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-share"></span> Social Media
         </a>
-        <a href="?page=clarity-first-seo&tab=schema" class="nav-tab <?php echo $current_tab === 'schema' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=cfseo-settings&tab=schema" class="nav-tab <?php echo $current_tab === 'schema' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-editor-code"></span> Schema
         </a>
-        <a href="?page=clarity-first-seo&tab=templates" class="nav-tab <?php echo $current_tab === 'templates' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=cfseo-settings&tab=templates" class="nav-tab <?php echo $current_tab === 'templates' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-text"></span> Templates
         </a>
-        <a href="?page=clarity-first-seo&tab=advanced" class="nav-tab <?php echo $current_tab === 'advanced' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=cfseo-settings&tab=advanced" class="nav-tab <?php echo $current_tab === 'advanced' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-admin-tools"></span> Advanced
         </a>
 
       </nav>
 
-      <form method="post" action="options.php" class="gscseo-settings-form">
+      <form method="post" action="options.php" class="cfseo-settings-form">
         <?php settings_fields('gscseo'); ?>
 
         <?php if ($current_tab === 'general'): ?>
@@ -139,12 +139,12 @@ class GSCSEO_Admin_Settings {
       </form>
 
       <!-- Sidebar Info -->
-      <div class="gscseo-sidebar">
-        <div class="gscseo-info-box">
+      <div class="cfseo-sidebar">
+        <div class="cfseo-info-box">
           <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
           
           <!-- General Tab Tips -->
-          <ul id="gscseo-quick-tips-general" style="display: none;">
+          <ul id="cfseo-quick-tips-general" style="display: none;">
             <li><strong>🎯 General Settings:</strong></li>
             <li>📊 Set your organization name for consistent branding</li>
             <li>🖼️ Upload a logo (recommended: 600x60px or square)</li>
@@ -154,7 +154,7 @@ class GSCSEO_Admin_Settings {
           </ul>
           
           <!-- Verification Tab Tips -->
-          <ul id="gscseo-quick-tips-verification" style="display: none;">
+          <ul id="cfseo-quick-tips-verification" style="display: none;">
             <li><strong>🔍 Search Console Verification:</strong></li>
             <li>📈 Google Search Console tracks your site's performance</li>
             <li>🛠️ Bing Webmaster Tools monitors Bing/Yahoo rankings</li>
@@ -164,7 +164,7 @@ class GSCSEO_Admin_Settings {
           </ul>
           
           <!-- IndexNow Tab Tips -->
-          <ul id="gscseo-quick-tips-indexnow" style="display: none;">
+          <ul id="cfseo-quick-tips-indexnow" style="display: none;">
             <li><strong>⚡ IndexNow Instant Indexing:</strong></li>
             <li>🚀 Get new/updated pages indexed within minutes</li>
             <li>🌍 Supported by Bing, Yandex, Seznam, Naver</li>
@@ -174,7 +174,7 @@ class GSCSEO_Admin_Settings {
           </ul>
           
           <!-- Social Tab Tips -->
-          <ul id="gscseo-quick-tips-social" style="display: none;">
+          <ul id="cfseo-quick-tips-social" style="display: none;">
             <li><strong>📱 Social Media Optimization:</strong></li>
             <li>🖼️ Default OG image shown when pages don't have featured images</li>
             <li>🐦 Twitter username enables Twitter Cards with author attribution</li>
@@ -184,7 +184,7 @@ class GSCSEO_Admin_Settings {
           </ul>
           
           <!-- Schema Tab Tips -->
-          <ul id="gscseo-quick-tips-schema" style="display: none;">
+          <ul id="cfseo-quick-tips-schema" style="display: none;">
             <li><strong>🏪 Local Business Schema helps you:</strong></li>
             <li>🗺️ Show up in Google Maps "near me" searches</li>
             <li>⭐ Display ratings and reviews in search results</li>
@@ -199,7 +199,7 @@ class GSCSEO_Admin_Settings {
           </ul>
           
           <!-- Templates Tab Tips -->
-          <ul id="gscseo-quick-tips-templates" style="display: none;">
+          <ul id="cfseo-quick-tips-templates" style="display: none;">
             <li><strong>📝 SEO Templates:</strong></li>
             <li>🏷️ Use <code>%title%</code> for post/page title</li>
             <li>🌐 Use <code>%sitename%</code> for your site name</li>
@@ -210,7 +210,7 @@ class GSCSEO_Admin_Settings {
           </ul>
           
           <!-- Advanced Tab Tips -->
-          <ul id="gscseo-quick-tips-advanced" style="display: none;">
+          <ul id="cfseo-quick-tips-advanced" style="display: none;">
             <li><strong>⚙️ Advanced Settings:</strong></li>
             <li>🤖 Default robots settings apply to all pages (unless overridden)</li>
             <li>✅ "Index" tells search engines to include the page</li>
@@ -221,7 +221,7 @@ class GSCSEO_Admin_Settings {
           </ul>
           
           <!-- Redirect Tab Tips -->
-          <ul id="gscseo-quick-tips-redirect" style="display: none;">
+          <ul id="cfseo-quick-tips-redirect" style="display: none;">
             <li><strong>🔄 Understanding Redirects:</strong></li>
             <li><strong>🛠️ A maintenance tool</strong> — Redirects keep your site working smoothly when change is unavoidable, like routine maintenance for your website's URL structure.</li>
             <li><strong>🛡️ A SEO safety net</strong> — They catch accidental mistakes (deleted pages, renamed slugs) before search engines and users hit dead ends.</li>
@@ -238,7 +238,7 @@ class GSCSEO_Admin_Settings {
             <li>✅ Help maintain a clean URL structure</li>
           </ul>
           
-          <ul id="gscseo-quick-tips-diagnostics" style="display: none;">
+          <ul id="cfseo-quick-tips-diagnostics" style="display: none;">
             <li><strong>🔍 Site Health Diagnostics moved to SEO Config Validation page</strong></li>
             <li><strong>🗺️ Sitemap Visibility:</strong> We validate your existing sitemaps (not generate them) to ensure search engines can find and access them properly.</li>
             <li><strong>⚠️ Duplicate Detector:</strong> Identifies if multiple SEO plugins are active and potentially outputting conflicting meta tags.</li>
@@ -249,7 +249,7 @@ class GSCSEO_Admin_Settings {
           </ul>
         </div>
         
-        <div class="gscseo-info-box gscseo-success-box">
+        <div class="cfseo-info-box cfseo-success-box">
           <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
           <p>Check out our <a href="#" target="_blank">documentation</a> for detailed guides.</p>
         </div>
@@ -262,23 +262,23 @@ class GSCSEO_Admin_Settings {
       const currentTab = '<?php echo $current_tab; ?>';
       
       // Hide all tips first
-      $('[id^="gscseo-quick-tips-"]').hide();
+      $('[id^="cfseo-quick-tips-"]').hide();
       
       // Show tips for current tab
-      const tipsId = '#gscseo-quick-tips-' + currentTab;
+      const tipsId = '#cfseo-quick-tips-' + currentTab;
       if ($(tipsId).length) {
         $(tipsId).show();
       } else {
         // Default to general tips if tab-specific tips don't exist
-        $('#gscseo-quick-tips-general').show();
+        $('#cfseo-quick-tips-general').show();
       }
       
       // HTTP Test functionality
-      $('#gscseo_run_http_test').on('click', function() {
-        const url = $('#gscseo_test_url').val();
+      $('#CFSEO_run_http_test').on('click', function() {
+        const url = $('#CFSEO_test_url').val();
         const $button = $(this);
-        const $results = $('#gscseo_http_results');
-        const $tbody = $('#gscseo_http_results_body');
+        const $results = $('#CFSEO_http_results');
+        const $tbody = $('#CFSEO_http_results_body');
         
         if (!url) {
           alert('Please enter a URL to test');
@@ -293,9 +293,9 @@ class GSCSEO_Admin_Settings {
           url: ajaxurl,
           method: 'POST',
           data: {
-            action: 'gscseo_http_test',
+            action: 'CFSEO_http_test',
             url: url,
-            nonce: '<?php echo wp_create_nonce('gscseo_http_test'); ?>'
+            nonce: '<?php echo wp_create_nonce('CFSEO_http_test'); ?>'
           },
           success: function(response) {
             if (response.success) {
@@ -329,8 +329,8 @@ class GSCSEO_Admin_Settings {
 
   private static function render_general_tab() {
     ?>
-    <div class="gscseo-tab-content">
-      <div class="gscseo-card">
+    <div class="cfseo-tab-content">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-admin-home"></span> Site Information</h2>
         <table class="form-table">
           <tr>
@@ -347,12 +347,12 @@ class GSCSEO_Admin_Settings {
               <label for="org_logo">Logo URL</label>
             </th>
             <td>
-              <div class="gscseo-media-upload">
-                <input type="url" id="org_logo" class="large-text gscseo-media-url" name="<?php echo self::OPT; ?>[org_logo]" value="<?php echo esc_url(self::get('org_logo')); ?>">
-                <button type="button" class="button gscseo-upload-button" data-target="#org_logo">
+              <div class="cfseo-media-upload">
+                <input type="url" id="org_logo" class="large-text cfseo-media-url" name="<?php echo self::OPT; ?>[org_logo]" value="<?php echo esc_url(self::get('org_logo')); ?>">
+                <button type="button" class="button cfseo-upload-button" data-target="#org_logo">
                   <span class="dashicons dashicons-upload"></span> Upload Logo
                 </button>
-                <div class="gscseo-image-preview">
+                <div class="cfseo-image-preview">
                   <?php if (self::get('org_logo')): ?>
                     <img src="<?php echo esc_url(self::get('org_logo')); ?>" style="max-width: 200px; margin-top: 10px;">
                   <?php endif; ?>
@@ -365,9 +365,9 @@ class GSCSEO_Admin_Settings {
       </div>
 
       <!-- Sitemap Info -->
-      <?php GSCSEO_Sitemap_Helper::render_sitemap_info(); ?>
+      <?php CFSEO_Sitemap_Helper::render_sitemap_info(); ?>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-visibility"></span> Default Robots Settings</h2>
         <table class="form-table">
           <tr>
@@ -400,8 +400,8 @@ class GSCSEO_Admin_Settings {
 
   private static function render_verification_tab() {
     ?>
-    <div class="gscseo-tab-content">
-      <div class="gscseo-card">
+    <div class="cfseo-tab-content">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-google"></span> Google Search Console</h2>
         <table class="form-table">
           <tr>
@@ -419,7 +419,7 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-admin-site"></span> Bing Webmaster Tools</h2>
         <table class="form-table">
           <tr>
@@ -437,7 +437,7 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-admin-site-alt2"></span> Yandex Webmaster</h2>
         <table class="form-table">
           <tr>
@@ -455,7 +455,7 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-info-box gscseo-info">
+      <div class="cfseo-info-box cfseo-info">
         <p><strong>Note:</strong> After adding verification codes, visit your respective webmaster tools to complete the verification process.</p>
       </div>
     </div>
@@ -464,8 +464,8 @@ class GSCSEO_Admin_Settings {
 
   private static function render_indexnow_tab($indexnow_key, $key_url) {
     ?>
-    <div class="gscseo-tab-content">
-      <div class="gscseo-card">
+    <div class="cfseo-tab-content">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-update"></span> IndexNow Configuration</h2>
         <p class="description" style="margin-bottom: 20px;">
           IndexNow is a protocol that allows you to instantly notify search engines about content changes on your site.
@@ -476,9 +476,9 @@ class GSCSEO_Admin_Settings {
               <label for="indexnow_enabled">Enable IndexNow</label>
             </th>
             <td>
-              <label class="gscseo-toggle">
+              <label class="cfseo-toggle">
                 <input type="checkbox" id="indexnow_enabled" name="<?php echo self::OPT; ?>[indexnow_enabled]" value="1" <?php checked((int)self::get('indexnow_enabled', 0), 1); ?>>
-                <span class="gscseo-toggle-slider"></span>
+                <span class="cfseo-toggle-slider"></span>
               </label>
               <p class="description">Automatically submit updated URLs to search engines.</p>
             </td>
@@ -504,7 +504,7 @@ class GSCSEO_Admin_Settings {
       </div>
 
       <?php if (self::get('indexnow_enabled')): ?>
-      <div class="gscseo-info-box gscseo-success-box">
+      <div class="cfseo-info-box cfseo-success-box">
         <h3><span class="dashicons dashicons-yes"></span> IndexNow is Active</h3>
         <p>Your site is automatically notifying search engines when content is published or updated.</p>
         <p><strong>Important:</strong> If this is your first time enabling IndexNow, visit <strong>Settings → Permalinks</strong> and click "Save Changes" to flush rewrite rules.</p>
@@ -516,8 +516,8 @@ class GSCSEO_Admin_Settings {
 
   private static function render_social_tab() {
     ?>
-    <div class="gscseo-tab-content">
-      <div class="gscseo-card">
+    <div class="cfseo-tab-content">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-format-image"></span> Default Open Graph Image</h2>
         <table class="form-table">
           <tr>
@@ -525,12 +525,12 @@ class GSCSEO_Admin_Settings {
               <label for="default_og_image">Default Image</label>
             </th>
             <td>
-              <div class="gscseo-media-upload">
-                <input type="url" id="default_og_image" class="large-text gscseo-media-url" name="<?php echo self::OPT; ?>[default_og_image]" value="<?php echo esc_url(self::get('default_og_image')); ?>">
-                <button type="button" class="button gscseo-upload-button" data-target="#default_og_image">
+              <div class="cfseo-media-upload">
+                <input type="url" id="default_og_image" class="large-text cfseo-media-url" name="<?php echo self::OPT; ?>[default_og_image]" value="<?php echo esc_url(self::get('default_og_image')); ?>">
+                <button type="button" class="button cfseo-upload-button" data-target="#default_og_image">
                   <span class="dashicons dashicons-upload"></span> Upload Image
                 </button>
-                <div class="gscseo-image-preview">
+                <div class="cfseo-image-preview">
                   <?php if (self::get('default_og_image')): ?>
                     <img src="<?php echo esc_url(self::get('default_og_image')); ?>" style="max-width: 400px; margin-top: 10px;">
                   <?php endif; ?>
@@ -542,7 +542,7 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-share"></span> Supported Social Media Platforms</h2>
         <p style="margin-bottom: 20px;">This plugin automatically generates optimized meta tags for all major social media platforms:</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
@@ -576,7 +576,7 @@ class GSCSEO_Admin_Settings {
         </p>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-twitter"></span> Platform Configuration</h2>
         <table class="form-table">
           <tr>
@@ -584,7 +584,7 @@ class GSCSEO_Admin_Settings {
               <label for="twitter_username">Twitter Username</label>
             </th>
             <td>
-              <div class="gscseo-input-prefix">
+              <div class="cfseo-input-prefix">
                 <span class="prefix">@</span>
                 <input type="text" id="twitter_username" class="regular-text" name="<?php echo self::OPT; ?>[twitter_username]" value="<?php echo esc_attr(self::get('twitter_username')); ?>" placeholder="username">
               </div>
@@ -617,8 +617,8 @@ class GSCSEO_Admin_Settings {
 
   private static function render_schema_tab() {
     ?>
-    <div class="gscseo-tab-content">
-      <div class="gscseo-card">
+    <div class="cfseo-tab-content">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-admin-home"></span> Organization Schema</h2>
         <p class="description" style="margin-bottom: 20px;">
           Schema.org markup helps search engines understand your content better and can enhance search results with rich snippets.
@@ -629,9 +629,9 @@ class GSCSEO_Admin_Settings {
               <label for="enable_breadcrumbs">Enable Breadcrumbs</label>
             </th>
             <td>
-              <label class="gscseo-toggle">
+              <label class="cfseo-toggle">
                 <input type="checkbox" id="enable_breadcrumbs" name="<?php echo self::OPT; ?>[enable_breadcrumbs]" value="1" <?php checked((int)self::get('enable_breadcrumbs', 0), 1); ?>>
-                <span class="gscseo-toggle-slider"></span>
+                <span class="cfseo-toggle-slider"></span>
               </label>
               <p class="description">Add breadcrumb schema to posts and pages.</p>
             </td>
@@ -639,7 +639,7 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-store"></span> Local Business Schema</h2>
         <table class="form-table">
           <tr>
@@ -647,9 +647,9 @@ class GSCSEO_Admin_Settings {
               <label for="enable_local_business">Enable Local Business</label>
             </th>
             <td>
-              <label class="gscseo-toggle">
+              <label class="cfseo-toggle">
                 <input type="checkbox" id="enable_local_business" name="<?php echo self::OPT; ?>[enable_local_business]" value="1" <?php checked((int)self::get('enable_local_business', 0), 1); ?>>
-                <span class="gscseo-toggle-slider"></span>
+                <span class="cfseo-toggle-slider"></span>
               </label>
               <p class="description">Add local business schema for better local search visibility.</p>
               
@@ -663,7 +663,7 @@ class GSCSEO_Admin_Settings {
               </div>
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_type">Business Type</label>
             </th>
@@ -771,7 +771,7 @@ class GSCSEO_Admin_Settings {
               </select>
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_phone">Phone Number</label>
             </th>
@@ -779,7 +779,7 @@ class GSCSEO_Admin_Settings {
               <input type="tel" id="business_phone" class="regular-text" name="<?php echo self::OPT; ?>[business_phone]" value="<?php echo esc_attr(self::get('business_phone')); ?>">
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_address">Address</label>
             </th>
@@ -788,7 +788,7 @@ class GSCSEO_Admin_Settings {
               <p class="description">Full business address for local SEO.</p>
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_hours">Opening Hours</label>
             </th>
@@ -797,7 +797,7 @@ class GSCSEO_Admin_Settings {
               <p class="description">Business operating hours. One day per line (e.g., "Monday: 9:00 AM - 5:00 PM").</p>
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="service_area">Service Area</label>
             </th>
@@ -806,7 +806,7 @@ class GSCSEO_Admin_Settings {
               <p class="description">Cities, regions, or areas you serve (comma-separated).</p>
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="price_range">Price Range</label>
             </th>
@@ -821,7 +821,7 @@ class GSCSEO_Admin_Settings {
               <p class="description">Relative price indicator for your services/products.</p>
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="payment_methods">Payment Methods</label>
             </th>
@@ -830,7 +830,7 @@ class GSCSEO_Admin_Settings {
               <p class="description">Accepted payment methods (comma-separated).</p>
             </td>
           </tr>
-          <tr class="gscseo-conditional" data-depends="enable_local_business">
+          <tr class="cfseo-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="languages_spoken">Languages Spoken</label>
             </th>
@@ -850,10 +850,10 @@ class GSCSEO_Admin_Settings {
     $title_templates = self::get('title_templates', []);
     $description_templates = self::get('description_templates', []);
     $separator = self::get('title_separator', '|');
-    $variables = GSCSEO_Templates::get_available_variables();
+    $variables = CFSEO_Templates::get_available_variables();
     ?>
-    <div class="gscseo-tab-content">
-      <div class="gscseo-info-box gscseo-info">
+    <div class="cfseo-tab-content">
+      <div class="cfseo-info-box cfseo-info">
         <h3><span class="dashicons dashicons-info"></span> About Templates</h3>
         <p>
           Title and description templates provide automated fallbacks when per-page values aren't set.
@@ -867,7 +867,7 @@ class GSCSEO_Admin_Settings {
         </ul>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-admin-settings"></span> Title Separator</h2>
         <table class="form-table">
           <tr>
@@ -882,7 +882,7 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-editor-code"></span> Title Templates</h2>
         <p style="margin-top: 0; color: #646970;">Define title templates for each post type. Leave empty to use default behavior.</p>
         <table class="form-table">
@@ -911,7 +911,7 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-text"></span> Description Templates</h2>
         <p style="margin-top: 0; color: #646970;">Define description templates for each post type. Leave empty to auto-generate from content.</p>
         <table class="form-table">
@@ -944,17 +944,17 @@ class GSCSEO_Admin_Settings {
 
   private static function render_advanced_tab() {
     ?>
-    <div class="gscseo-tab-content">
+    <div class="cfseo-tab-content">
       <!-- Conflict Detection Status -->
-      <?php GSCSEO_Conflict_Detector::render_status(); ?>
+      <?php CFSEO_Conflict_Detector::render_status(); ?>
       
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-admin-tools"></span> Import / Export Settings</h2>
         <table class="form-table">
           <tr>
             <th scope="row">Export Settings</th>
             <td>
-              <button type="button" class="button" id="gscseo-export-settings">
+              <button type="button" class="button" id="cfseo-export-settings">
                 <span class="dashicons dashicons-download"></span> Export Configuration
               </button>
               <p class="description">Download your current settings as a JSON file.</p>
@@ -963,8 +963,8 @@ class GSCSEO_Admin_Settings {
           <tr>
             <th scope="row">Import Settings</th>
             <td>
-              <input type="file" id="gscseo-import-file" accept=".json" style="display:none;">
-              <button type="button" class="button" id="gscseo-import-settings">
+              <input type="file" id="cfseo-import-file" accept=".json" style="display:none;">
+              <button type="button" class="button" id="cfseo-import-settings">
                 <span class="dashicons dashicons-upload"></span> Import Configuration
               </button>
               <p class="description">Upload a previously exported settings file.</p>
@@ -973,13 +973,13 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-card">
+      <div class="cfseo-card">
         <h2><span class="dashicons dashicons-trash"></span> Reset Settings</h2>
         <table class="form-table">
           <tr>
             <th scope="row">Clear All Data</th>
             <td>
-              <button type="button" class="button button-link-delete" id="gscseo-reset-settings">
+              <button type="button" class="button button-link-delete" id="cfseo-reset-settings">
                 <span class="dashicons dashicons-warning"></span> Reset All Settings
               </button>
               <p class="description">This will delete all plugin settings. This action cannot be undone.</p>
@@ -988,10 +988,10 @@ class GSCSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="gscseo-info-box">
+      <div class="cfseo-info-box">
         <h3><span class="dashicons dashicons-info"></span> Plugin Information</h3>
-        <p><strong>Version:</strong> <?php echo GSCSEO_VERSION; ?></p>
-        <p><strong>Plugin Path:</strong> <code><?php echo GSCSEO_DIR; ?></code></p>
+        <p><strong>Version:</strong> <?php echo CFSEO_VERSION; ?></p>
+        <p><strong>Plugin Path:</strong> <code><?php echo CFSEO_DIR; ?></code></p>
       </div>
     </div>
     <?php
@@ -1109,7 +1109,7 @@ class GSCSEO_Admin_Settings {
    * AJAX handler for exporting settings
    */
   public static function ajax_export_settings() {
-    check_ajax_referer('gscseo_admin_nonce', 'nonce');
+    check_ajax_referer('CFSEO_admin_nonce', 'nonce');
     
     if (!current_user_can('manage_options')) {
       wp_send_json_error('Unauthorized');
@@ -1123,7 +1123,7 @@ class GSCSEO_Admin_Settings {
    * AJAX handler for importing settings
    */
   public static function ajax_import_settings() {
-    check_ajax_referer('gscseo_admin_nonce', 'nonce');
+    check_ajax_referer('CFSEO_admin_nonce', 'nonce');
     
     if (!current_user_can('manage_options')) {
       wp_send_json_error('Unauthorized');
@@ -1146,7 +1146,7 @@ class GSCSEO_Admin_Settings {
    * AJAX handler for resetting settings
    */
   public static function ajax_reset_settings() {
-    check_ajax_referer('gscseo_admin_nonce', 'nonce');
+    check_ajax_referer('CFSEO_admin_nonce', 'nonce');
     
     if (!current_user_can('manage_options')) {
       wp_send_json_error('Unauthorized');

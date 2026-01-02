@@ -1,13 +1,13 @@
 jQuery(document).ready(function($) {
   
   // Select all checkbox
-  $('#gscseo-select-all').on('change', function() {
-    $('.gscseo-post-checkbox').prop('checked', $(this).prop('checked'));
+  $('#cfseo-select-all').on('change', function() {
+    $('.cfseo-post-checkbox').prop('checked', $(this).prop('checked'));
   });
   
   // Bulk action: Set to Index
-  $('#gscseo-bulk-set-index').on('click', function() {
-    const checked = $('.gscseo-post-checkbox:checked');
+  $('#cfseo-bulk-set-index').on('click', function() {
+    const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
       alert('Please select at least one post.');
       return;
@@ -22,8 +22,8 @@ jQuery(document).ready(function($) {
   });
   
   // Bulk action: Set to NoIndex
-  $('#gscseo-bulk-set-noindex').on('click', function() {
-    const checked = $('.gscseo-post-checkbox:checked');
+  $('#cfseo-bulk-set-noindex').on('click', function() {
+    const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
       alert('Please select at least one post.');
       return;
@@ -42,8 +42,8 @@ jQuery(document).ready(function($) {
   });
   
   // Bulk action: Clear Titles
-  $('#gscseo-bulk-clear-title').on('click', function() {
-    const checked = $('.gscseo-post-checkbox:checked');
+  $('#cfseo-bulk-clear-title').on('click', function() {
+    const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
       alert('Please select at least one post.');
       return;
@@ -62,8 +62,8 @@ jQuery(document).ready(function($) {
   });
   
   // Bulk action: Clear Descriptions
-  $('#gscseo-bulk-clear-description').on('click', function() {
-    const checked = $('.gscseo-post-checkbox:checked');
+  $('#cfseo-bulk-clear-description').on('click', function() {
+    const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
       alert('Please select at least one post.');
       return;
@@ -82,16 +82,16 @@ jQuery(document).ready(function($) {
   });
   
   // Form submission
-  $('#gscseo-bulk-edit-form').on('submit', function(e) {
+  $('#cfseo-bulk-edit-form').on('submit', function(e) {
     e.preventDefault();
     
     const $form = $(this);
-    const $status = $('#gscseo-bulk-status');
+    const $status = $('#cfseo-bulk-status');
     const $button = $form.find('button[type="submit"]');
     
     // Collect only changed rows
     const data = {
-      action: 'gscseo_bulk_save',
+      action: 'CFSEO_bulk_save',
       nonce: gscseoBulkEdit.nonce,
       post_ids: [],
       seo_title: {},

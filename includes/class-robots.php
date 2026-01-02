@@ -9,22 +9,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class GSCSEO_Robots {
+class CFSEO_Robots {
     
     private static $robots_file;
     private static $validation_results = [];
     
     public static function init() {
         self::$robots_file = ABSPATH . 'robots.txt';
-        add_action('admin_post_gscseo_save_robots', [__CLASS__, 'save_robots']);
+        add_action('admin_post_CFSEO_save_robots', [__CLASS__, 'save_robots']);
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_assets']);
     }
     
     public static function register_menu() {
         add_submenu_page(
             'clarity-first-seo',
-            __('Robots.txt', 'bfseo'),
-            __('Robots.txt', 'bfseo'),
+            __('Robots.txt', 'cfseo'),
+            __('Robots.txt', 'cfseo'),
             'manage_options',
             'clarity-first-seo-robots',
             [__CLASS__, 'render_page']
@@ -37,10 +37,10 @@ class GSCSEO_Robots {
         }
         
         wp_enqueue_style(
-            'gscseo-admin-style',
+            'cfseo-admin-style',
             plugins_url('../assets/css/admin-style.css', __FILE__),
             [],
-            GSCSEO_VERSION
+            CFSEO_VERSION
         );
     }
     
@@ -210,7 +210,7 @@ Sitemap: {$sitemap_url}
      * Save robots.txt
      */
     public static function save_robots() {
-        check_admin_referer('gscseo_save_robots');
+        check_admin_referer('CFSEO_save_robots');
         
         if (!current_user_can('manage_options')) {
             wp_die('Unauthorized');
@@ -255,35 +255,35 @@ Sitemap: {$sitemap_url}
         $error = isset($_GET['error']) && $_GET['error'] === '1';
         
         ?>
-        <div class="wrap gscseo-wrap">
-            <h1><?php _e('Robots.txt Editor & Validator', 'bfseo'); ?></h1>
+        <div class="wrap cfseo-wrap">
+            <h1><?php _e('Robots.txt Editor & Validator', 'cfseo'); ?></h1>
             
             <?php if ($saved): ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><?php _e('robots.txt saved successfully!', 'bfseo'); ?></p>
+                    <p><?php _e('robots.txt saved successfully!', 'cfseo'); ?></p>
                 </div>
             <?php endif; ?>
             
             <?php if ($error): ?>
                 <div class="notice notice-error is-dismissible">
-                    <p><?php _e('Failed to save robots.txt. Check file permissions.', 'bfseo'); ?></p>
+                    <p><?php _e('Failed to save robots.txt. Check file permissions.', 'cfseo'); ?></p>
                 </div>
             <?php endif; ?>
             
-            <div class="gscseo-settings-form">
-                <div class="gscseo-tab-content">
+            <div class="cfseo-settings-form">
+                <div class="cfseo-tab-content">
                     
                     <!-- Validation Status -->
-                    <div class="gscseo-validation-status" style="margin-bottom: 24px;">
+                    <div class="cfseo-validation-status" style="margin-bottom: 24px;">
                         <?php if ($validation['status'] === 'success'): ?>
                             <div class="notice notice-success inline" style="margin: 0; padding: 16px;">
                                 <p style="margin: 0; font-weight: 500;">
-                                    ✓ <?php _e('robots.txt is accessible, valid, and does not block important paths.', 'bfseo'); ?>
+                                    ✓ <?php _e('robots.txt is accessible, valid, and does not block important paths.', 'cfseo'); ?>
                                 </p>
                             </div>
                         <?php elseif ($validation['status'] === 'warning'): ?>
                             <div class="notice notice-warning inline" style="margin: 0; padding: 16px;">
-                                <p style="margin: 0 0 8px 0; font-weight: 500;">⚠ <?php _e('robots.txt has warnings:', 'bfseo'); ?></p>
+                                <p style="margin: 0 0 8px 0; font-weight: 500;">⚠ <?php _e('robots.txt has warnings:', 'cfseo'); ?></p>
                                 <ul style="margin: 0; padding-left: 20px;">
                                     <?php foreach ($validation['warnings'] as $warning): ?>
                                         <li><?php echo esc_html($warning); ?></li>
@@ -292,7 +292,7 @@ Sitemap: {$sitemap_url}
                             </div>
                         <?php else: ?>
                             <div class="notice notice-error inline" style="margin: 0; padding: 16px;">
-                                <p style="margin: 0 0 8px 0; font-weight: 500;">✕ <?php _e('robots.txt has errors:', 'bfseo'); ?></p>
+                                <p style="margin: 0 0 8px 0; font-weight: 500;">✕ <?php _e('robots.txt has errors:', 'cfseo'); ?></p>
                                 <ul style="margin: 0; padding-left: 20px;">
                                     <?php foreach ($validation['errors'] as $error_msg): ?>
                                         <li><?php echo esc_html($error_msg); ?></li>
@@ -303,8 +303,8 @@ Sitemap: {$sitemap_url}
                     </div>
                     
                     <!-- Validation Checklist -->
-                    <div class="gscseo-validation-checks" style="margin-bottom: 24px;">
-                        <h2><?php _e('Validation Checks', 'bfseo'); ?></h2>
+                    <div class="cfseo-validation-checks" style="margin-bottom: 24px;">
+                        <h2><?php _e('Validation Checks', 'cfseo'); ?></h2>
                         <table class="wp-list-table widefat striped">
                             <tbody>
                                 <?php foreach ($validation['checks'] as $check): ?>
@@ -327,17 +327,17 @@ Sitemap: {$sitemap_url}
                     </div>
                     
                     <!-- Editor -->
-                    <div class="gscseo-robots-editor">
-                        <h2><?php _e('Edit robots.txt', 'bfseo'); ?></h2>
+                    <div class="cfseo-robots-editor">
+                        <h2><?php _e('Edit robots.txt', 'cfseo'); ?></h2>
                         
                         <p class="description" style="margin-bottom: 12px;">
-                            <strong><?php _e('Controls which URLs search engines may crawl.', 'bfseo'); ?></strong>
-                            <?php _e('It does not control ranking or indexing.', 'bfseo'); ?>
+                            <strong><?php _e('Controls which URLs search engines may crawl.', 'cfseo'); ?></strong>
+                            <?php _e('It does not control ranking or indexing.', 'cfseo'); ?>
                         </p>
                         
                         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-                            <?php wp_nonce_field('gscseo_save_robots'); ?>
-                            <input type="hidden" name="action" value="gscseo_save_robots">
+                            <?php wp_nonce_field('CFSEO_save_robots'); ?>
+                            <input type="hidden" name="action" value="CFSEO_save_robots">
                             
                             <textarea 
                                 name="robots_content" 
@@ -348,24 +348,24 @@ Sitemap: {$sitemap_url}
                             
                             <p style="margin-top: 12px;">
                                 <button type="submit" class="button button-primary button-large">
-                                    <?php _e('Save robots.txt', 'bfseo'); ?>
+                                    <?php _e('Save robots.txt', 'cfseo'); ?>
                                 </button>
                                 
                                 <a href="<?php echo home_url('/robots.txt'); ?>" target="_blank" class="button" style="margin-left: 8px;">
-                                    <?php _e('View Live File', 'bfseo'); ?>
+                                    <?php _e('View Live File', 'cfseo'); ?>
                                 </a>
                             </p>
                         </form>
                         
                         <!-- Safe Defaults Info -->
                         <div style="margin-top: 24px; padding: 16px; background: #f6f7f7; border-left: 4px solid #00a0d2;">
-                            <h3 style="margin-top: 0;"><?php _e('Safe Defaults', 'bfseo'); ?></h3>
-                            <p><?php _e('If you\'re unsure, use these safe defaults:', 'bfseo'); ?></p>
+                            <h3 style="margin-top: 0;"><?php _e('Safe Defaults', 'cfseo'); ?></h3>
+                            <p><?php _e('If you\'re unsure, use these safe defaults:', 'cfseo'); ?></p>
                             <ul style="list-style: disc; padding-left: 20px;">
-                                <li><?php _e('Block /wp-admin/ except admin-ajax.php', 'bfseo'); ?></li>
-                                <li><?php _e('Block /wp-includes/ (system files)', 'bfseo'); ?></li>
-                                <li><?php _e('Allow all public content (no Disallow: /)', 'bfseo'); ?></li>
-                                <li><?php _e('Include your sitemap URL', 'bfseo'); ?></li>
+                                <li><?php _e('Block /wp-admin/ except admin-ajax.php', 'cfseo'); ?></li>
+                                <li><?php _e('Block /wp-includes/ (system files)', 'cfseo'); ?></li>
+                                <li><?php _e('Allow all public content (no Disallow: /)', 'cfseo'); ?></li>
+                                <li><?php _e('Include your sitemap URL', 'cfseo'); ?></li>
                             </ul>
                         </div>
                     </div>
@@ -373,29 +373,29 @@ Sitemap: {$sitemap_url}
                 </div>
                 
                 <!-- Sidebar -->
-                <div class="gscseo-sidebar">
-                    <div class="gscseo-widget">
-                        <h3><?php _e('Quick Tips', 'bfseo'); ?></h3>
+                <div class="cfseo-sidebar">
+                    <div class="cfseo-widget">
+                        <h3><?php _e('Quick Tips', 'cfseo'); ?></h3>
                         <ul>
-                            <li><?php _e('robots.txt only controls <strong>crawling</strong>, not ranking', 'bfseo'); ?></li>
-                            <li><?php _e('Don\'t use robots.txt to hide sensitive content', 'bfseo'); ?></li>
-                            <li><?php _e('Allow CSS and JS files for proper rendering', 'bfseo'); ?></li>
-                            <li><?php _e('Always include your sitemap location', 'bfseo'); ?></li>
-                            <li><?php _e('Test changes with Google Search Console', 'bfseo'); ?></li>
+                            <li><?php _e('robots.txt only controls <strong>crawling</strong>, not ranking', 'cfseo'); ?></li>
+                            <li><?php _e('Don\'t use robots.txt to hide sensitive content', 'cfseo'); ?></li>
+                            <li><?php _e('Allow CSS and JS files for proper rendering', 'cfseo'); ?></li>
+                            <li><?php _e('Always include your sitemap location', 'cfseo'); ?></li>
+                            <li><?php _e('Test changes with Google Search Console', 'cfseo'); ?></li>
                         </ul>
                     </div>
                     
-                    <div class="gscseo-widget">
-                        <h3><?php _e('Integration', 'bfseo'); ?></h3>
-                        <p><?php _e('This works together with:', 'bfseo'); ?></p>
+                    <div class="cfseo-widget">
+                        <h3><?php _e('Integration', 'cfseo'); ?></h3>
+                        <p><?php _e('This works together with:', 'cfseo'); ?></p>
                         <ul>
-                            <li><a href="<?php echo admin_url('admin.php?page=clarity-first-seo-validation'); ?>"><?php _e('Validation checks', 'bfseo'); ?></a></li>
-                            <li><?php _e('Canonical validation', 'bfseo'); ?></li>
-                            <li><?php _e('Meta robots checks', 'bfseo'); ?></li>
-                            <li><?php _e('Sitemap checks', 'bfseo'); ?></li>
+                            <li><a href="<?php echo admin_url('admin.php?page=clarity-first-seo-validation'); ?>"><?php _e('Validation checks', 'cfseo'); ?></a></li>
+                            <li><?php _e('Canonical validation', 'cfseo'); ?></li>
+                            <li><?php _e('Meta robots checks', 'cfseo'); ?></li>
+                            <li><?php _e('Sitemap checks', 'cfseo'); ?></li>
                         </ul>
                         <p style="margin-top: 12px; font-weight: 500;">
-                            <?php _e('Together they answer: "Can search engines reach, crawl, and understand my site correctly?"', 'bfseo'); ?>
+                            <?php _e('Together they answer: "Can search engines reach, crawl, and understand my site correctly?"', 'cfseo'); ?>
                         </p>
                     </div>
                 </div>

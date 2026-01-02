@@ -1,10 +1,10 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class GSCSEO_Schema {
+class CFSEO_Schema {
   public static function render_jsonld() {
-    $org_name = GSCSEO_Admin_Settings::get('org_name', get_bloginfo('name'));
-    $org_logo = GSCSEO_Admin_Settings::get('org_logo', '');
+    $org_name = CFSEO_Admin_Settings::get('org_name', get_bloginfo('name'));
+    $org_logo = CFSEO_Admin_Settings::get('org_logo', '');
 
     $site_url = home_url('/');
 
@@ -34,9 +34,9 @@ class GSCSEO_Schema {
     $graph = [$org, $website];
 
     // Add Local Business schema if enabled
-    if (GSCSEO_Admin_Settings::get('enable_local_business')) {
+    if (CFSEO_Admin_Settings::get('enable_local_business')) {
       $business = [
-        '@type' => GSCSEO_Admin_Settings::get('business_type', 'LocalBusiness'),
+        '@type' => CFSEO_Admin_Settings::get('business_type', 'LocalBusiness'),
         '@id' => $site_url . '#localbusiness',
         'name' => $org_name ?: get_bloginfo('name'),
         'url' => $site_url,
@@ -46,12 +46,12 @@ class GSCSEO_Schema {
         $business['image'] = $org_logo;
       }
       
-      $phone = GSCSEO_Admin_Settings::get('business_phone');
+      $phone = CFSEO_Admin_Settings::get('business_phone');
       if ($phone) {
         $business['telephone'] = $phone;
       }
       
-      $address = GSCSEO_Admin_Settings::get('business_address');
+      $address = CFSEO_Admin_Settings::get('business_address');
       if ($address) {
         $business['address'] = [
           '@type' => 'PostalAddress',
@@ -60,7 +60,7 @@ class GSCSEO_Schema {
       }
       
       // Opening Hours
-      $hours = GSCSEO_Admin_Settings::get('business_hours');
+      $hours = CFSEO_Admin_Settings::get('business_hours');
       if ($hours) {
         $hours_array = array_filter(array_map('trim', explode("\n", $hours)));
         if (!empty($hours_array)) {
@@ -80,7 +80,7 @@ class GSCSEO_Schema {
       }
       
       // Service Area
-      $service_area = GSCSEO_Admin_Settings::get('service_area');
+      $service_area = CFSEO_Admin_Settings::get('service_area');
       if ($service_area) {
         $areas = array_filter(array_map('trim', explode(',', $service_area)));
         if (!empty($areas)) {
@@ -89,13 +89,13 @@ class GSCSEO_Schema {
       }
       
       // Price Range
-      $price_range = GSCSEO_Admin_Settings::get('price_range');
+      $price_range = CFSEO_Admin_Settings::get('price_range');
       if ($price_range) {
         $business['priceRange'] = $price_range;
       }
       
       // Payment Methods
-      $payment_methods = GSCSEO_Admin_Settings::get('payment_methods');
+      $payment_methods = CFSEO_Admin_Settings::get('payment_methods');
       if ($payment_methods) {
         $methods = array_filter(array_map('trim', explode(',', $payment_methods)));
         if (!empty($methods)) {
@@ -104,7 +104,7 @@ class GSCSEO_Schema {
       }
       
       // Languages Spoken
-      $languages = GSCSEO_Admin_Settings::get('languages_spoken');
+      $languages = CFSEO_Admin_Settings::get('languages_spoken');
       if ($languages) {
         $langs = array_filter(array_map('trim', explode(',', $languages)));
         if (!empty($langs)) {
@@ -124,7 +124,7 @@ class GSCSEO_Schema {
       }
 
       $post = get_post($id);
-      $enabled = get_post_meta($id, '_gscseo_schema_enabled', true);
+      $enabled = get_post_meta($id, '_CFSEO_schema_enabled', true);
       
       if ($enabled === '0') {
         self::output_schema($graph);
@@ -145,7 +145,7 @@ class GSCSEO_Schema {
           'dateModified' => get_the_modified_date('c', $id),
         ];
         
-        $description = get_post_meta($id, '_gscseo_description', true);
+        $description = get_post_meta($id, '_CFSEO_description', true);
         if ($description) {
           $webpage['description'] = $description;
         }
@@ -154,7 +154,7 @@ class GSCSEO_Schema {
       }
       
       // Content-specific schemas based on post type and metadata
-      $schema_type = get_post_meta($id, '_gscseo_schema_type', true);
+      $schema_type = get_post_meta($id, '_CFSEO_schema_type', true);
       
       // Auto-detect if not manually set
       if (!$schema_type) {
@@ -168,7 +168,7 @@ class GSCSEO_Schema {
       }
       
       // BreadcrumbList schema (if enabled)
-      if (GSCSEO_Admin_Settings::get('enable_breadcrumbs')) {
+      if (CFSEO_Admin_Settings::get('enable_breadcrumbs')) {
         $breadcrumbs = self::generate_breadcrumbs($id);
         if (!empty($breadcrumbs)) {
           $graph[] = [
@@ -226,13 +226,13 @@ class GSCSEO_Schema {
    */
   private static function generate_content_schema($id, $type, $post, $permalink, $org, $site_url) {
     // Common properties
-    $description = get_post_meta($id, '_gscseo_description', true);
-    $og_image = get_post_meta($id, '_gscseo_og_image', true);
+    $description = get_post_meta($id, '_CFSEO_description', true);
+    $og_image = get_post_meta($id, '_CFSEO_og_image', true);
     if (!$og_image && has_post_thumbnail($id)) {
       $og_image = get_the_post_thumbnail_url($id, 'large');
     }
     if (!$og_image) {
-      $og_image = GSCSEO_Admin_Settings::get('default_og_image');
+      $og_image = CFSEO_Admin_Settings::get('default_og_image');
     }
     
     switch ($type) {
@@ -351,7 +351,7 @@ class GSCSEO_Schema {
         ];
         
         // Brand
-        $brand = get_post_meta($id, '_gscseo_product_brand', true);
+        $brand = get_post_meta($id, '_CFSEO_product_brand', true);
         if ($brand) {
           $product['brand'] = [
             '@type' => 'Brand',
@@ -393,20 +393,20 @@ class GSCSEO_Schema {
     }
     
     // Start date
-    $start_date = get_post_meta($id, '_gscseo_event_start_date', true);
+    $start_date = get_post_meta($id, '_CFSEO_event_start_date', true);
     if ($start_date) {
       $event['startDate'] = $start_date;
     }
     
     // End date
-    $end_date = get_post_meta($id, '_gscseo_event_end_date', true);
+    $end_date = get_post_meta($id, '_CFSEO_event_end_date', true);
     if ($end_date) {
       $event['endDate'] = $end_date;
     }
     
     // Location
-    $location_name = get_post_meta($id, '_gscseo_event_location_name', true);
-    $location_address = get_post_meta($id, '_gscseo_event_location_address', true);
+    $location_name = get_post_meta($id, '_CFSEO_event_location_name', true);
+    $location_address = get_post_meta($id, '_CFSEO_event_location_address', true);
     if ($location_name) {
       $event['location'] = [
         '@type' => 'Place',
@@ -479,13 +479,13 @@ class GSCSEO_Schema {
     }
     
     // Cooking time
-    $cook_time = get_post_meta($id, '_gscseo_recipe_cook_time', true);
+    $cook_time = get_post_meta($id, '_CFSEO_recipe_cook_time', true);
     if ($cook_time) {
       $recipe['cookTime'] = 'PT' . $cook_time . 'M';
     }
     
     // Prep time
-    $prep_time = get_post_meta($id, '_gscseo_recipe_prep_time', true);
+    $prep_time = get_post_meta($id, '_CFSEO_recipe_prep_time', true);
     if ($prep_time) {
       $recipe['prepTime'] = 'PT' . $prep_time . 'M';
     }
@@ -514,13 +514,13 @@ class GSCSEO_Schema {
     }
     
     // Video URL
-    $video_url = get_post_meta($id, '_gscseo_video_url', true);
+    $video_url = get_post_meta($id, '_CFSEO_video_url', true);
     if ($video_url) {
       $video['contentUrl'] = $video_url;
     }
     
     // Duration
-    $duration = get_post_meta($id, '_gscseo_video_duration', true);
+    $duration = get_post_meta($id, '_CFSEO_video_duration', true);
     if ($duration) {
       $video['duration'] = 'PT' . $duration . 'S';
     }
@@ -539,7 +539,7 @@ class GSCSEO_Schema {
     ];
     
     // Parse FAQ from content or custom field
-    $faq_items = get_post_meta($id, '_gscseo_faq_items', true);
+    $faq_items = get_post_meta($id, '_CFSEO_faq_items', true);
     if ($faq_items && is_array($faq_items)) {
       $main_entity = [];
       foreach ($faq_items as $item) {
@@ -578,7 +578,7 @@ class GSCSEO_Schema {
     }
     
     // Steps
-    $steps = get_post_meta($id, '_gscseo_howto_steps', true);
+    $steps = get_post_meta($id, '_CFSEO_howto_steps', true);
     if ($steps && is_array($steps)) {
       $step_list = [];
       foreach ($steps as $index => $step) {
@@ -613,7 +613,7 @@ class GSCSEO_Schema {
     }
     
     // Job location
-    $location = get_post_meta($id, '_gscseo_job_location', true);
+    $location = get_post_meta($id, '_CFSEO_job_location', true);
     if ($location) {
       $job['jobLocation'] = [
         '@type' => 'Place',
@@ -625,7 +625,7 @@ class GSCSEO_Schema {
     }
     
     // Employment type
-    $employment_type = get_post_meta($id, '_gscseo_job_employment_type', true);
+    $employment_type = get_post_meta($id, '_CFSEO_job_employment_type', true);
     if ($employment_type) {
       $job['employmentType'] = $employment_type;
     }

@@ -1,18 +1,18 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class GSCSEO_Meta {
+class CFSEO_Meta {
   const KEYS = [
-    '_gscseo_title' => 'string',
-    '_gscseo_description' => 'string',
-    '_gscseo_canonical' => 'string',
-    '_gscseo_robots_index' => 'string',
-    '_gscseo_robots_follow' => 'string',
-    '_gscseo_og_title' => 'string',
-    '_gscseo_og_description' => 'string',
-    '_gscseo_og_image' => 'string',
-    '_gscseo_schema_enabled' => 'boolean',
-    '_gscseo_schema_type' => 'string',
+    '_CFSEO_title' => 'string',
+    '_CFSEO_description' => 'string',
+    '_CFSEO_canonical' => 'string',
+    '_CFSEO_robots_index' => 'string',
+    '_CFSEO_robots_follow' => 'string',
+    '_CFSEO_og_title' => 'string',
+    '_CFSEO_og_description' => 'string',
+    '_CFSEO_og_image' => 'string',
+    '_CFSEO_schema_enabled' => 'boolean',
+    '_CFSEO_schema_type' => 'string',
   ];
 
   public static function register_post_meta(): void {
@@ -31,17 +31,17 @@ class GSCSEO_Meta {
   }
 
   public static function default_for($key) {
-    if ($key === '_gscseo_robots_index') return 'index';
-    if ($key === '_gscseo_robots_follow') return 'follow';
-    if ($key === '_gscseo_schema_enabled') return true;
+    if ($key === '_CFSEO_robots_index') return 'index';
+    if ($key === '_CFSEO_robots_follow') return 'follow';
+    if ($key === '_CFSEO_schema_enabled') return true;
     return '';
   }
 
   public static function sanitize($value, $key) {
-    if (in_array($key, ['_gscseo_canonical','_gscseo_og_image'], true)) {
+    if (in_array($key, ['_CFSEO_canonical','_CFSEO_og_image'], true)) {
       return esc_url_raw($value);
     }
-    if ($key === '_gscseo_schema_enabled') {
+    if ($key === '_CFSEO_schema_enabled') {
       return (bool)$value;
     }
     return sanitize_text_field($value);

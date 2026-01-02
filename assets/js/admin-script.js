@@ -6,7 +6,7 @@
 (function($) {
     'use strict';
 
-    const GSCSEO_Admin = {
+    const CFSEO_Admin = {
         
         /**
          * Initialize all admin features
@@ -26,12 +26,12 @@
         mediaUploader: function() {
             let mediaUploader;
 
-            $(document).on('click', '.gscseo-upload-button', function(e) {
+            $(document).on('click', '.cfseo-upload-button', function(e) {
                 e.preventDefault();
                 
                 const button = $(this);
                 const targetInput = $(button.data('target'));
-                const previewContainer = button.siblings('.gscseo-image-preview');
+                const previewContainer = button.siblings('.cfseo-image-preview');
 
                 // If the media uploader exists, open it
                 if (mediaUploader) {
@@ -72,13 +72,13 @@
             });
 
             // Remove image functionality
-            $(document).on('click', '.gscseo-remove-image', function(e) {
+            $(document).on('click', '.cfseo-remove-image', function(e) {
                 e.preventDefault();
                 const button = $(this);
                 const targetInput = button.data('target');
                 
                 $(targetInput).val('');
-                button.closest('.gscseo-image-preview').empty();
+                button.closest('.cfseo-image-preview').empty();
             });
         },
 
@@ -116,14 +116,14 @@
             const self = this;
 
             // Export settings
-            $('#gscseo-export-settings').on('click', function(e) {
+            $('#cfseo-export-settings').on('click', function(e) {
                 e.preventDefault();
                 
                 $.ajax({
                     url: gscseoAdmin.ajaxUrl,
                     type: 'POST',
                     data: {
-                        action: 'gscseo_export_settings',
+                        action: 'CFSEO_export_settings',
                         nonce: gscseoAdmin.nonce
                     },
                     success: function(response) {
@@ -131,7 +131,7 @@
                             const dataStr = JSON.stringify(response.data, null, 2);
                             const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
                             
-                            const exportName = 'gscseo-settings-' + self.getFormattedDate() + '.json';
+                            const exportName = 'cfseo-settings-' + self.getFormattedDate() + '.json';
                             
                             const linkElement = document.createElement('a');
                             linkElement.setAttribute('href', dataUri);
@@ -150,12 +150,12 @@
             });
 
             // Import settings
-            $('#gscseo-import-settings').on('click', function(e) {
+            $('#cfseo-import-settings').on('click', function(e) {
                 e.preventDefault();
-                $('#gscseo-import-file').click();
+                $('#cfseo-import-file').click();
             });
 
-            $('#gscseo-import-file').on('change', function(e) {
+            $('#cfseo-import-file').on('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
 
@@ -177,7 +177,7 @@
                             url: gscseoAdmin.ajaxUrl,
                             type: 'POST',
                             data: {
-                                action: 'gscseo_import_settings',
+                                action: 'CFSEO_import_settings',
                                 nonce: gscseoAdmin.nonce,
                                 settings: settings
                             },
@@ -209,7 +209,7 @@
         resetSettings: function() {
             const self = this;
 
-            $('#gscseo-reset-settings').on('click', function(e) {
+            $('#cfseo-reset-settings').on('click', function(e) {
                 e.preventDefault();
                 
                 if (!confirm('Are you sure you want to reset all settings? This action cannot be undone.')) {
@@ -224,7 +224,7 @@
                     url: gscseoAdmin.ajaxUrl,
                     type: 'POST',
                     data: {
-                        action: 'gscseo_reset_settings',
+                        action: 'CFSEO_reset_settings',
                         nonce: gscseoAdmin.nonce
                     },
                     success: function(response) {
@@ -248,7 +248,7 @@
          * Form Validation
          */
         formValidation: function() {
-            $('.gscseo-settings-form').on('submit', function(e) {
+            $('.cfseo-settings-form').on('submit', function(e) {
                 let hasErrors = false;
 
                 // Validate URLs
@@ -256,7 +256,7 @@
                     const input = $(this);
                     const value = input.val().trim();
                     
-                    if (value && !GSCSEO_Admin.isValidUrl(value)) {
+                    if (value && !CFSEO_Admin.isValidUrl(value)) {
                         input.addClass('error');
                         hasErrors = true;
                     } else {
@@ -269,7 +269,7 @@
                     const input = $(this);
                     const value = input.val().trim();
                     
-                    if (value && !GSCSEO_Admin.isValidPhone(value)) {
+                    if (value && !CFSEO_Admin.isValidPhone(value)) {
                         input.addClass('error');
                         hasErrors = true;
                     } else {
@@ -279,7 +279,7 @@
 
                 if (hasErrors) {
                     e.preventDefault();
-                    GSCSEO_Admin.showNotice('Please fix validation errors before saving.', 'error');
+                    CFSEO_Admin.showNotice('Please fix validation errors before saving.', 'error');
                     return false;
                 }
             });
@@ -289,12 +289,12 @@
          * Image Preview on URL change
          */
         imagePreview: function() {
-            $(document).on('change', '.gscseo-media-url', function() {
+            $(document).on('change', '.cfseo-media-url', function() {
                 const input = $(this);
                 const url = input.val().trim();
-                const previewContainer = input.siblings('.gscseo-image-preview');
+                const previewContainer = input.siblings('.cfseo-image-preview');
                 
-                if (url && GSCSEO_Admin.isValidUrl(url)) {
+                if (url && CFSEO_Admin.isValidUrl(url)) {
                     previewContainer.html(
                         '<img src="' + url + '" style="max-width: 400px; margin-top: 10px;">'
                     );
@@ -311,7 +311,7 @@
             const noticeClass = type === 'error' ? 'notice-error' : 'notice-success';
             const notice = $('<div class="notice ' + noticeClass + ' is-dismissible"><p>' + message + '</p></div>');
             
-            $('.gscseo-admin-wrap').prepend(notice);
+            $('.cfseo-admin-wrap').prepend(notice);
             
             setTimeout(function() {
                 notice.fadeOut(function() {
@@ -345,7 +345,7 @@
 
     // Initialize on document ready
     $(document).ready(function() {
-        GSCSEO_Admin.init();
+        CFSEO_Admin.init();
     });
 
 })(jQuery);

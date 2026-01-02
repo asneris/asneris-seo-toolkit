@@ -1,9 +1,9 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class GSCSEO_Redirects {
+class CFSEO_Redirects {
   
-  const OPTION_KEY = 'gscseo_redirects';
+  const OPTION_KEY = 'CFSEO_redirects';
   
   /**
    * Initialize redirects hooks
@@ -179,10 +179,10 @@ class GSCSEO_Redirects {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Redirect', 'bfseo'),
-      __('Redirect', 'bfseo'),
+      __('Redirect', 'cfseo'),
+      __('Redirect', 'cfseo'),
       'manage_options',
-      'gscseo-redirects',
+      'cfseo-redirects',
       [__CLASS__, 'render_page']
     );
   }
@@ -191,8 +191,8 @@ class GSCSEO_Redirects {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== 'clarity-first-seo_page_gscseo-redirects') return;
-    wp_enqueue_style('gscseo-admin', GSCSEO_URL . 'assets/css/admin-style.css', [], GSCSEO_VERSION);
+    if ($hook !== 'clarity-first-seo_page_cfseo-redirects') return;
+    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
   }
   
   /**
@@ -200,106 +200,106 @@ class GSCSEO_Redirects {
    */
   public static function render_page() {
     // Handle form submissions
-    if (isset($_POST['gscseo_add_redirect']) && check_admin_referer('gscseo_redirect_add')) {
+    if (isset($_POST['CFSEO_add_redirect']) && check_admin_referer('CFSEO_redirect_add')) {
       $from = sanitize_text_field($_POST['from']);
       $to = sanitize_text_field($_POST['to']);
       $code = (int)$_POST['code'];
       
       if (!empty($from) && !empty($to)) {
         self::add_redirect($from, $to, $code, 'manual');
-        echo '<div class="notice notice-success"><p>' . __('Redirect added successfully!', 'bfseo') . '</p></div>';
+        echo '<div class="notice notice-success"><p>' . __('Redirect added successfully!', 'cfseo') . '</p></div>';
       }
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['index'])) {
-      check_admin_referer('gscseo_redirect_delete_' . $_GET['index']);
+      check_admin_referer('CFSEO_redirect_delete_' . $_GET['index']);
       self::delete_redirect((int)$_GET['index']);
-      echo '<div class="notice notice-success"><p>' . __('Redirect deleted!', 'bfseo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . __('Redirect deleted!', 'cfseo') . '</p></div>';
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'toggle' && isset($_GET['index'])) {
-      check_admin_referer('gscseo_redirect_toggle_' . $_GET['index']);
+      check_admin_referer('CFSEO_redirect_toggle_' . $_GET['index']);
       self::toggle_redirect((int)$_GET['index']);
-      echo '<div class="notice notice-success"><p>' . __('Redirect status updated!', 'bfseo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . __('Redirect status updated!', 'cfseo') . '</p></div>';
     }
     
-    if (isset($_POST['gscseo_clear_auto']) && check_admin_referer('gscseo_clear_auto')) {
+    if (isset($_POST['CFSEO_clear_auto']) && check_admin_referer('CFSEO_clear_auto')) {
       self::clear_auto_redirects();
-      echo '<div class="notice notice-success"><p>' . __('Automatic redirects cleared!', 'bfseo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . __('Automatic redirects cleared!', 'cfseo') . '</p></div>';
     }
     
     $redirects = self::get_redirects();
     ?>
-    <div class="wrap gscseo-admin-wrap">
+    <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-controls-forward"></span>
-        <?php _e('SEO Redirects', 'bfseo'); ?>
+        <?php _e('SEO Redirects', 'cfseo'); ?>
       </h1>
-      <p class="gscseo-subtitle"><?php _e('Manage 301 redirects for changed URLs', 'bfseo'); ?></p>
+      <p class="cfseo-subtitle"><?php _e('Manage 301 redirects for changed URLs', 'cfseo'); ?></p>
       
-      <div class="gscseo-settings-form">
-        <div class="gscseo-tab-content">
+      <div class="cfseo-settings-form">
+        <div class="cfseo-tab-content">
       
       <!-- Add New Redirect -->
-      <div class="gscseo-card">
-        <h2><span class="dashicons dashicons-plus-alt"></span> <?php _e('Add New Redirect', 'bfseo'); ?></h2>
+      <div class="cfseo-card">
+        <h2><span class="dashicons dashicons-plus-alt"></span> <?php _e('Add New Redirect', 'cfseo'); ?></h2>
         <form method="post" action="">
-          <?php wp_nonce_field('gscseo_redirect_add'); ?>
+          <?php wp_nonce_field('CFSEO_redirect_add'); ?>
           <table class="form-table">
             <tr>
               <th scope="row">
-                <label for="from"><?php _e('From (Old URL)', 'bfseo'); ?></label>
+                <label for="from"><?php _e('From (Old URL)', 'cfseo'); ?></label>
               </th>
               <td>
                 <input type="text" id="from" name="from" class="regular-text" placeholder="/old-page/" required>
-                <p class="description"><?php _e('Relative path without domain. Example: /old-page/', 'bfseo'); ?></p>
+                <p class="description"><?php _e('Relative path without domain. Example: /old-page/', 'cfseo'); ?></p>
               </td>
             </tr>
             <tr>
               <th scope="row">
-                <label for="to"><?php _e('To (New URL)', 'bfseo'); ?></label>
+                <label for="to"><?php _e('To (New URL)', 'cfseo'); ?></label>
               </th>
               <td>
                 <input type="text" id="to" name="to" class="regular-text" placeholder="/new-page/" required>
-                <p class="description"><?php _e('Relative path or full URL. Example: /new-page/', 'bfseo'); ?></p>
+                <p class="description"><?php _e('Relative path or full URL. Example: /new-page/', 'cfseo'); ?></p>
               </td>
             </tr>
             <tr>
               <th scope="row">
-                <label for="code"><?php _e('Redirect Type', 'bfseo'); ?></label>
+                <label for="code"><?php _e('Redirect Type', 'cfseo'); ?></label>
               </th>
               <td>
                 <select id="code" name="code">
-                  <option value="301"><?php _e('301 Permanent', 'bfseo'); ?></option>
-                  <option value="302"><?php _e('302 Temporary', 'bfseo'); ?></option>
-                  <option value="307"><?php _e('307 Temporary (Preserve Method)', 'bfseo'); ?></option>
+                  <option value="301"><?php _e('301 Permanent', 'cfseo'); ?></option>
+                  <option value="302"><?php _e('302 Temporary', 'cfseo'); ?></option>
+                  <option value="307"><?php _e('307 Temporary (Preserve Method)', 'cfseo'); ?></option>
                 </select>
-                <p class="description"><?php _e('Use 301 for permanent moves (recommended for SEO)', 'bfseo'); ?></p>
+                <p class="description"><?php _e('Use 301 for permanent moves (recommended for SEO)', 'cfseo'); ?></p>
               </td>
             </tr>
           </table>
-          <button type="submit" name="gscseo_add_redirect" class="button button-primary">
-            <?php _e('Add Redirect', 'bfseo'); ?>
+          <button type="submit" name="CFSEO_add_redirect" class="button button-primary">
+            <?php _e('Add Redirect', 'cfseo'); ?>
           </button>
         </form>
       </div>
       
       <!-- Redirects List -->
-      <div class="gscseo-card" style="max-width: 100%; margin-top: 20px;">
-        <h2><span class="dashicons dashicons-list-view"></span> <?php _e('Active Redirects', 'bfseo'); ?></h2>
+      <div class="cfseo-card" style="max-width: 100%; margin-top: 20px;">
+        <h2><span class="dashicons dashicons-list-view"></span> <?php _e('Active Redirects', 'cfseo'); ?></h2>
         
         <?php if (empty($redirects)): ?>
-          <p style="color: #646970;"><?php _e('No redirects configured yet.', 'bfseo'); ?></p>
+          <p style="color: #646970;"><?php _e('No redirects configured yet.', 'cfseo'); ?></p>
         <?php else: ?>
           <table class="wp-list-table widefat fixed striped">
             <thead>
               <tr>
-                <th style="width: 10%;"><?php _e('Status', 'bfseo'); ?></th>
-                <th style="width: 30%;"><?php _e('From', 'bfseo'); ?></th>
-                <th style="width: 30%;"><?php _e('To', 'bfseo'); ?></th>
-                <th style="width: 10%;"><?php _e('Code', 'bfseo'); ?></th>
-                <th style="width: 10%;"><?php _e('Type', 'bfseo'); ?></th>
-                <th style="width: 10%;"><?php _e('Actions', 'bfseo'); ?></th>
+                <th style="width: 10%;"><?php _e('Status', 'cfseo'); ?></th>
+                <th style="width: 30%;"><?php _e('From', 'cfseo'); ?></th>
+                <th style="width: 30%;"><?php _e('To', 'cfseo'); ?></th>
+                <th style="width: 10%;"><?php _e('Code', 'cfseo'); ?></th>
+                <th style="width: 10%;"><?php _e('Type', 'cfseo'); ?></th>
+                <th style="width: 10%;"><?php _e('Actions', 'cfseo'); ?></th>
               </tr>
             </thead>
             <tbody>
@@ -307,9 +307,9 @@ class GSCSEO_Redirects {
                 <tr>
                   <td>
                     <?php if ($redirect['enabled']): ?>
-                      <span style="color: #46b450;">● <?php _e('Active', 'bfseo'); ?></span>
+                      <span style="color: #46b450;">● <?php _e('Active', 'cfseo'); ?></span>
                     <?php else: ?>
-                      <span style="color: #dba617;">● <?php _e('Disabled', 'bfseo'); ?></span>
+                      <span style="color: #dba617;">● <?php _e('Disabled', 'cfseo'); ?></span>
                     <?php endif; ?>
                   </td>
                   <td><code><?php echo esc_html($redirect['from']); ?></code></td>
@@ -317,17 +317,17 @@ class GSCSEO_Redirects {
                   <td><?php echo esc_html($redirect['code']); ?></td>
                   <td>
                     <?php if ($redirect['type'] === 'auto'): ?>
-                      <span class="dashicons dashicons-update" title="<?php esc_attr_e('Auto-generated', 'bfseo'); ?>"></span> <?php _e('Auto', 'bfseo'); ?>
+                      <span class="dashicons dashicons-update" title="<?php esc_attr_e('Auto-generated', 'cfseo'); ?>"></span> <?php _e('Auto', 'cfseo'); ?>
                     <?php else: ?>
-                      <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Manual', 'bfseo'); ?>"></span> <?php _e('Manual', 'bfseo'); ?>
+                      <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Manual', 'cfseo'); ?>"></span> <?php _e('Manual', 'cfseo'); ?>
                     <?php endif; ?>
                   </td>
                   <td>
-                    <a href="<?php echo wp_nonce_url(admin_url('options-general.php?page=gscseo-redirects&action=toggle&index=' . $index), 'gscseo_redirect_toggle_' . $index); ?>" class="button button-small">
-                      <?php $redirect['enabled'] ? _e('Disable', 'bfseo') : _e('Enable', 'bfseo'); ?>
+                    <a href="<?php echo wp_nonce_url(admin_url('options-general.php?page=cfseo-redirects&action=toggle&index=' . $index), 'CFSEO_redirect_toggle_' . $index); ?>" class="button button-small">
+                      <?php $redirect['enabled'] ? _e('Disable', 'cfseo') : _e('Enable', 'cfseo'); ?>
                     </a>
-                    <a href="<?php echo wp_nonce_url(admin_url('options-general.php?page=gscseo-redirects&action=delete&index=' . $index), 'gscseo_redirect_delete_' . $index); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php esc_attr_e('Delete this redirect?', 'bfseo'); ?>');">
-                      <?php _e('Delete', 'bfseo'); ?>
+                    <a href="<?php echo wp_nonce_url(admin_url('options-general.php?page=cfseo-redirects&action=delete&index=' . $index), 'CFSEO_redirect_delete_' . $index); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php esc_attr_e('Delete this redirect?', 'cfseo'); ?>');">
+                      <?php _e('Delete', 'cfseo'); ?>
                     </a>
                   </td>
                 </tr>
@@ -337,21 +337,21 @@ class GSCSEO_Redirects {
           
           <div style="margin-top: 20px;">
             <form method="post" action="" style="display: inline;">
-              <?php wp_nonce_field('gscseo_clear_auto'); ?>
-              <button type="submit" name="gscseo_clear_auto" class="button" onclick="return confirm('<?php esc_attr_e('Clear all automatic redirects?', 'bfseo'); ?>');">
-                <?php _e('Clear All Auto Redirects', 'bfseo'); ?>
+              <?php wp_nonce_field('CFSEO_clear_auto'); ?>
+              <button type="submit" name="CFSEO_clear_auto" class="button" onclick="return confirm('<?php esc_attr_e('Clear all automatic redirects?', 'cfseo'); ?>');">
+                <?php _e('Clear All Auto Redirects', 'cfseo'); ?>
               </button>
             </form>
           </div>
         <?php endif; ?>
       </div>
       
-        </div><!-- .gscseo-tab-content -->
-      </div><!-- .gscseo-settings-form -->
+        </div><!-- .cfseo-tab-content -->
+      </div><!-- .cfseo-settings-form -->
         
       <!-- Sidebar Info -->
-      <div class="gscseo-sidebar">
-          <div class="gscseo-info-box">
+      <div class="cfseo-sidebar">
+          <div class="cfseo-info-box">
             <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
             <ul>
               <li>Use 301 Permanent redirects for changed URLs to preserve SEO value</li>
@@ -362,7 +362,7 @@ class GSCSEO_Redirects {
             </ul>
           </div>
           
-          <div class="gscseo-info-box gscseo-success-box">
+          <div class="cfseo-info-box cfseo-success-box">
             <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
             <p>Learn about URL redirects and readiness:</p>
             <ul>

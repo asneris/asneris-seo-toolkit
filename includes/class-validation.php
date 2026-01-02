@@ -1,7 +1,7 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class GSCSEO_Validation {
+class CFSEO_Validation {
   
   /**
    * Register validation page
@@ -9,10 +9,10 @@ class GSCSEO_Validation {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('SEO Config Validation', 'bfseo'),
-      __('SEO Config Validation', 'bfseo'),
+      __('Site Diagnostics', 'cfseo'),
+      __('Site Diagnostics', 'cfseo'),
       'manage_options',
-      'gscseo-validation',
+      'cfseo-validation',
       [__CLASS__, 'render_page']
     );
   }
@@ -21,8 +21,8 @@ class GSCSEO_Validation {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== 'clarity-first-seo_page_gscseo-validation') return;
-    wp_enqueue_style('gscseo-admin', GSCSEO_URL . 'assets/css/admin-style.css', [], GSCSEO_VERSION);
+    if ($hook !== 'clarity-first-seo_page_cfseo-validation') return;
+    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
   }
   
   /**
@@ -206,11 +206,11 @@ class GSCSEO_Validation {
    */
   public static function get_status_badge($count, $expected = 1) {
     if ($count === $expected) {
-      return '<span class="gscseo-status-badge status-pass"> Pass</span>';
+      return '<span class="cfseo-status-badge status-pass"> Pass</span>';
     } elseif ($count === 0) {
-      return '<span class="gscseo-status-badge status-warning"> Missing</span>';
+      return '<span class="cfseo-status-badge status-warning"> Missing</span>';
     } else {
-      return '<span class="gscseo-status-badge status-fail"> Multiple (' . $count . ')</span>';
+      return '<span class="cfseo-status-badge status-fail"> Multiple (' . $count . ')</span>';
     }
   }
   
@@ -465,7 +465,7 @@ class GSCSEO_Validation {
    * Get IndexNow status
    */
   public static function get_indexnow_status() {
-    $settings = get_option('gscseo_settings', []);
+    $settings = get_option('CFSEO_settings', []);
     $api_key = isset($settings['indexnow_key']) ? $settings['indexnow_key'] : '';
     
     return [
@@ -494,7 +494,7 @@ class GSCSEO_Validation {
     
     // Handle form submission
     $test_url = isset($_POST['test_url']) ? esc_url_raw($_POST['test_url']) : '';
-    $run_test = isset($_POST['run_validation']) && check_admin_referer('gscseo_validation', '_wpnonce', false);
+    $run_test = isset($_POST['run_validation']) && check_admin_referer('CFSEO_validation', '_wpnonce', false);
     
     $data['test_url'] = $test_url;
     
@@ -616,16 +616,16 @@ class GSCSEO_Validation {
     // Determine color and status based on percentage
     if ($percentage >= 90) {
       $color = '#00a32a';
-      $status_text = __('Excellent', 'bfseo');
+      $status_text = __('Excellent', 'cfseo');
     } elseif ($percentage >= 70) {
       $color = '#00a32a';
-      $status_text = __('Good', 'bfseo');
+      $status_text = __('Good', 'cfseo');
     } elseif ($percentage >= 50) {
       $color = '#f0c33c';
-      $status_text = __('Fair', 'bfseo');
+      $status_text = __('Fair', 'cfseo');
     } else {
       $color = '#d63638';
-      $status_text = __('Needs Work', 'bfseo');
+      $status_text = __('Needs Work', 'cfseo');
     }
     
     return [
@@ -748,23 +748,14 @@ class GSCSEO_Validation {
     $data = self::prepare_validation_data();
     extract($data);
     
-    // Get current tab
-    $current_validation_tab = isset($_GET['validation_tab']) ? sanitize_text_field($_GET['validation_tab']) : 'seo';
-    
     // Load template parts
     $template_dir = plugin_dir_path(dirname(__FILE__)) . 'templates/validation/';
     
-    // Page header (includes tab navigation)
+    // Page header
     include $template_dir . 'page-header.php';
     
-    // Render based on selected tab
-    if ($current_validation_tab === 'diagnostics') {
-      // Site Diagnostics Tab
-      include $template_dir . 'tab-diagnostics.php';
-    } else {
-      // SEO Validation Tab (default)
-      include $template_dir . 'tab-seo-validation.php';
-    }
+    // Site Diagnostics content
+    include $template_dir . 'tab-diagnostics.php';
     
     // Page footer (CSS + JS)
     include $template_dir . 'page-footer.php';

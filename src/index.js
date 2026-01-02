@@ -16,7 +16,7 @@ const IndexNowSubmit = () => {
     setNotice(null);
     
     const ajaxurl = window.gscseoData?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php';
-    const nonce = window.gscseoData?.indexnowNonce || window.gscseo_indexnow_nonce;
+    const nonce = window.gscseoData?.indexnowNonce || window.CFSEO_indexnow_nonce;
     
     fetch(ajaxurl, {
       method: 'POST',
@@ -24,7 +24,7 @@ const IndexNowSubmit = () => {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        action: 'gscseo_manual_indexnow',
+        action: 'CFSEO_manual_indexnow',
         nonce: nonce,
         post_id: postId
       })
@@ -35,13 +35,13 @@ const IndexNowSubmit = () => {
       if (data.success) {
         setNotice({ type: 'success', message: data.data.message });
       } else {
-        setNotice({ type: 'error', message: data.data.message || __('Failed to submit', 'bfseo') });
+        setNotice({ type: 'error', message: data.data.message || __('Failed to submit', 'cfseo') });
       }
       setTimeout(() => setNotice(null), 5000);
     })
     .catch(error => {
       setIsSubmitting(false);
-      setNotice({ type: 'error', message: __('Request failed', 'bfseo') });
+      setNotice({ type: 'error', message: __('Request failed', 'cfseo') });
       setTimeout(() => setNotice(null), 5000);
     });
   };
@@ -49,7 +49,7 @@ const IndexNowSubmit = () => {
   if (postStatus !== 'publish') {
     return (
       <Notice status="warning" isDismissible={false}>
-        {__('Post must be published to submit to IndexNow', 'bfseo')}
+        {__('Post must be published to submit to IndexNow', 'cfseo')}
       </Notice>
     );
   }
@@ -63,7 +63,7 @@ const IndexNowSubmit = () => {
       )}
       
       <p style={{ marginBottom: '12px', color: '#646970', fontSize: '13px' }}>
-        {__('Manually notify search engines about this page update via IndexNow protocol.', 'bfseo')}
+        {__('Manually notify search engines about this page update via IndexNow protocol.', 'cfseo')}
       </p>
       
       <Button
@@ -72,11 +72,11 @@ const IndexNowSubmit = () => {
         disabled={isSubmitting}
         style={{ width: '100%' }}
       >
-        {isSubmitting ? __('Submitting...', 'bfseo') : __('Submit to IndexNow', 'bfseo')}
+        {isSubmitting ? __('Submitting...', 'cfseo') : __('Submit to IndexNow', 'cfseo')}
       </Button>
       
       <p style={{ marginTop: '12px', color: '#646970', fontSize: '12px', fontStyle: 'italic' }}>
-        {__('Note: IndexNow must be enabled in plugin settings.', 'bfseo')}
+        {__('Note: IndexNow must be enabled in plugin settings.', 'cfseo')}
       </p>
     </>
   );
@@ -156,38 +156,38 @@ const SEOScore = () => {
     const tips = [];
     
     // Title check
-    if (meta._gscseo_title && meta._gscseo_title.length >= 30 && meta._gscseo_title.length <= 60) {
+    if (meta._CFSEO_title && meta._CFSEO_title.length >= 30 && meta._CFSEO_title.length <= 60) {
       points += 20;
     } else {
       tips.push('Add an SEO title (30-60 characters)');
     }
     
     // Description check
-    if (meta._gscseo_description && meta._gscseo_description.length >= 120 && meta._gscseo_description.length <= 160) {
+    if (meta._CFSEO_description && meta._CFSEO_description.length >= 120 && meta._CFSEO_description.length <= 160) {
       points += 20;
     } else {
       tips.push('Add a meta description (120-160 characters)');
     }
     
     // Canonical URL check
-    if (meta._gscseo_canonical) {
+    if (meta._CFSEO_canonical) {
       points += 15;
     }
     
     // OG Title check
-    if (meta._gscseo_og_title) {
+    if (meta._CFSEO_og_title) {
       points += 15;
     } else {
       tips.push('Add an Open Graph title for better social sharing');
     }
     
     // OG Description check
-    if (meta._gscseo_og_description) {
+    if (meta._CFSEO_og_description) {
       points += 15;
     }
     
     // OG Image check
-    if (meta._gscseo_og_image) {
+    if (meta._CFSEO_og_image) {
       points += 15;
     } else {
       tips.push('Add an Open Graph image');
@@ -273,82 +273,82 @@ const SEOScore = () => {
   );
 };
 
-registerPlugin('gscseo-sidebar', {
+registerPlugin('cfseo-sidebar', {
   render() {
     const schemaEnabled = useSelect(select =>
-      select('core/editor').getEditedPostAttribute('meta')._gscseo_schema_enabled
+      select('core/editor').getEditedPostAttribute('meta')._CFSEO_schema_enabled
     );
     const { editPost } = useDispatch('core/editor');
     
     return (
       <>
-        <PluginSidebarMoreMenuItem target="gscseo-sidebar">
-          {__('Clarity-First SEO', 'bfseo')}
+        <PluginSidebarMoreMenuItem target="cfseo-sidebar">
+          {__('Clarity-First SEO', 'cfseo')}
         </PluginSidebarMoreMenuItem>
         
         <PluginSidebar
-          name="gscseo-sidebar"
-          title={__('Clarity-First SEO', 'bfseo')}
+          name="cfseo-sidebar"
+          title={__('Clarity-First SEO', 'cfseo')}
           icon="search"
         >
           <PanelBody 
-            title={__('SEO Overview', 'bfseo')} 
+            title={__('SEO Overview', 'cfseo')} 
             initialOpen={true}
           >
             <SEOScore />
             <ExternalLink href="/wp-admin/options-general.php?page=gscseo">
-              {__('Open SEO Settings', 'bfseo')}
+              {__('Open SEO Settings', 'cfseo')}
             </ExternalLink>
           </PanelBody>
           
           <PanelBody 
-            title={__('Search Appearance', 'bfseo')} 
+            title={__('Search Appearance', 'cfseo')} 
             initialOpen={true}
           >
             <MetaField 
-              label={__('SEO Title', 'bfseo')}
-              metaKey="_gscseo_title" 
+              label={__('SEO Title', 'cfseo')}
+              metaKey="_CFSEO_title" 
               placeholder="Custom title for search engines"
               help="Leave empty to use the post title"
             />
             <CharacterCount 
               text={useSelect(select => 
-                select('core/editor').getEditedPostAttribute('meta')._gscseo_title
+                select('core/editor').getEditedPostAttribute('meta')._CFSEO_title
               )}
               maxLength={60}
               optimal={{ min: 30, max: 60 }}
             />
             
             <MetaField 
-              label={__('Meta Description', 'bfseo')}
-              metaKey="_gscseo_description"
+              label={__('Meta Description', 'cfseo')}
+              metaKey="_CFSEO_description"
               type="textarea"
               placeholder="Brief description of your content"
               help="This appears in search results"
             />
             <CharacterCount 
               text={useSelect(select => 
-                select('core/editor').getEditedPostAttribute('meta')._gscseo_description
+                select('core/editor').getEditedPostAttribute('meta')._CFSEO_description
               )}
               maxLength={160}
               optimal={{ min: 120, max: 160 }}
             />
             
             <MetaField 
-              label={__('Canonical URL', 'bfseo')}
-              metaKey="_gscseo_canonical"
+              label={__('Canonical URL', 'cfseo')}
+              metaKey="_CFSEO_canonical"
               placeholder="https://example.com/canonical-url"
               help="Leave empty to use the current URL"
             />
           </PanelBody>
           
           <PanelBody 
-            title={__('Robots Meta', 'bfseo')} 
+            title={__('Robots Meta', 'cfseo')} 
             initialOpen={false}
           >
             <RobotsControl 
-              label={__('Index', 'bfseo')}
-              metaKey="_gscseo_robots_index"
+              label={__('Index', 'cfseo')}
+              metaKey="_CFSEO_robots_index"
               options={[
                 { label: 'Index (allow search engines)', value: 'index' },
                 { label: 'No Index (hide from search)', value: 'noindex' }
@@ -356,8 +356,8 @@ registerPlugin('gscseo-sidebar', {
             />
             
             <RobotsControl 
-              label={__('Follow', 'bfseo')}
-              metaKey="_gscseo_robots_follow"
+              label={__('Follow', 'cfseo')}
+              metaKey="_CFSEO_robots_follow"
               options={[
                 { label: 'Follow (allow link following)', value: 'follow' },
                 { label: 'No Follow (prevent link following)', value: 'nofollow' }
@@ -366,47 +366,47 @@ registerPlugin('gscseo-sidebar', {
           </PanelBody>
           
           <PanelBody 
-            title={__('Social Media (Open Graph)', 'bfseo')} 
+            title={__('Social Media (Open Graph)', 'cfseo')} 
             initialOpen={false}
           >
             <MetaField 
-              label={__('Social Title', 'bfseo')}
-              metaKey="_gscseo_og_title"
+              label={__('Social Title', 'cfseo')}
+              metaKey="_CFSEO_og_title"
               placeholder="Title for social media"
               help="Leave empty to use SEO title"
             />
             
             <MetaField 
-              label={__('Social Description', 'bfseo')}
-              metaKey="_gscseo_og_description"
+              label={__('Social Description', 'cfseo')}
+              metaKey="_CFSEO_og_description"
               type="textarea"
               placeholder="Description for social media"
               help="Leave empty to use meta description"
             />
             
             <MetaField 
-              label={__('Social Image URL', 'bfseo')}
-              metaKey="_gscseo_og_image"
+              label={__('Social Image URL', 'cfseo')}
+              metaKey="_CFSEO_og_image"
               placeholder="https://example.com/image.jpg"
               help="Recommended: 1200x630px"
             />
           </PanelBody>
           
           <PanelBody 
-            title={__('Schema (Structured Data)', 'bfseo')} 
+            title={__('Schema (Structured Data)', 'cfseo')} 
             initialOpen={false}
           >
             <ToggleControl
-              label={__('Enable Schema', 'bfseo')}
+              label={__('Enable Schema', 'cfseo')}
               checked={schemaEnabled}
-              onChange={(v) => editPost({ meta: { _gscseo_schema_enabled: v } })}
+              onChange={(v) => editPost({ meta: { _CFSEO_schema_enabled: v } })}
               help="Adds structured data markup for better search results"
             />
             
             {schemaEnabled && (
               <RobotsControl
-                label={__('Schema Type', 'bfseo')}
-                metaKey="_gscseo_schema_type"
+                label={__('Schema Type', 'cfseo')}
+                metaKey="_CFSEO_schema_type"
                 options={[
                   { label: 'Auto-detect (recommended)', value: '' },
                   { label: 'Article / Blog Post', value: 'Article' },
@@ -428,7 +428,7 @@ registerPlugin('gscseo-sidebar', {
           </PanelBody>
 
           <PanelBody 
-            title={__('IndexNow', 'bfseo')} 
+            title={__('IndexNow', 'cfseo')} 
             initialOpen={false}
           >
             <IndexNowSubmit />

@@ -1,7 +1,7 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class GSCSEO_Templates {
+class CFSEO_Templates {
   
   /**
    * Parse template string with variables
@@ -51,7 +51,7 @@ class GSCSEO_Templates {
    * @return string Template string
    */
   public static function get_title_template($post_type) {
-    $templates = GSCSEO_Admin_Settings::get('title_templates', []);
+    $templates = CFSEO_Admin_Settings::get('title_templates', []);
     return $templates[$post_type] ?? '';
   }
   
@@ -62,7 +62,7 @@ class GSCSEO_Templates {
    * @return string Template string
    */
   public static function get_description_template($post_type) {
-    $templates = GSCSEO_Admin_Settings::get('description_templates', []);
+    $templates = CFSEO_Admin_Settings::get('description_templates', []);
     return $templates[$post_type] ?? '';
   }
   
@@ -119,7 +119,7 @@ class GSCSEO_Templates {
     $context = [
       'title' => $post->post_title,
       'site' => get_bloginfo('name'),
-      'separator' => GSCSEO_Admin_Settings::get('title_separator', '|'),
+      'separator' => CFSEO_Admin_Settings::get('title_separator', '|'),
       'post_type' => get_post_type_object($post->post_type)->labels->singular_name ?? $post->post_type,
     ];
     
@@ -156,16 +156,16 @@ class GSCSEO_Templates {
    */
   public static function get_available_variables() {
     return [
-      '{title}' => __('Post/Page title', 'bfseo'),
-      '{site}' => __('Site name', 'bfseo'),
-      '{separator}' => __('Title separator', 'bfseo'),
-      '{post_type}' => __('Post type label', 'bfseo'),
-      '{category}' => __('Primary category', 'bfseo'),
-      '{tag}' => __('First tag', 'bfseo'),
-      '{author}' => __('Author name', 'bfseo'),
-      '{date}' => __('Publication date', 'bfseo'),
-      '{year}' => __('Publication year', 'bfseo'),
-      '{month}' => __('Publication month', 'bfseo'),
+      '{title}' => __('Post/Page title', 'cfseo'),
+      '{site}' => __('Site name', 'cfseo'),
+      '{separator}' => __('Title separator', 'cfseo'),
+      '{post_type}' => __('Post type label', 'cfseo'),
+      '{category}' => __('Primary category', 'cfseo'),
+      '{tag}' => __('First tag', 'cfseo'),
+      '{author}' => __('Author name', 'cfseo'),
+      '{date}' => __('Publication date', 'cfseo'),
+      '{year}' => __('Publication year', 'cfseo'),
+      '{month}' => __('Publication month', 'cfseo'),
     ];
   }
 }
