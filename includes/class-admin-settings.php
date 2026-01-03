@@ -9,13 +9,14 @@ class CFSEO_Admin_Settings {
       'Clarity-First SEO',
       'Clarity-First SEO',
       'manage_options',
-      'gscseo',
+      'cfseo-settings',
       [__CLASS__, 'render']
     );
   }
 
   public static function register_settings() {
-    register_setting('gscseo', self::OPT, ['sanitize_callback' => [__CLASS__, 'sanitize']]);
+    // Use option name as group name - WordPress convention
+    register_setting(self::OPT, self::OPT, ['sanitize_callback' => [__CLASS__, 'sanitize']]);
   }
 
   /**
@@ -40,38 +41,49 @@ class CFSEO_Admin_Settings {
   }
 
   public static function sanitize($opt) {
+    // Debug: Log what we're receiving
+    error_log('CFSEO Sanitize - Received data: ' . print_r($opt, true));
+    
+    // Get existing options to preserve data from other tabs
+    $existing = get_option(self::OPT, []);
+    error_log('CFSEO Sanitize - Existing data: ' . print_r($existing, true));
+    
     $clean = [
-      'google_verification' => sanitize_text_field($opt['google_verification'] ?? ''),
-      'bing_verification'   => sanitize_text_field($opt['bing_verification'] ?? ''),
-      'yandex_verification' => sanitize_text_field($opt['yandex_verification'] ?? ''),
-      'default_og_image'    => esc_url_raw($opt['default_og_image'] ?? ''),
-      'org_name'            => sanitize_text_field($opt['org_name'] ?? ''),
-      'org_logo'            => esc_url_raw($opt['org_logo'] ?? ''),
-      'indexnow_enabled'    => !empty($opt['indexnow_enabled']) ? 1 : 0,
-      'indexnow_key'        => sanitize_text_field($opt['indexnow_key'] ?? ''),
-      'twitter_username'    => sanitize_text_field($opt['twitter_username'] ?? ''),
-      'facebook_app_id'     => sanitize_text_field($opt['facebook_app_id'] ?? ''),
-      'theme_color'         => sanitize_hex_color($opt['theme_color'] ?? ''),
-      'default_robots_index' => sanitize_text_field($opt['default_robots_index'] ?? 'index'),
-      'default_robots_follow' => sanitize_text_field($opt['default_robots_follow'] ?? 'follow'),
-      'enable_breadcrumbs'  => !empty($opt['enable_breadcrumbs']) ? 1 : 0,
-      'enable_local_business' => !empty($opt['enable_local_business']) ? 1 : 0,
-      'business_type'       => sanitize_text_field($opt['business_type'] ?? 'LocalBusiness'),
-      'business_phone'      => sanitize_text_field($opt['business_phone'] ?? ''),
-      'business_address'    => sanitize_textarea_field($opt['business_address'] ?? ''),
-      'business_hours'      => sanitize_textarea_field($opt['business_hours'] ?? ''),
-      'service_area'        => sanitize_textarea_field($opt['service_area'] ?? ''),
-      'price_range'         => sanitize_text_field($opt['price_range'] ?? ''),
-      'payment_methods'     => sanitize_text_field($opt['payment_methods'] ?? ''),
-      'languages_spoken'    => sanitize_text_field($opt['languages_spoken'] ?? ''),
-      'title_separator'     => sanitize_text_field($opt['title_separator'] ?? '|'),
-      'title_templates'     => isset($opt['title_templates']) && is_array($opt['title_templates']) ? array_map('sanitize_text_field', $opt['title_templates']) : [],
-      'description_templates' => isset($opt['description_templates']) && is_array($opt['description_templates']) ? array_map('sanitize_textarea_field', $opt['description_templates']) : [],
+      'google_verification' => sanitize_text_field($opt['google_verification'] ?? $existing['google_verification'] ?? ''),
+      'bing_verification'   => sanitize_text_field($opt['bing_verification'] ?? $existing['bing_verification'] ?? ''),
+      'yandex_verification' => sanitize_text_field($opt['yandex_verification'] ?? $existing['yandex_verification'] ?? ''),
+      'default_og_image'    => esc_url_raw($opt['default_og_image'] ?? $existing['default_og_image'] ?? ''),
+      'org_name'            => sanitize_text_field($opt['org_name'] ?? $existing['org_name'] ?? ''),
+      'org_logo'            => esc_url_raw($opt['org_logo'] ?? $existing['org_logo'] ?? ''),
+      'indexnow_enabled'    => isset($opt['indexnow_enabled']) ? (!empty($opt['indexnow_enabled']) ? 1 : 0) : ($existing['indexnow_enabled'] ?? 0),
+      'indexnow_key'        => sanitize_text_field($opt['indexnow_key'] ?? $existing['indexnow_key'] ?? ''),
+      'twitter_username'    => sanitize_text_field($opt['twitter_username'] ?? $existing['twitter_username'] ?? ''),
+      'facebook_app_id'     => sanitize_text_field($opt['facebook_app_id'] ?? $existing['facebook_app_id'] ?? ''),
+      'theme_color'         => sanitize_hex_color($opt['theme_color'] ?? $existing['theme_color'] ?? ''),
+      'default_robots_index' => sanitize_text_field($opt['default_robots_index'] ?? $existing['default_robots_index'] ?? 'index'),
+      'default_robots_follow' => sanitize_text_field($opt['default_robots_follow'] ?? $existing['default_robots_follow'] ?? 'follow'),
+      'enable_breadcrumbs'  => isset($opt['enable_breadcrumbs']) ? (!empty($opt['enable_breadcrumbs']) ? 1 : 0) : ($existing['enable_breadcrumbs'] ?? 0),
+      'enable_local_business' => isset($opt['enable_local_business']) ? (!empty($opt['enable_local_business']) ? 1 : 0) : ($existing['enable_local_business'] ?? 0),
+      'business_type'       => sanitize_text_field($opt['business_type'] ?? $existing['business_type'] ?? 'LocalBusiness'),
+      'business_phone'      => sanitize_text_field($opt['business_phone'] ?? $existing['business_phone'] ?? ''),
+      'business_address'    => sanitize_textarea_field($opt['business_address'] ?? $existing['business_address'] ?? ''),
+      'business_hours'      => sanitize_textarea_field($opt['business_hours'] ?? $existing['business_hours'] ?? ''),
+      'service_area'        => sanitize_textarea_field($opt['service_area'] ?? $existing['service_area'] ?? ''),
+      'price_range'         => sanitize_text_field($opt['price_range'] ?? $existing['price_range'] ?? ''),
+      'payment_methods'     => sanitize_text_field($opt['payment_methods'] ?? $existing['payment_methods'] ?? ''),
+      'languages_spoken'    => sanitize_text_field($opt['languages_spoken'] ?? $existing['languages_spoken'] ?? ''),
+      'title_separator'     => sanitize_text_field($opt['title_separator'] ?? $existing['title_separator'] ?? '|'),
+      'title_templates'     => isset($opt['title_templates']) && is_array($opt['title_templates']) ? array_map('sanitize_text_field', $opt['title_templates']) : ($existing['title_templates'] ?? []),
+      'description_templates' => isset($opt['description_templates']) && is_array($opt['description_templates']) ? array_map('sanitize_textarea_field', $opt['description_templates']) : ($existing['description_templates'] ?? []),
     ];
 
     if ($clean['indexnow_enabled'] && $clean['indexnow_key'] === '') {
       $clean['indexnow_key'] = CFSEO_IndexNow::generate_key();
     }
+    
+    // Debug: Log what we're saving
+    error_log('CFSEO Sanitize - Cleaned data to save: ' . print_r($clean, true));
+    
     return $clean;
   }
 
@@ -86,6 +98,17 @@ class CFSEO_Admin_Settings {
         Clarity-First SEO
       </h1>
       <p class="cfseo-subtitle"><?php _e('Clear and simple SEO configuration for your WordPress site.', 'cfseo'); ?></p>
+
+      <?php
+      // Display success message after settings saved
+      if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
+        ?>
+        <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
+          <p><strong><?php _e('Settings saved successfully!', 'cfseo'); ?></strong> <?php _e('Your changes have been saved and are now active.', 'cfseo'); ?></p>
+        </div>
+        <?php
+      }
+      ?>
 
       <!-- Tab Navigation -->
       <nav class="nav-tab-wrapper cfseo-nav-tab-wrapper">
@@ -114,7 +137,8 @@ class CFSEO_Admin_Settings {
       </nav>
 
       <form method="post" action="options.php" class="cfseo-settings-form">
-        <?php settings_fields('gscseo'); ?>
+        <?php settings_fields(self::OPT); ?>
+        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr(add_query_arg('tab', $current_tab, admin_url('admin.php?page=cfseo-settings'))); ?>" />
 
         <?php if ($current_tab === 'general'): ?>
           <?php self::render_general_tab(); ?>
@@ -324,8 +348,49 @@ class CFSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="cfseo-info-box cfseo-info">
-        <p><strong>Note:</strong> After adding verification codes, visit your respective webmaster tools to complete the verification process.</p>
+      <div class="cfseo-info-box" style="background: #e7f5fe; border-left: 4px solid #00a0d2; padding: 15px;">
+        <p style="margin: 0 0 10px; font-weight: 600; color: #23282d;">
+          <span class="dashicons dashicons-info" style="color: #00a0d2;"></span>
+          <?php _e('What are Webmaster Tools?', 'cfseo'); ?>
+        </p>
+        <p style="margin: 0 0 12px; color: #50575e; line-height: 1.6;">
+          <?php _e('Webmaster Tools are free platforms provided by search engines where you can:', 'cfseo'); ?>
+        </p>
+        <ul style="margin: 0 0 12px 20px; color: #50575e; line-height: 1.7;">
+          <li><?php _e('Monitor your site\'s search performance and rankings', 'cfseo'); ?></li>
+          <li><?php _e('Submit sitemaps to help search engines discover your content', 'cfseo'); ?></li>
+          <li><?php _e('Check indexing status and fix crawling issues', 'cfseo'); ?></li>
+          <li><?php _e('View search queries that bring visitors to your site', 'cfseo'); ?></li>
+        </ul>
+        <p style="margin: 0 0 10px; font-weight: 600; color: #23282d;">
+          <?php _e('Next Steps After Saving:', 'cfseo'); ?>
+        </p>
+        <ol style="margin: 0 0 0 20px; color: #50575e; line-height: 1.7;">
+          <li><?php _e('Click "Save Settings" below', 'cfseo'); ?></li>
+          <li><?php _e('Visit the webmaster tool you\'re verifying and click their "Verify" button:', 'cfseo'); ?>
+            <ul style="margin: 5px 0 5px 20px;">
+              <li>
+                <a href="https://search.google.com/search-console" target="_blank" style="text-decoration: none;">
+                  <?php _e('Google Search Console', 'cfseo'); ?>
+                  <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.bing.com/webmasters" target="_blank" style="text-decoration: none;">
+                  <?php _e('Bing Webmaster Tools', 'cfseo'); ?>
+                  <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
+                </a>
+              </li>
+              <li>
+                <a href="https://webmaster.yandex.com" target="_blank" style="text-decoration: none;">
+                  <?php _e('Yandex Webmaster', 'cfseo'); ?>
+                  <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li><?php _e('Once verified, you can submit your sitemap (see General tab)', 'cfseo'); ?></li>
+        </ol>
       </div>
     </div>
     <?php

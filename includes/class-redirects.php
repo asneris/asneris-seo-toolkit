@@ -54,6 +54,7 @@ class CFSEO_Redirects {
   public static function handle_redirects() {
     $request_uri = $_SERVER['REQUEST_URI'];
     $request_path = parse_url($request_uri, PHP_URL_PATH);
+    $query_string = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
     
     $redirects = self::get_redirects();
     
@@ -62,19 +63,42 @@ class CFSEO_Redirects {
         continue;
       }
       
-      $from = rtrim($redirect['from'], '/');
+      $from = $redirect['from'];
       $to = $redirect['to'];
       $code = (int)$redirect['code'];
       
-      // Exact match
-      if (rtrim($request_path, '/') === $from) {
-        // Make sure we have full URL for redirect
-        if (!preg_match('/^https?:\/\//', $to)) {
-          $to = home_url($to);
-        }
+      // Parse the 'from' URL to check if it has query parameters
+      $from_parsed = parse_url($from);
+      $from_path = isset($from_parsed['path']) ? rtrim($from_parsed['path'], '/') : '';
+      $from_query = isset($from_parsed['query']) ? $from_parsed['query'] : '';
+      
+      // Check if 'from' URL has query parameters
+      if (!empty($from_query)) {
+        // Match with query string
+        $full_request = rtrim($request_path, '/') . ($query_string ? '?' . $query_string : '');
+        $full_from = $from_path . '?' . $from_query;
         
-        wp_redirect($to, $code);
-        exit;
+        if ($full_request === $full_from || rtrim($request_path, '/') . '?' . $query_string === $full_from) {
+          // Make sure we have full URL for redirect
+          if (!preg_match('/^https?:\/\//', $to)) {
+            $to = home_url($to);
+          }
+          
+          wp_redirect($to, $code);
+          exit;
+        }
+      } else {
+        // Exact path match (without query string)
+        $from_path = rtrim($from, '/');
+        if (rtrim($request_path, '/') === $from_path) {
+          // Make sure we have full URL for redirect
+          if (!preg_match('/^https?:\/\//', $to)) {
+            $to = home_url($to);
+          }
+          
+          wp_redirect($to, $code);
+          exit;
+        }
       }
     }
   }
@@ -205,6 +229,10 @@ class CFSEO_Redirects {
       $to = sanitize_text_field($_POST['to']);
       $code = (int)$_POST['code'];
       
+      // Strip domain from URLs to store only path + query
+      $from = str_replace(home_url(), '', $from);
+      $to = str_replace(home_url(), '', $to);
+      
       if (!empty($from) && !empty($to)) {
         self::add_redirect($from, $to, $code, 'manual');
         echo '<div class="notice notice-success"><p>' . __('Redirect added successfully!', 'cfseo') . '</p></div>';
@@ -251,8 +279,8 @@ class CFSEO_Redirects {
                 <label for="from"><?php _e('From (Old URL)', 'cfseo'); ?></label>
               </th>
               <td>
-                <input type="text" id="from" name="from" class="regular-text" placeholder="/old-page/" required>
-                <p class="description"><?php _e('The old page address that no longer exists (without domain). Example: /old-page/', 'cfseo'); ?></p>
+                <input type="text" id="from" name="from" class="regular-text" placeholder="/?page_id=2 or /old-page/" required>
+                <p class="description"><?php _e('The old page address (path or query string). Examples: /old-page/ or /?page_id=2', 'cfseo'); ?></p>
               </td>
             </tr>
             <tr>
@@ -260,8 +288,8 @@ class CFSEO_Redirects {
                 <label for="to"><?php _e('To (New URL)', 'cfseo'); ?></label>
               </th>
               <td>
-                <input type="text" id="to" name="to" class="regular-text" placeholder="/new-page/" required>
-                <p class="description"><?php _e('The destination page visitors should land on. Example: /new-page/ or https://example.com/new-page/', 'cfseo'); ?></p>
+                <input type="text" id="to" name="to" class="regular-text" placeholder="/?page_id=10 or /new-page/" required>
+                <p class="description"><?php _e('The destination page. Examples: /new-page/ or /?page_id=10 or https://example.com/page/', 'cfseo'); ?></p>
               </td>
             </tr>
             <tr>

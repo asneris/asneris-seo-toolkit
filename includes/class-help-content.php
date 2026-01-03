@@ -56,8 +56,6 @@ class CFSEO_Help_Content {
     return $data;
   }
   
-
-  
   /**
    * Render help sidebar
    */

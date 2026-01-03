@@ -3,7 +3,7 @@
  * Plugin Name: Clarity-First SEO
  * Plugin URI: https://clarityfirstseo.com
  * Description: Professional SEO plugin with modern UI, designed for clarity and simplicity. Features intuitive tabbed interface, media uploader, SEO score calculator, and comprehensive schema markup.
- * Version: 0.2.2
+ * Version: 0.2.4
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Clarity-First SEO
@@ -14,13 +14,13 @@
  * Domain Path: /languages
  * 
  * @package Clarity_First_SEO
- * @version 0.2.2
+ * @version 0.2.4
  */
 
 if (!defined('ABSPATH')) exit;
 
 // Plugin constants
-define('CFSEO_VERSION', '0.2.2');
+define('CFSEO_VERSION', '0.2.4');
 define('CFSEO_DIR', plugin_dir_path(__FILE__));
 define('CFSEO_URL', plugin_dir_url(__FILE__));
 define('CFSEO_BASENAME', plugin_basename(__FILE__));
@@ -41,6 +41,7 @@ require_once CFSEO_DIR . 'includes/class-validation.php';
 require_once CFSEO_DIR . 'includes/class-diagnostics.php';
 require_once CFSEO_DIR . 'includes/class-robots.php';
 require_once CFSEO_DIR . 'includes/class-help.php';
+require_once CFSEO_DIR . 'includes/class-help-content.php';
 
 add_action('init', function () {
   CFSEO_Meta::register_post_meta();

@@ -153,7 +153,7 @@
       {
         "title": "Bulk actions explained",
         "icon": "dashicons-admin-tools",
-        "content": "<ul><li><strong>Set to Index:</strong> Allow selected pages to appear in search results</li><li><strong>Set to Noindex:</strong> Prevent selected pages from appearing in search results</li><li><strong>Clear SEO Titles:</strong> Revert to automatic title generation</li><li><strong>Clear Descriptions:</strong> Allow descriptions to be auto-generated</li></ul>",
+        "content": "<ul><li><strong>✓ Allow in Search (Index):</strong> Allow selected pages to appear in search results</li><li><strong>✗ Hide from Search (NoIndex):</strong> Prevent selected pages from appearing in search results</li><li><strong>Clear SEO Titles:</strong> Removes custom titles and reverts to automatic generation (uses template if configured, otherwise uses post title)</li><li><strong>Clear Descriptions:</strong> Removes custom descriptions and allows auto-generation (priority: template → post excerpt → first 30 words of content)</li></ul><p><em>💡 Tip:</em> Clearing values doesn't delete content — it tells the system to generate them automatically using fallback rules.</p>",
         "review_url": "https://clarityfirstseo.com/docs/bulk-actions/"
       },
       {

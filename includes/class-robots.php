@@ -42,6 +42,14 @@ class CFSEO_Robots {
             [],
             CFSEO_VERSION
         );
+        
+        wp_enqueue_script(
+            'cfseo-robots',
+            plugins_url('../assets/js/robots.js', __FILE__),
+            ['jquery'],
+            CFSEO_VERSION,
+            true
+        );
     }
     
     /**

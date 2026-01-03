@@ -1,15 +1,73 @@
 jQuery(document).ready(function($) {
   
-  // Select all checkbox
+  let hasUnsavedChanges = false;
+  
+  // Custom confirm function
+  function customConfirm(message) {
+    return new Promise(function(resolve) {
+      $('#cfseo-confirm-message').text(message);
+      $('#cfseo-confirm-modal').css('display', 'flex');
+      
+      $('#cfseo-confirm-ok').off('click').on('click', function() {
+        $('#cfseo-confirm-modal').hide();
+        resolve(true);
+      });
+      
+      $('#cfseo-confirm-cancel').off('click').on('click', function() {
+        $('#cfseo-confirm-modal').hide();
+        resolve(false);
+      });
+    });
+  }
+  
+  // Custom alert function (OK only)
+  function customAlert(message) {
+    return new Promise(function(resolve) {
+      $('#cfseo-confirm-message').text(message);
+      $('#cfseo-confirm-modal').css('display', 'flex');
+      $('#cfseo-confirm-cancel').hide();
+      
+      $('#cfseo-confirm-ok').off('click').on('click', function() {
+        $('#cfseo-confirm-modal').hide();
+        $('#cfseo-confirm-cancel').show();
+        resolve();
+      });
+    });
+  }
+  
+  $('#cfseo-bulk-edit-form').on('change', 'input, textarea, select', function() {
+    hasUnsavedChanges = true;
+  });
+  
+  $(document).on('click', '.cfseo-edit-post-link', function(e) {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      const href = $(this).attr('href');
+      customConfirm('You have unsaved changes. Navigating to the post editor will discard these changes. Continue?').then(function(confirmed) {
+        if (confirmed) {
+          hasUnsavedChanges = false;
+          window.location.href = href;
+        }
+      });
+    }
+  });
+  
+  $(window).on('beforeunload', function(e) {
+    if (hasUnsavedChanges) {
+      const message = 'You have unsaved changes.';
+      e.returnValue = message;
+      return message;
+    }
+  });
+  
   $('#cfseo-select-all').on('change', function() {
     $('.cfseo-post-checkbox').prop('checked', $(this).prop('checked'));
   });
   
-  // Bulk action: Set to Index
   $('#cfseo-bulk-set-index').on('click', function() {
     const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
-      alert('Please select at least one post.');
+      customAlert('Please select at least one post.');
       return;
     }
     
@@ -18,70 +76,63 @@ jQuery(document).ready(function($) {
       $('select[name="robots_index[' + postId + ']"]').val('index');
     });
     
-    alert(checked.length + ' posts set to Index. Click "Save All Changes" to apply.');
+    customAlert(checked.length + ' posts set to Index. Click Save All Changes.');
   });
   
-  // Bulk action: Set to NoIndex
   $('#cfseo-bulk-set-noindex').on('click', function() {
     const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
-      alert('Please select at least one post.');
+      customAlert('Please select at least one post.');
       return;
     }
     
-    if (!confirm('Are you sure you want to set ' + checked.length + ' posts to NoIndex? They will be hidden from search engines.')) {
-      return;
-    }
-    
-    checked.each(function() {
-      const postId = $(this).val();
-      $('select[name="robots_index[' + postId + ']"]').val('noindex');
+    customConfirm('Set ' + checked.length + ' posts to NoIndex?').then(function(confirmed) {
+      if (confirmed) {
+        checked.each(function() {
+          const postId = $(this).val();
+          $('select[name="robots_index[' + postId + ']"]').val('noindex');
+        });
+        customAlert(checked.length + ' posts set to NoIndex. Click Save All Changes.');
+      }
     });
-    
-    alert(checked.length + ' posts set to NoIndex. Click "Save All Changes" to apply.');
   });
   
-  // Bulk action: Clear Titles
   $('#cfseo-bulk-clear-title').on('click', function() {
     const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
-      alert('Please select at least one post.');
+      customAlert('Please select at least one post.');
       return;
     }
     
-    if (!confirm('Clear SEO titles for ' + checked.length + ' posts? Defaults will be used.')) {
-      return;
-    }
-    
-    checked.each(function() {
-      const postId = $(this).val();
-      $('input[name="seo_title[' + postId + ']"]').val('');
+    customConfirm('Clear SEO titles for ' + checked.length + ' posts?').then(function(confirmed) {
+      if (confirmed) {
+        checked.each(function() {
+          const postId = $(this).val();
+          $('input[name="seo_title[' + postId + ']"]').val('');
+        });
+        customAlert('SEO titles cleared. Click Save All Changes.');
+      }
     });
-    
-    alert('SEO titles cleared. Click "Save All Changes" to apply.');
   });
   
-  // Bulk action: Clear Descriptions
   $('#cfseo-bulk-clear-description').on('click', function() {
     const checked = $('.cfseo-post-checkbox:checked');
     if (checked.length === 0) {
-      alert('Please select at least one post.');
+      customAlert('Please select at least one post.');
       return;
     }
     
-    if (!confirm('Clear descriptions for ' + checked.length + ' posts? Defaults will be used.')) {
-      return;
-    }
-    
-    checked.each(function() {
-      const postId = $(this).val();
-      $('textarea[name="seo_description[' + postId + ']"]').val('');
+    customConfirm('Clear descriptions for ' + checked.length + ' posts?').then(function(confirmed) {
+      if (confirmed) {
+        checked.each(function() {
+          const postId = $(this).val();
+          $('textarea[name="seo_description[' + postId + ']"]').val('');
+        });
+        customAlert('Descriptions cleared. Click Save All Changes.');
+      }
     });
-    
-    alert('Descriptions cleared. Click "Save All Changes" to apply.');
   });
   
-  // Form submission
   $('#cfseo-bulk-edit-form').on('submit', function(e) {
     e.preventDefault();
     
@@ -89,7 +140,6 @@ jQuery(document).ready(function($) {
     const $status = $('#cfseo-bulk-status');
     const $button = $form.find('button[type="submit"]');
     
-    // Collect only changed rows
     const data = {
       action: 'CFSEO_bulk_save',
       nonce: gscseoBulkEdit.nonce,
@@ -116,17 +166,20 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         if (response.success) {
-          $status.html('<span style="color: #46b450;">✓ ' + response.data.message + '</span>');
-          setTimeout(function() {
+          hasUnsavedChanges = false;
+          $status.html('<span style="color: #46b450;">Success: ' + response.data.message + '</span>');
+          customAlert(response.data.message).then(function() {
             location.reload();
-          }, 1500);
+          });
         } else {
-          $status.html('<span style="color: #d63638;">✗ ' + response.data.message + '</span>');
+          $status.html('<span style="color: #d63638;">Error: ' + response.data.message + '</span>');
+          customAlert('Error: ' + response.data.message);
           $button.prop('disabled', false).text('Save All Changes');
         }
       },
       error: function() {
-        $status.html('<span style="color: #d63638;">✗ Save failed. Please try again.</span>');
+        $status.html('<span style="color: #d63638;">Save failed. Please try again.</span>');
+        customAlert('Save failed. Please try again.');
         $button.prop('disabled', false).text('Save All Changes');
       }
     });
