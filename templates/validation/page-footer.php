@@ -8,9 +8,15 @@ if (!defined('ABSPATH')) exit;
     </div><!-- .cfseo-tab-content -->
   </div><!-- .cfseo-settings-form -->
     
-  <!-- Sidebar Info -->
-  <div class="cfseo-sidebar">
-      <div class="cfseo-info-box">
+  <!-- Help Sidebar -->
+  <aside class="cfseo-sidebar">
+    <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+      <span class="dashicons dashicons-editor-help"></span>
+      <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+    </button>
+    
+    <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+      <div class="cfseo-help-card">
         <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
         <ul>
           <li>Test your homepage and key pages regularly to ensure proper SEO setup</li>
@@ -21,7 +27,7 @@ if (!defined('ABSPATH')) exit;
         </ul>
       </div>
       
-      <div class="cfseo-info-box cfseo-success-box">
+      <div class="cfseo-help-card">
         <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
         <p>Learn more about clarity-first SEO approach:</p>
         <ul>
@@ -31,7 +37,30 @@ if (!defined('ABSPATH')) exit;
         </ul>
       </div>
     </div>
+  </aside>
 </div><!-- .wrap -->
+
+<script>
+(function() {
+  const toggle = document.getElementById('cfseo-sidebar-toggle');
+  const content = document.getElementById('cfseo-sidebar-content');
+  const storageKey = 'cfseo_sidebar_visible';
+  
+  // Restore sidebar state
+  const isVisible = localStorage.getItem(storageKey) !== 'false';
+  if (!isVisible) {
+    content.style.display = 'none';
+    toggle.classList.add('collapsed');
+  }
+  
+  toggle.addEventListener('click', function() {
+    const visible = content.style.display !== 'none';
+    content.style.display = visible ? 'none' : 'block';
+    toggle.classList.toggle('collapsed');
+    localStorage.setItem(storageKey, !visible);
+  });
+})();
+</script>
 
 <script>
 jQuery(document).ready(function($) {

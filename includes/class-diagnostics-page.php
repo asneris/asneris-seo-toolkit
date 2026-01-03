@@ -183,7 +183,7 @@ class CFSEO_Diagnostics_Page {
       $results = self::analyze_url($test_url);
     }
     ?>
-    <div class="wrap cfseo-admin-wrap">
+    <div class="wrap cfseo-admin-wrap has-sidebar">
       <h1>
         <span class="dashicons dashicons-analytics"></span>
         <?php _e('Page Diagnostics', 'cfseo'); ?>
@@ -515,7 +515,68 @@ class CFSEO_Diagnostics_Page {
         
       <?php endif; ?>
       
+      <!-- Help Sidebar -->
+      <aside class="cfseo-sidebar">
+        <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+          <span class="dashicons dashicons-editor-help"></span>
+          <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+        </button>
+        
+        <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+          <div class="cfseo-help-card">
+            <h3><span class="dashicons dashicons-info"></span> About Page Diagnostics</h3>
+            <p>Analyze a single URL to see exactly what meta tags, canonicals, and schema are detected.</p>
+          </div>
+          
+          <div class="cfseo-help-card">
+            <h3><span class="dashicons dashicons-search"></span> How to Use</h3>
+            <ul>
+              <li>Select a page from the dropdown or enter a custom URL</li>
+              <li>Click "Run Diagnostics" to fetch data</li>
+              <li>Review results across all sections</li>
+            </ul>
+          </div>
+          
+          <div class="cfseo-help-card">
+            <h3><span class="dashicons dashicons-lightbulb"></span> What You'll See</h3>
+            <ul>
+              <li><strong>Fetch Results:</strong> HTTP status, redirects, timing</li>
+              <li><strong>Canonical:</strong> URL consistency and target status</li>
+              <li><strong>Indexing Signals:</strong> Robots meta, X-Robots-Tag</li>
+              <li><strong>Meta & Schema:</strong> Title, description, social tags, JSON-LD</li>
+            </ul>
+          </div>
+          
+          <div class="cfseo-help-card">
+            <h3><span class="dashicons dashicons-warning"></span> Note</h3>
+            <p>This tool shows <strong>facts only</strong> - no pass/fail judgments. Use these facts to understand what search engines see.</p>
+          </div>
+        </div>
+      </aside>
+      
     </div>
+    
+    <script>
+    (function() {
+      const toggle = document.getElementById('cfseo-sidebar-toggle');
+      const content = document.getElementById('cfseo-sidebar-content');
+      const storageKey = 'cfseo_sidebar_visible';
+      
+      // Restore sidebar state
+      const isVisible = localStorage.getItem(storageKey) !== 'false';
+      if (!isVisible) {
+        content.style.display = 'none';
+        toggle.classList.add('collapsed');
+      }
+      
+      toggle.addEventListener('click', function() {
+        const visible = content.style.display !== 'none';
+        content.style.display = visible ? 'none' : 'block';
+        toggle.classList.toggle('collapsed');
+        localStorage.setItem(storageKey, !visible);
+      });
+    })();
+    </script>
     <?php
   }
 }

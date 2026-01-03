@@ -255,7 +255,7 @@ Sitemap: {$sitemap_url}
         $error = isset($_GET['error']) && $_GET['error'] === '1';
         
         ?>
-        <div class="wrap cfseo-wrap">
+        <div class="wrap cfseo-admin-wrap has-sidebar">
             <h1><?php _e('Robots.txt Editor & Validator', 'cfseo'); ?></h1>
             
             <?php if ($saved): ?>
@@ -370,37 +370,66 @@ Sitemap: {$sitemap_url}
                         </div>
                     </div>
                     
-                </div>
+                </div><!-- .cfseo-tab-content -->
+            </div><!-- .cfseo-settings-form -->
                 
-                <!-- Sidebar -->
-                <div class="cfseo-sidebar">
-                    <div class="cfseo-widget">
-                        <h3><?php _e('Quick Tips', 'cfseo'); ?></h3>
-                        <ul>
-                            <li><?php _e('robots.txt only controls <strong>crawling</strong>, not ranking', 'cfseo'); ?></li>
-                            <li><?php _e('Don\'t use robots.txt to hide sensitive content', 'cfseo'); ?></li>
-                            <li><?php _e('Allow CSS and JS files for proper rendering', 'cfseo'); ?></li>
-                            <li><?php _e('Always include your sitemap location', 'cfseo'); ?></li>
-                            <li><?php _e('Test changes with Google Search Console', 'cfseo'); ?></li>
-                        </ul>
-                    </div>
+            <!-- Help Sidebar -->
+            <aside class="cfseo-sidebar">
+                <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+                    <span class="dashicons dashicons-editor-help"></span>
+                    <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+                </button>
                     
-                    <div class="cfseo-widget">
-                        <h3><?php _e('Integration', 'cfseo'); ?></h3>
-                        <p><?php _e('This works together with:', 'cfseo'); ?></p>
-                        <ul>
-                            <li><a href="<?php echo admin_url('admin.php?page=clarity-first-seo-validation'); ?>"><?php _e('Validation checks', 'cfseo'); ?></a></li>
-                            <li><?php _e('Canonical validation', 'cfseo'); ?></li>
-                            <li><?php _e('Meta robots checks', 'cfseo'); ?></li>
-                            <li><?php _e('Sitemap checks', 'cfseo'); ?></li>
-                        </ul>
-                        <p style="margin-top: 12px; font-weight: 500;">
-                            <?php _e('Together they answer: "Can search engines reach, crawl, and understand my site correctly?"', 'cfseo'); ?>
-                        </p>
+                    <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+                        <div class="cfseo-help-card">
+                            <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
+                            <ul>
+                                <li>robots.txt only controls <strong>crawling</strong>, not ranking</li>
+                                <li>Don't use robots.txt to hide sensitive content</li>
+                                <li>Allow CSS and JS files for proper rendering</li>
+                                <li>Always include your sitemap location</li>
+                                <li>Test changes with Google Search Console</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="cfseo-help-card">
+                            <h3><span class="dashicons dashicons-admin-links"></span> Integration</h3>
+                            <p>This works together with:</p>
+                            <ul>
+                                <li><a href="<?php echo admin_url('admin.php?page=clarity-first-seo-validation'); ?>">Validation checks</a></li>
+                                <li>Canonical validation</li>
+                                <li>Meta robots checks</li>
+                                <li>Sitemap checks</li>
+                            </ul>
+                            <p style="margin-top: 12px; font-weight: 500;">
+                                Together they answer: "Can search engines reach, crawl, and understand my site correctly?"
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                </aside>
+            </div><!-- .wrap -->
+        
+        <script>
+        (function() {
+            const toggle = document.getElementById('cfseo-sidebar-toggle');
+            const content = document.getElementById('cfseo-sidebar-content');
+            const storageKey = 'cfseo_sidebar_visible';
+            
+            // Restore sidebar state
+            const isVisible = localStorage.getItem(storageKey) !== 'false';
+            if (!isVisible) {
+                content.style.display = 'none';
+                toggle.classList.add('collapsed');
+            }
+            
+            toggle.addEventListener('click', function() {
+                const visible = content.style.display !== 'none';
+                content.style.display = visible ? 'none' : 'block';
+                toggle.classList.toggle('collapsed');
+                localStorage.setItem(storageKey, !visible);
+            });
+        })();
+        </script>
         <?php
     }
     

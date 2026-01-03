@@ -5,7 +5,7 @@
  */
 if (!defined('ABSPATH')) exit;
 ?>
-<div class="wrap cfseo-admin-wrap">
+<div class="wrap cfseo-admin-wrap has-sidebar">
   <h1>
     <span class="dashicons dashicons-analytics"></span>
     <?php _e('Site Diagnostics', 'cfseo'); ?>

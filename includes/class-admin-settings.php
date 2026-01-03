@@ -80,7 +80,7 @@ class CFSEO_Admin_Settings {
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
-    <div class="wrap cfseo-admin-wrap">
+    <div class="wrap cfseo-admin-wrap has-sidebar">
       <h1>
         <span class="dashicons dashicons-search"></span>
         Clarity-First SEO
@@ -138,10 +138,16 @@ class CFSEO_Admin_Settings {
         <?php endif; ?>
       </form>
 
-      <!-- Sidebar Info -->
-      <div class="cfseo-sidebar">
-        <div class="cfseo-info-box">
-          <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
+      <!-- Help Sidebar -->
+      <aside class="cfseo-sidebar">
+        <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+          <span class="dashicons dashicons-editor-help"></span>
+          <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+        </button>
+        
+        <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+          <div class="cfseo-help-card">
+            <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
           
           <!-- General Tab Tips -->
           <ul id="cfseo-quick-tips-general" style="display: none;">
@@ -247,16 +253,37 @@ class CFSEO_Admin_Settings {
             <li>✅ All checks are lightweight and won't impact site performance</li>
             <li>🛠️ Use these tools regularly to maintain a healthy SEO foundation</li>
           </ul>
+          </div>
+          
+          <div class="cfseo-help-card">
+            <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
+            <p>Check out our <a href="#" target="_blank">documentation</a> for detailed guides.</p>
+          </div>
         </div>
-        
-        <div class="cfseo-info-box cfseo-success-box">
-          <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
-          <p>Check out our <a href="#" target="_blank">documentation</a> for detailed guides.</p>
-        </div>
-      </div>
+      </aside>
     </div>
     
     <script>
+    (function() {
+      const toggle = document.getElementById('cfseo-sidebar-toggle');
+      const content = document.getElementById('cfseo-sidebar-content');
+      const storageKey = 'cfseo_sidebar_visible';
+      
+      // Restore sidebar state
+      const isVisible = localStorage.getItem(storageKey) !== 'false';
+      if (!isVisible) {
+        content.style.display = 'none';
+        toggle.classList.add('collapsed');
+      }
+      
+      toggle.addEventListener('click', function() {
+        const visible = content.style.display !== 'none';
+        content.style.display = visible ? 'none' : 'block';
+        toggle.classList.toggle('collapsed');
+        localStorage.setItem(storageKey, !visible);
+      });
+    })();
+    
     jQuery(document).ready(function($) {
       // Toggle quick tips based on current tab
       const currentTab = '<?php echo $current_tab; ?>';
