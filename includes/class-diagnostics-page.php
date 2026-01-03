@@ -192,6 +192,7 @@ class CFSEO_Diagnostics_Page {
         <?php _e('Fetch and inspect a single page - read-only facts only', 'cfseo'); ?>
       </p>
       
+      <div class="cfseo-main-content">
       <!-- URL Input -->
       <div class="cfseo-card">
         <h2><span class="dashicons dashicons-search"></span> Analyze Any URL</h2>
@@ -514,6 +515,7 @@ class CFSEO_Diagnostics_Page {
         </div>
         
       <?php endif; ?>
+      </div><!-- .cfseo-main-content -->
       
       <!-- Help Sidebar -->
       <aside class="cfseo-sidebar">

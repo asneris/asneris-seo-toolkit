@@ -33,6 +33,11 @@
     grid-column: 1 / -1;
 }
 
+/* Main content area wrapper */
+.cfseo-main-content {
+    width: 100%;
+}
+
 /* Help Sidebar */
 .cfseo-sidebar {
     position: sticky;
