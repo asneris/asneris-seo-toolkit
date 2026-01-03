@@ -1,0 +1,241 @@
+{
+  "version": "1.0.1",
+  "last_updated": "2026-01-03",
+  "settings": {
+    "tabs": {
+      "general": [
+        {
+          "title": "General Settings",
+          "icon": "dashicons-admin-settings",
+          "content": "<ul><li>\ud83d\udcca Set your organization/site name (used in schema and social sharing)</li><li>\ud83d\uddbc\ufe0f Upload a logo for previews and schema (square or wide both work)</li><li>\ud83d\udca1 Keep your site name and logo consistent everywhere</li><li>\u2139\ufe0f These settings improve clarity, not rankings</li></ul>",
+          "review_url": "https://clarityfirstseo.com/docs/general-settings/"
+        }
+      ],
+      "verification": [
+        {
+            "title": "Search Engine Verification",
+            "icon": "dashicons-search",
+            "content": "<ul><li>🔑 Verification proves that you own this website</li><li>📊 It allows search engines to show you reports about your site</li><li>🔍 Google Search Console shows indexing, errors, and search traffic</li><li>🌐 Bing Webmaster Tools shows crawl and visibility data for Bing</li><li>🧭 Yandex is useful only if you target Russian or CIS regions</li><li>✂️ Paste only the <strong>content value</strong> — the plugin adds the full meta tag automatically</li><li>⚠️ Verification does <strong>not</strong> improve rankings by itself</li><li>ℹ️ After saving, complete verification inside each webmaster tool</li></ul>",
+            "review_url": "https://clarityfirstseo.com/docs/verification/"
+        }
+      ],
+      "indexnow": [
+        {
+            "title": "IndexNow (Instant URL Notification)",
+            "icon": "dashicons-update",
+            "content": "<ul><li>🚀 IndexNow notifies participating search engines when a page is added, updated, or removed</li><li>🌐 Supported by Bing, Yandex, Seznam, and other IndexNow partners</li><li>❌ Google does <strong>not</strong> currently use IndexNow</li><li>🔄 Pages may still take time to appear — indexing is not guaranteed</li><li>🔑 The API key is generated automatically and identifies your site</li><li>⏱️ Most useful for frequently updated or time-sensitive content</li><li>ℹ️ This feature improves discovery speed, not rankings</li></ul>",
+            "review_url": "https://clarityfirstseo.com/docs/indexnow/"
+        }
+        ],
+      "social": [
+        {
+            "title": "Social Sharing (Open Graph & Twitter)",
+            "icon": "dashicons-share",
+            "content": "<ul><li>🖼️ Controls how your pages look when shared on social apps</li><li>📌 A default image is used when a page has no featured image</li><li>📏 Recommended image size: 1200×630 pixels (works on most platforms)</li><li>🌐 Most platforms use Open Graph tags automatically</li><li>🐦 Twitter/X uses its own card format for large preview images</li><li>📘 Facebook App ID is optional and used only for Insights and validation</li><li>🎨 Theme color affects link previews in some apps (Discord, Telegram)</li><li>ℹ️ Social tags affect previews — not Google rankings</li></ul>",
+            "review_url": "https://clarityfirstseo.com/docs/social-settings/"
+        }
+        ],
+      "schema": [
+        {
+            "title": "Schema (Structured Data)",
+            "icon": "dashicons-location",
+            "content": "<ul><li>🏷️ Schema adds structured information so search engines understand your site</li><li>📄 It describes what your pages represent (organization, business, breadcrumbs)</li><li>✨ Some schema types <em>may</em> be used for rich results if search engines choose to</li><li>🏢 Enable Local Business only if you serve customers in a physical or service area</li><li>📍 Business details should exactly match your Google Business Profile</li><li>🧭 Breadcrumbs help search engines understand page hierarchy</li><li>⚠️ Schema improves clarity — rich results and rankings are never guaranteed</li><li>ℹ️ Leaving optional fields empty will not harm your site</li></ul>",
+            "review_url": "https://clarityfirstseo.com/docs/schema/"
+        }
+        ],
+      "templates": [
+        {
+            "title": "SEO Templates (Automatic Fallbacks)",
+            "icon": "dashicons-text",
+            "content": "<ul><li>🧩 Templates are used only when a page does not have custom SEO values</li><li>✏️ Page-level titles and descriptions always take priority</li><li>🏷️ Use variables to create consistent, readable fallbacks</li><li>➗ The separator controls how titles are visually split</li><li>🧠 Simple templates are usually better than complex ones</li><li>📄 Descriptions can be left empty to auto-generate from content</li><li>ℹ️ Templates help consistency — they do not guarantee rankings</li></ul>",
+            "review_url": "https://clarityfirstseo.com/docs/templates/"
+        }
+        ],
+      "maintenance": [
+  {
+    "title": "Safety & Maintenance",
+    "icon": "dashicons-admin-generic",
+    "content": "<ul><li>🛠️ This page is for maintenance and recovery — most users rarely need it</li><li>📦 Export settings before making major changes or updates</li><li>📥 Import settings only from files created by this plugin</li><li>🔄 Reset removes all plugin settings and cannot be undone</li><li>🧪 Use reset only for troubleshooting or starting fresh</li><li>⚠️ These tools do not affect rankings directly</li></ul>",
+    "review_url": "https://clarityfirstseo.com/docs/maintenance-settings/"
+  }
+]
+
+    }
+  },
+  "page-diagnostics": {
+  "cards": [
+    {
+      "title": "About Page Diagnostics",
+      "icon": "dashicons-info",
+      "content": "<p>Inspect a single page and see exactly what search engines can read from it — including title, description, canonical URL, indexing rules, and structured data.</p>",
+      "review_url": "https://clarityfirstseo.com/docs/page-diagnostics/"
+    },
+    {
+      "title": "How to Use",
+      "icon": "dashicons-search",
+      "content": "<ul><li>Select a page from your site or paste a full URL</li><li>Click <strong>Run Diagnostics</strong> to fetch the page</li><li>Review each section to confirm what search engines and social platforms can read</li><li><em>Tip:</em> This tool does not change your page — it only inspects it</li></ul>",
+      "review_url": "https://clarityfirstseo.com/docs/diagnostics-guide/"
+    },
+    {
+      "title": "What You’ll See",
+      "icon": "dashicons-lightbulb",
+      "content": "<ul><li><strong>Page Fetch:</strong> Whether the page loads correctly or redirects</li><li><strong>Indexing Rules:</strong> Whether the page is allowed to appear in search results</li><li><strong>Canonical URL:</strong> Which URL the page declares as its main version</li><li><strong>Meta & Schema:</strong> Title, description, social preview tags, and structured data</li></ul>",
+      "review_url": "https://clarityfirstseo.com/docs/understanding-results/"
+    },
+    {
+      "title": "Note",
+      "icon": "dashicons-warning",
+      "content": "<p>This page is read-only. It shows factual output only — no scoring, no recommendations, and no ranking predictions. Use it to spot missing, conflicting, or unexpected signals.</p>",
+      "review_url": "https://clarityfirstseo.com/docs/facts-based-approach/"
+    }
+  ]
+}, 
+  "site-diagnostics": {
+    "cards": [
+      {
+        "title": "About Site Diagnostics",
+        "icon": "dashicons-info",
+        "content": "<p>Site Diagnostics checks <strong>site-wide SEO patterns</strong> that may affect how search engines discover, understand, and index your pages. It focuses on global signals, not individual pages.</p><p>This helps you identify issues that impact <em>all</em> pages at once.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/site-diagnostics/"
+      },
+      {
+        "title": "Can search engines easily discover your pages?",
+        "icon": "dashicons-networking",
+        "content": "<ul><li>Checks whether your XML sitemap exists and is accessible</li><li>Verifies HTTP status of the sitemap</li><li>Confirms whether the sitemap is referenced in robots.txt</li><li>Shows whether WordPress is managing the sitemap</li></ul><p><strong>Why this matters:</strong> If search engines cannot find your sitemap, they may discover pages slowly or miss updates.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/sitemaps/"
+      },
+      {
+        "title": "Is your site sending clear, single signals?",
+        "icon": "dashicons-yes",
+        "content": "<ul><li>Detects multiple active SEO plugins</li><li>Checks for duplicate title tags</li><li>Checks for duplicate meta descriptions</li><li>Verifies single canonical output</li><li>Ensures robots and schema tags are not duplicated</li></ul><p><strong>Why this matters:</strong> Search engines expect one clear SEO signal per page. Multiple outputs can cause confusion.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/duplicate-signals/"
+      },
+      {
+        "title": "Is anything blocking your site from search results?",
+        "icon": "dashicons-shield",
+        "content": "<ul><li>Checks if global <code>noindex</code> is enabled</li><li>Detects large robots.txt crawl blocks</li><li>Reviews sitemap accessibility</li><li>Samples redirect chains that may block crawling</li></ul><p><strong>Important:</strong> Even a well-optimized site cannot appear in search results if indexing is blocked.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/indexing-safety/"
+      },
+      {
+        "title": "Do pages clearly identify their main URL?",
+        "icon": "dashicons-admin-links",
+        "content": "<ul><li>Detects pages canonicalizing to the homepage</li><li>Checks for canonical loops</li><li>Finds canonicals pointing to redirected URLs</li><li>Verifies consistent HTTP / HTTPS usage</li><li>Confirms default WordPress canonical behavior</li></ul><p><strong>Why this matters:</strong> Canonical URLs tell search engines which version of a page should be indexed.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/canonical-consistency/"
+      },
+      {
+        "title": "How to use this page",
+        "icon": "dashicons-lightbulb",
+        "content": "<ol><li>Fix blocking issues (red status) first</li><li>Resolve duplicate or conflict warnings next</li><li>Use Page Diagnostics for deep checks on individual URLs</li><li>Re-run Site Diagnostics after major changes</li></ol>",
+        "review_url": "https://clarityfirstseo.com/docs/validation/"
+      },
+      {
+        "title": "Important Note",
+        "icon": "dashicons-warning",
+        "content": "<p>This page shows <strong>facts and detected patterns only</strong>.</p><p>It does not predict rankings, assign scores, or guarantee results. It reflects what search engines can see at a site-wide level.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/facts-based-approach/"
+      }
+    ]
+  },
+  "bulk-edit": {
+    "cards": [
+      {
+        "title": "About SEO Bulk Edit",
+        "icon": "dashicons-edit",
+        "content": "<p>Bulk Edit lets you update SEO titles, descriptions, and indexing settings for multiple posts at once.</p><p>This is useful when cleaning up old content or applying consistent SEO rules.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/bulk-edit/"
+      },
+      {
+        "title": "How to use Bulk Edit",
+        "icon": "dashicons-filter",
+        "content": "<ul><li>Filter by post type (Posts, Pages, etc.)</li><li>Optionally filter by indexing status</li><li>Select the items you want to change</li><li>Apply a bulk action or edit fields inline</li></ul>",
+        "review_url": "https://clarityfirstseo.com/docs/bulk-edit-usage/"
+      },
+      {
+        "title": "Bulk actions explained",
+        "icon": "dashicons-admin-tools",
+        "content": "<ul><li><strong>Set to Index:</strong> Allow selected pages to appear in search results</li><li><strong>Set to Noindex:</strong> Prevent selected pages from appearing in search results</li><li><strong>Clear SEO Titles:</strong> Revert to automatic title generation</li><li><strong>Clear Descriptions:</strong> Allow descriptions to be auto-generated</li></ul>",
+        "review_url": "https://clarityfirstseo.com/docs/bulk-actions/"
+      },
+      {
+        "title": "Best practices",
+        "icon": "dashicons-lightbulb",
+        "content": "<ul><li>Make small, controlled changes</li><li>Avoid using the same title across many pages</li><li>Use Noindex carefully — it removes pages from search results</li><li>Review a few updated pages in Page Diagnostics after saving</li></ul>",
+        "review_url": "https://clarityfirstseo.com/docs/bulk-edit-best-practices/"
+      },
+      {
+        "title": "Important notes",
+        "icon": "dashicons-warning",
+        "content": "<ul><li>Changes are applied only after clicking <strong>Save All Changes</strong></li><li>Bulk edits affect many pages — double-check selections</li><li>This tool does not change content, only SEO metadata</li></ul>",
+        "review_url": "https://clarityfirstseo.com/docs/bulk-edit-safety/"
+      }
+    ]
+  },
+  "redirects": {
+    "cards": [
+      {
+        "title": "About SEO Redirects",
+        "icon": "dashicons-randomize",
+        "content": "<p>Redirects guide visitors and search engines from an old URL to the correct page when URLs change.</p><p>This helps avoid broken links and preserves search visibility.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/redirects/"
+      },
+      {
+        "title": "How redirects work",
+        "icon": "dashicons-admin-links",
+        "content": "<ul><li>Visitors are automatically sent from the old URL to the new one</li><li>Search engines update their records over time</li><li>The original URL does not show content anymore</li></ul><p><strong>Why this matters:</strong> Without redirects, users may see errors and search engines may drop old pages.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/how-redirects-work/"
+      },
+      {
+        "title": "Choosing the right redirect type",
+        "icon": "dashicons-filter",
+        "content": "<ul><li><strong>301 (Permanent):</strong> Use when a page has moved permanently (recommended for SEO)</li><li><strong>302 / 307 (Temporary):</strong> Use when the change is short-term and the original page will return</li></ul><p><strong>Tip:</strong> Temporary redirects keep the original URL indexed.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/redirect-types/"
+      },
+      {
+        "title": "Best practices",
+        "icon": "dashicons-yes",
+        "content": "<ul><li>Always test the old URL after adding a redirect</li><li>Avoid redirect chains (URL A → B → C)</li><li>Remove redirects that are no longer needed</li><li>Use relative paths when redirecting within the same site</li></ul>",
+        "review_url": "https://clarityfirstseo.com/docs/redirect-best-practices/"
+      },
+      {
+        "title": "Important Note",
+        "icon": "dashicons-warning",
+        "content": "<p>This tool manages redirects only.</p><p>It does not modify page content, predict rankings, or guarantee SEO improvements.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/facts-based-approach/"
+      }
+    ]
+  },
+  "robots-txt": {
+    "cards": [
+      {
+        "title": "About robots.txt",
+        "icon": "dashicons-shield",
+        "content": "<p>The <strong>robots.txt</strong> file tells search engines which parts of your site they are allowed to visit.</p><p>It controls crawling only — not rankings or indexing.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/robots-txt/"
+      },
+      {
+        "title": "What robots.txt does (and doesn’t do)",
+        "icon": "dashicons-info",
+        "content": "<ul><li>Controls which URLs search engines can <strong>crawl</strong></li><li>Does <strong>not</strong> control rankings</li><li>Does <strong>not</strong> hide pages from the public</li></ul><p><strong>Important:</strong> Pages blocked here may still appear in search results if linked elsewhere.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/robots-txt-basics/"
+      },
+      {
+        "title": "Common safe rules",
+        "icon": "dashicons-yes",
+        "content": "<ul><li>Block <code>/wp-admin/</code> except <code>admin-ajax.php</code></li><li>Block <code>/wp-includes/</code> system files</li><li>Allow all public content</li><li>Include your sitemap URL</li></ul><p>These defaults are safe for most WordPress sites.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/robots-txt-safe-defaults/"
+      },
+      {
+        "title": "When to be careful",
+        "icon": "dashicons-warning",
+        "content": "<ul><li>Do not block CSS or JavaScript needed for page rendering</li><li>Do not use robots.txt to hide sensitive or private content</li><li>Avoid blocking entire sections unless necessary</li></ul><p>Incorrect rules can prevent search engines from understanding your pages.</p>",
+        "review_url": "https://clarityfirstseo.com/docs/robots-txt-mistakes/"
+      },
+      {
+        "title": "After making changes",
+        "icon": "dashicons-update",
+        "content": "<ul><li>Save the file and view the live robots.txt</li><li>Test important pages using Page Diagnostics</li><li>Re-check crawling status in Google Search Console</li></ul>",
+        "review_url": "https://clarityfirstseo.com/docs/robots-txt-testing/"
+      }
+    ]
+  }
+}

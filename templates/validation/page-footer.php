@@ -8,59 +8,8 @@ if (!defined('ABSPATH')) exit;
     </div><!-- .cfseo-tab-content -->
   </div><!-- .cfseo-settings-form -->
     
-  <!-- Help Sidebar -->
-  <aside class="cfseo-sidebar">
-    <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
-      <span class="dashicons dashicons-editor-help"></span>
-      <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
-    </button>
-    
-    <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
-      <div class="cfseo-help-card">
-        <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
-        <ul>
-          <li>Test your homepage and key pages regularly to ensure proper SEO setup</li>
-          <li>Critical checks (HTTP 200, no noindex) determine if your page can be indexed (60% weight)</li>
-          <li>Recommended checks (title, description, H1) improve search visibility (30% weight)</li>
-          <li>Optimization checks (social, schema) enhance search result appearance (10% weight)</li>
-          <li>Fix critical issues first, then work on recommended and optimization items</li>
-        </ul>
-      </div>
-      
-      <div class="cfseo-help-card">
-        <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
-        <p>Learn more about clarity-first SEO approach:</p>
-        <ul>
-          <li><a href="https://clarityfirstseo.com/docs/validation/" target="_blank">Validation Guide</a></li>
-          <li><a href="https://clarityfirstseo.com/docs/scoring/" target="_blank">Scoring Method</a></li>
-          <li><a href="https://clarityfirstseo.com/docs/critical-checks/" target="_blank">Critical vs Recommended</a></li>
-        </ul>
-      </div>
-    </div>
-  </aside>
+  <?php CFSEO_Help_Content::render_sidebar('site-diagnostics'); ?>
 </div><!-- .wrap -->
-
-<script>
-(function() {
-  const toggle = document.getElementById('cfseo-sidebar-toggle');
-  const content = document.getElementById('cfseo-sidebar-content');
-  const storageKey = 'cfseo_sidebar_visible';
-  
-  // Restore sidebar state
-  const isVisible = localStorage.getItem(storageKey) !== 'false';
-  if (!isVisible) {
-    content.style.display = 'none';
-    toggle.classList.add('collapsed');
-  }
-  
-  toggle.addEventListener('click', function() {
-    const visible = content.style.display !== 'none';
-    content.style.display = visible ? 'none' : 'block';
-    toggle.classList.toggle('collapsed');
-    localStorage.setItem(storageKey, !visible);
-  });
-})();
-</script>
 
 <script>
 jQuery(document).ready(function($) {

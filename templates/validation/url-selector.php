@@ -81,5 +81,8 @@ if (!defined('ABSPATH')) exit;
       <span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
       <?php _e('Run Validation', 'cfseo'); ?>
     </button>
+    <p class="description" style="margin-top: 8px; color: #646970;">
+      <?php _e('This inspection does not modify the page.', 'cfseo'); ?>
+    </p>
   </form>
 </div>

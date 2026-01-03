@@ -22,8 +22,8 @@
 /* Grid layout for settings/validation pages with sidebar */
 .cfseo-admin-wrap.has-sidebar {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 30px;
+    grid-template-columns: 1fr 350px;
+    gap: 10px;
     align-items: start;
 }
 
@@ -200,17 +200,19 @@
 
 /* Settings Form */
 .cfseo-settings-form {
-    max-width: 900px;
+    width: 100%;
     background: #fff;
     border: 1px solid #c3c4c7;
     border-radius: 4px;
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    box-sizing: border-box;
 }
 
 /* Tab Content */
 .cfseo-tab-content {
     padding: 24px;
-    max-width: 900px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Cards */
@@ -221,6 +223,8 @@
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,.02);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cfseo-card:last-child {
@@ -248,6 +252,10 @@
 
 .cfseo-card .form-table {
     margin-top: 0;
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
 /* Form Elements */
@@ -286,6 +294,78 @@
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
     font-size: 13px;
     background: #f6f7f7;
+}
+
+/* Validation Status Card States */
+.cfseo-validation-status {
+    padding: 20px 0;
+}
+
+.cfseo-status-icon {
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.cfseo-status-message {
+    font-size: 15px;
+    color: #1d2327;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+.cfseo-status-info {
+    background: #f6f7f7;
+    border-left: 4px solid #2271b1;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.cfseo-status-line {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #1d2327;
+    margin: 4px 0;
+}
+
+.cfseo-status-line strong {
+    color: #50575e;
+    font-weight: 600;
+}
+
+.cfseo-status-actions {
+    margin: 0;
+    text-align: center;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* State-specific styling */
+.cfseo-status-never-run .cfseo-status-icon {
+    color: #4A90E2; /* Blue */
+}
+
+.cfseo-status-healthy .cfseo-status-icon {
+    color: #46b450; /* Green */
+}
+
+.cfseo-status-healthy .cfseo-status-info {
+    border-left-color: #46b450;
+    background: #f0f9f1;
+}
+
+.cfseo-status-issues .cfseo-status-icon {
+    color: #f0ad4e; /* Yellow/Orange */
+}
+
+.cfseo-status-issues .cfseo-status-info {
+    border-left-color: #f0ad4e;
+    background: #fef9f1;
 }
 
 /* Custom Toggle Switch */
@@ -833,4 +913,51 @@
     border-radius: 3px;
     font-size: 12px;
     word-break: break-word;
+}
+
+/* Consistent Table Styling for Site Diagnostics */
+.cfseo-card table.widefat {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-top: 16px;
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+}
+
+.cfseo-card table.widefat thead tr {
+    background: #f6f7f7;
+}
+
+.cfseo-card table.widefat th {
+    font-weight: 600;
+    color: #1d2327;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.cfseo-card table.widefat th:nth-child(1) {
+    width: 30%;
+}
+
+.cfseo-card table.widefat th:nth-child(2) {
+    width: 15%;
+    text-align: center;
+}
+
+.cfseo-card table.widefat th:nth-child(3) {
+    width: 55%;
+}
+
+.cfseo-card table.widefat td {
+    padding: 14px 16px;
+    vertical-align: top;
+}
+
+.cfseo-card table.widefat td:nth-child(2) {
+    text-align: center;
+}
+
+.cfseo-card table.widefat tbody tr:hover {
+    background: #f9f9f9;
 }

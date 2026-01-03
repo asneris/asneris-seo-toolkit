@@ -3,24 +3,24 @@
  * Plugin Name: Clarity-First SEO
  * Plugin URI: https://clarityfirstseo.com
  * Description: Professional SEO plugin with modern UI, designed for clarity and simplicity. Features intuitive tabbed interface, media uploader, SEO score calculator, and comprehensive schema markup.
- * Version: 0.2.0
+ * Version: 0.2.2
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Clarity-First SEO
  * Author URI: https://clarityfirstseo.com
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: cfseo
+ * Text Domain: bfseo
  * Domain Path: /languages
  * 
  * @package Clarity_First_SEO
- * @version 0.2.0
+ * @version 0.2.2
  */
 
 if (!defined('ABSPATH')) exit;
 
 // Plugin constants
-define('CFSEO_VERSION', '0.2.1');
+define('CFSEO_VERSION', '0.2.2');
 define('CFSEO_DIR', plugin_dir_path(__FILE__));
 define('CFSEO_URL', plugin_dir_url(__FILE__));
 define('CFSEO_BASENAME', plugin_basename(__FILE__));
@@ -41,24 +41,19 @@ require_once CFSEO_DIR . 'includes/class-validation.php';
 require_once CFSEO_DIR . 'includes/class-diagnostics.php';
 require_once CFSEO_DIR . 'includes/class-robots.php';
 require_once CFSEO_DIR . 'includes/class-help.php';
-require_once CFSEO_DIR . 'includes/class-migration.php';
-require_once CFSEO_DIR . 'includes/class-help-content.php';
 
 add_action('init', function () {
   CFSEO_Meta::register_post_meta();
   CFSEO_IndexNow::register_rewrite();
   CFSEO_Redirects::init();
   CFSEO_Robots::init();
-  
-  // Run migrations
-  CFSEO_Migration::run();
 });
 
 add_action('admin_menu', function () {
   // Create top-level menu
   add_menu_page(
-    __('Clarity-First SEO', 'cfseo'),
-    __('Clarity-First SEO', 'cfseo'),
+    __('Clarity-First SEO', 'bfseo'),
+    __('Clarity-First SEO', 'bfseo'),
     'manage_options',
     'clarity-first-seo',
     [CFSEO_Dashboard::class, 'render_page'],
@@ -70,8 +65,8 @@ add_action('admin_menu', function () {
   // Dashboard (replaces default first submenu)
   add_submenu_page(
     'clarity-first-seo',
-    __('Dashboard', 'cfseo'),
-    __('Dashboard', 'cfseo'),
+    __('Dashboard', 'bfseo'),
+    __('Dashboard', 'bfseo'),
     'manage_options',
     'clarity-first-seo',
     [CFSEO_Dashboard::class, 'render_page']
@@ -80,8 +75,8 @@ add_action('admin_menu', function () {
   // Settings (configuration)
   add_submenu_page(
     'clarity-first-seo',
-    __('Settings', 'cfseo'),
-    __('Settings', 'cfseo'),
+    __('Settings', 'bfseo'),
+    __('Settings', 'bfseo'),
     'manage_options',
     'cfseo-settings',
     [CFSEO_Admin_Settings::class, 'render_page']

@@ -235,7 +235,7 @@ class CFSEO_Redirects {
         <span class="dashicons dashicons-controls-forward"></span>
         <?php _e('SEO Redirects', 'cfseo'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php _e('Manage 301 redirects for changed URLs', 'cfseo'); ?></p>
+      <p class="cfseo-subtitle"><?php _e('Send visitors and search engines to the right page when a URL changes.', 'cfseo'); ?></p>
       
       <div class="cfseo-settings-form">
         <div class="cfseo-tab-content">
@@ -252,7 +252,7 @@ class CFSEO_Redirects {
               </th>
               <td>
                 <input type="text" id="from" name="from" class="regular-text" placeholder="/old-page/" required>
-                <p class="description"><?php _e('Relative path without domain. Example: /old-page/', 'cfseo'); ?></p>
+                <p class="description"><?php _e('The old page address that no longer exists (without domain). Example: /old-page/', 'cfseo'); ?></p>
               </td>
             </tr>
             <tr>
@@ -261,7 +261,7 @@ class CFSEO_Redirects {
               </th>
               <td>
                 <input type="text" id="to" name="to" class="regular-text" placeholder="/new-page/" required>
-                <p class="description"><?php _e('Relative path or full URL. Example: /new-page/', 'cfseo'); ?></p>
+                <p class="description"><?php _e('The destination page visitors should land on. Example: /new-page/ or https://example.com/new-page/', 'cfseo'); ?></p>
               </td>
             </tr>
             <tr>
@@ -274,7 +274,7 @@ class CFSEO_Redirects {
                   <option value="302"><?php _e('302 Temporary', 'cfseo'); ?></option>
                   <option value="307"><?php _e('307 Temporary (Preserve Method)', 'cfseo'); ?></option>
                 </select>
-                <p class="description"><?php _e('Use 301 for permanent moves (recommended for SEO)', 'cfseo'); ?></p>
+                <p class="description"><?php _e('Use 301 when the old page is permanently replaced by the new page.', 'cfseo'); ?></p>
               </td>
             </tr>
           </table>
@@ -289,7 +289,7 @@ class CFSEO_Redirects {
         <h2><span class="dashicons dashicons-list-view"></span> <?php _e('Active Redirects', 'cfseo'); ?></h2>
         
         <?php if (empty($redirects)): ?>
-          <p style="color: #646970;"><?php _e('No redirects configured yet.', 'cfseo'); ?></p>
+          <p style="color: #646970;"><?php _e('No redirects added yet.', 'cfseo'); ?><br><?php _e('Add one above when a page URL changes.', 'cfseo'); ?></p>
         <?php else: ?>
           <table class="wp-list-table widefat fixed striped">
             <thead>
@@ -349,36 +349,7 @@ class CFSEO_Redirects {
         </div><!-- .cfseo-tab-content -->
       </div><!-- .cfseo-settings-form -->
         
-      <!-- Help Sidebar -->
-      <aside class="cfseo-sidebar">
-        <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
-          <span class="dashicons dashicons-editor-help"></span>
-          <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
-        </button>
-        
-        <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
-          <div class="cfseo-help-card">
-            <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
-            <ul>
-              <li>Use 301 Permanent redirects for changed URLs to preserve SEO value</li>
-              <li>Automatic redirects are created when you change post/page slugs</li>
-              <li>Test redirects after adding to ensure they work correctly</li>
-              <li>Review automatic redirects periodically and delete unnecessary ones</li>
-              <li>Redirects use relative paths (/old-page/) for portability across domains</li>
-            </ul>
-          </div>
-          
-          <div class="cfseo-help-card">
-            <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
-            <p>Learn about URL redirects and readiness:</p>
-            <ul>
-              <li><a href="https://clarityfirstseo.com/docs/redirects/" target="_blank">Redirect Management</a></li>
-              <li><a href="https://clarityfirstseo.com/docs/301-vs-302/" target="_blank">301 vs 302 Redirects</a></li>
-              <li><a href="https://clarityfirstseo.com/docs/seo-readiness/" target="_blank">SEO Readiness Guide</a></li>
-            </ul>
-          </div>
-        </div>
-      </aside>
+      <?php CFSEO_Help_Content::render_sidebar('redirects'); ?>
     </div>
     
     <script>

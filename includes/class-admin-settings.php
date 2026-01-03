@@ -85,7 +85,7 @@ class CFSEO_Admin_Settings {
         <span class="dashicons dashicons-search"></span>
         Clarity-First SEO
       </h1>
-      <p class="cfseo-subtitle">Clear, Simple SEO Configuration for WordPress</p>
+      <p class="cfseo-subtitle"><?php _e('Clear and simple SEO configuration for your WordPress site.', 'cfseo'); ?></p>
 
       <!-- Tab Navigation -->
       <nav class="nav-tab-wrapper cfseo-nav-tab-wrapper">
@@ -107,8 +107,8 @@ class CFSEO_Admin_Settings {
         <a href="?page=cfseo-settings&tab=templates" class="nav-tab <?php echo $current_tab === 'templates' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-text"></span> Templates
         </a>
-        <a href="?page=cfseo-settings&tab=advanced" class="nav-tab <?php echo $current_tab === 'advanced' ? 'nav-tab-active' : ''; ?>">
-          <span class="dashicons dashicons-admin-tools"></span> Advanced
+        <a href="?page=cfseo-settings&tab=maintenance" class="nav-tab <?php echo $current_tab === 'maintenance' ? 'nav-tab-active' : ''; ?>">
+          <span class="dashicons dashicons-admin-tools"></span> Maintenance & Safety
         </a>
 
       </nav>
@@ -128,7 +128,7 @@ class CFSEO_Admin_Settings {
           <?php self::render_schema_tab(); ?>
         <?php elseif ($current_tab === 'templates'): ?>
           <?php self::render_templates_tab(); ?>
-        <?php elseif ($current_tab === 'advanced'): ?>
+        <?php elseif ($current_tab === 'maintenance'): ?>
           <?php self::render_advanced_tab(); ?>
 
         <?php endif; ?>
@@ -138,169 +138,11 @@ class CFSEO_Admin_Settings {
         <?php endif; ?>
       </form>
 
-      <!-- Help Sidebar -->
-      <aside class="cfseo-sidebar">
-        <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
-          <span class="dashicons dashicons-editor-help"></span>
-          <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
-        </button>
-        
-        <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
-          <div class="cfseo-help-card">
-            <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
-          
-          <!-- General Tab Tips -->
-          <ul id="cfseo-quick-tips-general" style="display: none;">
-            <li><strong>🎯 General Settings:</strong></li>
-            <li>📊 Set your organization name for consistent branding</li>
-            <li>🖼️ Upload a logo (recommended: 600x60px or square)</li>
-            <li>🎨 Choose a theme color for mobile browser UI</li>
-            <li>✅ Enable breadcrumbs for better site navigation</li>
-            <li>💡 Tip: Keep settings simple and consistent across your site</li>
-          </ul>
-          
-          <!-- Verification Tab Tips -->
-          <ul id="cfseo-quick-tips-verification" style="display: none;">
-            <li><strong>🔍 Search Console Verification:</strong></li>
-            <li>📈 Google Search Console tracks your site's performance</li>
-            <li>🛠️ Bing Webmaster Tools monitors Bing/Yahoo rankings</li>
-            <li>🌐 Yandex is essential for Russian/CIS markets</li>
-            <li>💡 Get verification codes from each platform's admin panel</li>
-            <li>⚡ Verification enables IndexNow, sitemap submission, and analytics</li>
-          </ul>
-          
-          <!-- IndexNow Tab Tips -->
-          <ul id="cfseo-quick-tips-indexnow" style="display: none;">
-            <li><strong>⚡ IndexNow Instant Indexing:</strong></li>
-            <li>🚀 Get new/updated pages indexed within minutes</li>
-            <li>🌍 Supported by Bing, Yandex, Seznam, Naver</li>
-            <li>🔄 Auto-submits on publish/update (no manual work!)</li>
-            <li>📊 Check "IndexNow" button in block editor sidebar</li>
-            <li>💡 Tip: Enable this if you publish time-sensitive content</li>
-          </ul>
-          
-          <!-- Social Tab Tips -->
-          <ul id="cfseo-quick-tips-social" style="display: none;">
-            <li><strong>📱 Social Media Optimization:</strong></li>
-            <li>🖼️ Default OG image shown when pages don't have featured images</li>
-            <li>🐦 Twitter username enables Twitter Cards with author attribution</li>
-            <li>📘 Facebook App ID provides detailed analytics and insights</li>
-            <li>📏 Recommended image size: 1200x630px (1.91:1 ratio)</li>
-            <li>💡 Override per-page OG settings in the block editor sidebar</li>
-          </ul>
-          
-          <!-- Schema Tab Tips -->
-          <ul id="cfseo-quick-tips-schema" style="display: none;">
-            <li><strong>🏪 Local Business Schema helps you:</strong></li>
-            <li>🗺️ Show up in Google Maps "near me" searches</li>
-            <li>⭐ Display ratings and reviews in search results</li>
-            <li>📍 Appear in Google's Local Pack (top 3 results)</li>
-            <li>📞 Show contact info directly in search</li>
-            <li>🏪 Get verified knowledge panel on Google</li>
-            <li>🕐 Display opening hours in search results</li>
-            <li>💰 Show price range to help customers decide</li>
-            <li>💳 Display accepted payment methods</li>
-            <li>🌍 Indicate service areas and languages supported</li>
-            <li><strong>Important:</strong> Match your <a href="https://business.google.com" target="_blank">Google Business Profile</a> data exactly for best results!</li>
-          </ul>
-          
-          <!-- Templates Tab Tips -->
-          <ul id="cfseo-quick-tips-templates" style="display: none;">
-            <li><strong>📝 SEO Templates:</strong></li>
-            <li>🏷️ Use <code>%title%</code> for post/page title</li>
-            <li>🌐 Use <code>%sitename%</code> for your site name</li>
-            <li>🗂️ <code>%category%</code> shows the primary category</li>
-            <li>📅 <code>%date%</code> adds publish date</li>
-            <li>✍️ <code>%author%</code> displays author name</li>
-            <li>💡 Tip: Keep titles under 60 chars, descriptions under 160 chars</li>
-          </ul>
-          
-          <!-- Advanced Tab Tips -->
-          <ul id="cfseo-quick-tips-advanced" style="display: none;">
-            <li><strong>⚙️ Advanced Settings:</strong></li>
-            <li>🤖 Default robots settings apply to all pages (unless overridden)</li>
-            <li>✅ "Index" tells search engines to include the page</li>
-            <li>🔗 "Follow" tells search engines to follow links on the page</li>
-            <li>🚫 "Noindex" prevents page from appearing in search results</li>
-            <li>⛔ "Nofollow" tells search engines not to follow links</li>
-            <li>💡 Override per-page in block editor sidebar when needed</li>
-          </ul>
-          
-          <!-- Redirect Tab Tips -->
-          <ul id="cfseo-quick-tips-redirect" style="display: none;">
-            <li><strong>🔄 Understanding Redirects:</strong></li>
-            <li><strong>🛠️ A maintenance tool</strong> — Redirects keep your site working smoothly when change is unavoidable, like routine maintenance for your website's URL structure.</li>
-            <li><strong>🛡️ A SEO safety net</strong> — They catch accidental mistakes (deleted pages, renamed slugs) before search engines and users hit dead ends.</li>
-            <li><strong>🧹 A technical hygiene feature</strong> — Used correctly, redirects keep your site clean: fewer crawl errors, no redirect chains, consolidated link signals.</li>
-            <li>⚠️ <strong>Remember:</strong> Redirects preserve value — they don't create it.</li>
-            <li><strong>📋 Redirect Types:</strong></li>
-            <li>✅ <strong>301 (Permanent):</strong> Permanently move a page and preserve SEO value</li>
-            <li>⏳ <strong>302/307 (Temporary):</strong> Only use when the original URL will return</li>
-            <li><strong>What our Redirects feature does:</strong></li>
-            <li>✅ Create 301 (permanent) redirects safely</li>
-            <li>✅ Validate that redirects work correctly</li>
-            <li>✅ Prevent redirect loops and chains</li>
-            <li>✅ Ensure destination pages are indexable</li>
-            <li>✅ Help maintain a clean URL structure</li>
-          </ul>
-          
-          <ul id="cfseo-quick-tips-diagnostics" style="display: none;">
-            <li><strong>🔍 Site Health Diagnostics moved to SEO Config Validation page</strong></li>
-            <li><strong>🗺️ Sitemap Visibility:</strong> We validate your existing sitemaps (not generate them) to ensure search engines can find and access them properly.</li>
-            <li><strong>⚠️ Duplicate Detector:</strong> Identifies if multiple SEO plugins are active and potentially outputting conflicting meta tags.</li>
-            <li><strong>🔗 HTTP Status Checks:</strong> Test URLs for proper status codes, redirect chains, and canonical destination validity.</li>
-            <li>💡 <strong>Tip:</strong> These are diagnostic tools — they help you identify issues, not optimize content.</li>
-            <li>✅ All checks are lightweight and won't impact site performance</li>
-            <li>🛠️ Use these tools regularly to maintain a healthy SEO foundation</li>
-          </ul>
-          </div>
-          
-          <div class="cfseo-help-card">
-            <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
-            <p>Check out our <a href="#" target="_blank">documentation</a> for detailed guides.</p>
-          </div>
-        </div>
-      </aside>
+      <?php CFSEO_Help_Content::render_sidebar('settings'); ?>
     </div>
     
     <script>
-    (function() {
-      const toggle = document.getElementById('cfseo-sidebar-toggle');
-      const content = document.getElementById('cfseo-sidebar-content');
-      const storageKey = 'cfseo_sidebar_visible';
-      
-      // Restore sidebar state
-      const isVisible = localStorage.getItem(storageKey) !== 'false';
-      if (!isVisible) {
-        content.style.display = 'none';
-        toggle.classList.add('collapsed');
-      }
-      
-      toggle.addEventListener('click', function() {
-        const visible = content.style.display !== 'none';
-        content.style.display = visible ? 'none' : 'block';
-        toggle.classList.toggle('collapsed');
-        localStorage.setItem(storageKey, !visible);
-      });
-    })();
-    
     jQuery(document).ready(function($) {
-      // Toggle quick tips based on current tab
-      const currentTab = '<?php echo $current_tab; ?>';
-      
-      // Hide all tips first
-      $('[id^="cfseo-quick-tips-"]').hide();
-      
-      // Show tips for current tab
-      const tipsId = '#cfseo-quick-tips-' + currentTab;
-      if ($(tipsId).length) {
-        $(tipsId).show();
-      } else {
-        // Default to general tips if tab-specific tips don't exist
-        $('#cfseo-quick-tips-general').show();
-      }
-      
-      // HTTP Test functionality
       $('#CFSEO_run_http_test').on('click', function() {
         const url = $('#CFSEO_test_url').val();
         const $button = $(this);
@@ -892,6 +734,7 @@ class CFSEO_Admin_Settings {
             <li><code><?php echo esc_html($var); ?></code> - <?php echo esc_html($desc); ?></li>
           <?php endforeach; ?>
         </ul>
+        <p style="margin-top: 12px; color: #2271b1;"><strong>Note:</strong> Variables are optional — you don't need to use all of them.</p>
       </div>
 
       <div class="cfseo-card">
@@ -912,6 +755,7 @@ class CFSEO_Admin_Settings {
       <div class="cfseo-card">
         <h2><span class="dashicons dashicons-editor-code"></span> Title Templates</h2>
         <p style="margin-top: 0; color: #646970;">Define title templates for each post type. Leave empty to use default behavior.</p>
+        <p style="margin-top: 8px; color: #2271b1;"><strong>Note:</strong> Used only if the page title is not set manually.</p>
         <table class="form-table">
           <?php foreach ($post_types as $post_type): ?>
             <tr>
@@ -941,6 +785,7 @@ class CFSEO_Admin_Settings {
       <div class="cfseo-card">
         <h2><span class="dashicons dashicons-text"></span> Description Templates</h2>
         <p style="margin-top: 0; color: #646970;">Define description templates for each post type. Leave empty to auto-generate from content.</p>
+        <p style="margin-top: 8px; color: #2271b1;"><strong>Note:</strong> Leave empty to automatically generate from page content.</p>
         <table class="form-table">
           <?php foreach ($post_types as $post_type): ?>
             <tr>
@@ -995,6 +840,7 @@ class CFSEO_Admin_Settings {
                 <span class="dashicons dashicons-upload"></span> Import Configuration
               </button>
               <p class="description">Upload a previously exported settings file.</p>
+              <p style="margin-top: 8px; color: #2271b1;"><strong>Note:</strong> Use only files previously exported from this plugin.</p>
             </td>
           </tr>
         </table>
@@ -1010,6 +856,7 @@ class CFSEO_Admin_Settings {
                 <span class="dashicons dashicons-warning"></span> Reset All Settings
               </button>
               <p class="description">This will delete all plugin settings. This action cannot be undone.</p>
+              <p style="margin-top: 8px; color: #2271b1;"><strong>Tip:</strong> Export your settings before resetting.</p>
             </td>
           </tr>
         </table>

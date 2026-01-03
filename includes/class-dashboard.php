@@ -38,13 +38,25 @@ class CFSEO_Dashboard {
    * Get validation summary counts
    */
   private static function get_validation_summary() {
-    // This would typically check recent validation results
-    // For now, return placeholder data
+    // Get saved validation results from database
+    $saved = get_option('cfseo_validation_summary', null);
+    
+    if ($saved === null) {
+      // State 1: Never run
+      return [
+        'passed' => 0,
+        'warnings' => 0,
+        'conflicts' => 0,
+        'last_checked' => null
+      ];
+    }
+    
+    // Return saved results
     return [
-      'passed' => 0,
-      'warnings' => 0,
-      'conflicts' => 0,
-      'last_checked' => null
+      'passed' => isset($saved['passed']) ? $saved['passed'] : 0,
+      'warnings' => isset($saved['warnings']) ? $saved['warnings'] : 0,
+      'conflicts' => isset($saved['conflicts']) ? $saved['conflicts'] : 0,
+      'last_checked' => isset($saved['last_checked']) ? $saved['last_checked'] : 'Today'
     ];
   }
   
@@ -103,123 +115,164 @@ class CFSEO_Dashboard {
     $validation_summary = self::get_validation_summary();
     $diagnostic_summary = self::get_diagnostic_summary();
     ?>
-    <div class="wrap cfseo-admin-wrap">
+    <div class="wrap cfseo-admin-wrap" style="max-width: 1400px;">
       <h1>
         <span class="dashicons dashicons-dashboard"></span>
         <?php _e('Dashboard', 'cfseo'); ?>
       </h1>
       <p class="cfseo-subtitle">
-        <?php _e('Clarity-First SEO validates what search engines can see. It does not predict rankings.', 'cfseo'); ?>
+        <?php _e('Clarity-First SEO checks what search engines can see on your site. It does not predict rankings.', 'cfseo'); ?>
       </p>
       
-      <div class="cfseo-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
+      <div class="cfseo-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
         
-        <!-- Validation Summary -->
-        <div class="cfseo-card">
-          <h2><span class="dashicons dashicons-yes-alt"></span> Validation Status</h2>
-          <p style="color: #646970; margin-top: 5px;">Most recent validation check results</p>
+        <!-- Site Diagnostics Summary -->
+        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <h2><span class="dashicons dashicons-analytics"></span> Site Diagnostics</h2>
           
-          <?php if ($validation_summary['last_checked']): ?>
-            <div class="cfseo-stat-row">
-              <div class="cfseo-stat">
-                <div class="cfseo-stat-value" style="font-size: 36px; font-weight: 600; color: #46b450;">
-                  <?php echo esc_html($validation_summary['passed']); ?>
-                </div>
-                <div class="cfseo-stat-label" style="color: #646970; font-size: 13px;">Passed Checks</div>
-              </div>
-              <div class="cfseo-stat">
-                <div class="cfseo-stat-value" style="font-size: 36px; font-weight: 600; color: #f0ad4e;">
-                  <?php echo esc_html($validation_summary['warnings']); ?>
-                </div>
-                <div class="cfseo-stat-label" style="color: #646970; font-size: 13px;">Warnings</div>
-              </div>
-              <div class="cfseo-stat">
-                <div class="cfseo-stat-value" style="font-size: 36px; font-weight: 600; color: #dc3232;">
-                  <?php echo esc_html($validation_summary['conflicts']); ?>
-                </div>
-                <div class="cfseo-stat-label" style="color: #646970; font-size: 13px;">Conflicts</div>
-              </div>
+          <?php if ($validation_summary['last_checked'] === null): ?>
+            <!-- State 1: Never run (Blue) -->
+            <div class="cfseo-validation-status cfseo-status-never-run">
+              <div class="cfseo-status-icon">🟦</div>
+              <p class="cfseo-status-message">You haven't reviewed your site's SEO configuration yet.</p>
+              <p class="cfseo-status-actions">
+                <a href="?page=cfseo-validation" class="button button-primary button-large">Run First Validation</a>
+              </p>
             </div>
-            <p style="margin-top: 15px;">
-              <a href="?page=cfseo-validation" class="button">View Validation Details</a>
-            </p>
+          
+          <?php elseif ($validation_summary['warnings'] === 0 && $validation_summary['conflicts'] === 0): ?>
+            <!-- State 2: Recently run, healthy (Green) -->
+            <div class="cfseo-validation-status cfseo-status-healthy">
+              <div class="cfseo-status-icon">🟩</div>
+              <div class="cfseo-status-info">
+                <div class="cfseo-status-line"><strong>Last checked:</strong> <?php echo esc_html($validation_summary['last_checked']); ?></div>
+                <div class="cfseo-status-line"><strong>Status:</strong> Configuration looks clear</div>
+              </div>
+              <p class="cfseo-status-actions">
+                <a href="?page=cfseo-validation" class="button button-primary">View Site Diagnostics</a>
+              </p>
+            </div>
+          
           <?php else: ?>
-            <p style="margin: 20px 0;">No validation checks have been run yet.</p>
-            <p>
-              <a href="?page=cfseo-validation" class="button button-primary">Run First Validation</a>
-            </p>
+            <!-- State 3: Issues detected (Yellow) -->
+            <div class="cfseo-validation-status cfseo-status-issues">
+              <div class="cfseo-status-icon">🟨</div>
+              <div class="cfseo-status-info">
+                <div class="cfseo-status-line"><strong>Last checked:</strong> <?php echo esc_html($validation_summary['last_checked']); ?></div>
+                <div class="cfseo-status-line"><strong>Status:</strong> Some settings may affect indexing</div>
+              </div>
+              <div style="background: #fff9e6; border-left: 3px solid #f0ad4e; padding: 12px; margin: 15px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-size: 13px; line-height: 1.6; color: #1d2327;">
+                  <strong>What this means:</strong> Your site has configuration issues that could prevent search engines from properly indexing your content.
+                </p>
+                <table style="width: 100%; font-size: 14px;">
+                  <tr>
+                    <td style="padding: 6px 0; width: 60px; text-align: left; font-weight: 600; color: #f0ad4e; font-size: 24px;"><?php echo esc_html($validation_summary['warnings']); ?></td>
+                    <td style="padding: 6px 0;">⚠ <strong>Warnings</strong><br><span style="font-size: 12px; color: #646970;">Minor issues that should be reviewed</span></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="padding: 5px 0;"></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; width: 60px; text-align: left; font-weight: 600; color: #dc3232; font-size: 24px;"><?php echo esc_html($validation_summary['conflicts']); ?></td>
+                    <td style="padding: 6px 0;">✗ <strong>Issues</strong><br><span style="font-size: 12px; color: #646970;">Problems that may block indexing</span></td>
+                  </tr>
+                </table>
+              </div>
+              <p class="cfseo-status-actions">
+                <a href="?page=cfseo-validation" class="button button-primary">View Site Diagnostics</a>
+              </p>
+            </div>
           <?php endif; ?>
         </div>
         
-        <!-- Diagnostics Summary -->
-        <div class="cfseo-card">
-          <h2><span class="dashicons dashicons-analytics"></span> Site Diagnostics</h2>
-          <p style="color: #646970; margin-top: 5px;">Current site detection results</p>
+        <!-- Page Diagnostics Summary -->
+        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <h2><span class="dashicons dashicons-search"></span> Page Diagnostics</h2>
+          <p style="color: #646970; margin-top: 5px;">Inspect what a single page exposes to search engines</p>
           
-          <table class="cfseo-summary-table" style="width: 100%; margin-top: 15px;">
-            <tr>
-              <td style="padding: 8px 0;">Sitemap Detected:</td>
-              <td style="text-align: right; font-weight: 600;">
-                <?php echo $diagnostic_summary['sitemap_exists'] ? '<span style="color: #46b450;">Yes</span>' : '<span style="color: #646970;">Not Found</span>'; ?>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0;">Robots.txt File:</td>
-              <td style="text-align: right; font-weight: 600;">
-                <?php echo $diagnostic_summary['robots_txt_exists'] ? '<span style="color: #46b450;">Found</span>' : '<span style="color: #646970;">Not Found</span>'; ?>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0;">Plugin Conflicts:</td>
-              <td style="text-align: right; font-weight: 600;">
-                <?php 
-                if ($diagnostic_summary['seo_plugin_conflicts'] > 0) {
-                  echo '<span style="color: #f0ad4e;">' . esc_html($diagnostic_summary['seo_plugin_conflicts']) . ' Detected</span>';
-                } else {
-                  echo '<span style="color: #46b450;">None</span>';
-                }
-                ?>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0;">Active Redirects:</td>
-              <td style="text-align: right; font-weight: 600;">
-                <?php echo esc_html($diagnostic_summary['redirect_count']); ?>
-              </td>
-            </tr>
-          </table>
+          <div style="padding: 20px 0;">
+            <p style="margin: 0 0 15px 0; font-size: 14px; line-height: 1.6;">
+              Analyze individual pages to see exactly what search engines read from your content.
+            </p>
+            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #50575e;">
+              <li>Title tags and meta descriptions</li>
+              <li>Canonical URLs and robots directives</li>
+              <li>Open Graph and Twitter cards</li>
+              <li>Schema markup and structured data</li>
+            </ul>
+          </div>
           
           <p style="margin-top: 15px;">
-            <a href="?page=cfseo-diagnostics" class="button">View Full Diagnostics</a>
+            <a href="?page=cfseo-diagnostics" class="button button-primary">Analyze a Page</a>
           </p>
         </div>
         
         <!-- Quick Actions -->
-        <div class="cfseo-card">
+        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <h2><span class="dashicons dashicons-admin-tools"></span> Quick Actions</h2>
-          <p style="color: #646970; margin-top: 5px;">Common tasks and tools</p>
+          <p style="color: #646970; margin-top: 5px;">Common SEO tasks you can do right now</p>
           
-          <div style="margin-top: 15px;">
-            <p style="margin: 10px 0;">
-              <a href="?page=cfseo-validation" class="button button-large" style="width: 100%; text-align: center;">
-                <span class="dashicons dashicons-yes-alt"></span> Run Validation Check
-              </a>
-            </p>
-            <p style="margin: 10px 0;">
-              <a href="?page=cfseo-bulk-edit" class="button button-large" style="width: 100%; text-align: center;">
-                <span class="dashicons dashicons-edit"></span> Bulk Edit Metadata
-              </a>
-            </p>
-            <p style="margin: 10px 0;">
-              <a href="?page=cfseo-redirects" class="button button-large" style="width: 100%; text-align: center;">
-                <span class="dashicons dashicons-randomize"></span> Manage Redirects
-              </a>
-            </p>
-            <p style="margin: 10px 0;">
-              <a href="?page=cfseo-robots" class="button button-large" style="width: 100%; text-align: center;">
-                <span class="dashicons dashicons-shield"></span> Edit Robots.txt
-              </a>
-            </p>
+          <div style="margin-top: 20px;">
+            <!-- Action 1 -->
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
+              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
+                <span class="dashicons dashicons-chart-line" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+                Run Validation Check
+              </h3>
+              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+                Check site-wide SEO patterns like sitemaps and plugin conflicts
+              </p>
+              <a href="?page=cfseo-validation" class="button">Run Check</a>
+            </div>
+            
+            <!-- Action 2 -->
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
+              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
+                <span class="dashicons dashicons-edit" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+                Bulk Edit Metadata
+              </h3>
+              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+                Update titles and descriptions for multiple posts at once
+              </p>
+              <a href="?page=cfseo-bulk-edit" class="button">Edit Metadata</a>
+            </div>
+            
+            <!-- Action 3 -->
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
+              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
+                <span class="dashicons dashicons-location" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+                Google Business Profile
+              </h3>
+              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+                Add your business details to appear in Google Maps and local search
+              </p>
+              <a href="?page=cfseo-settings&tab=schema" class="button">Setup Local Business</a>
+            </div>
+            
+            <!-- Action 4 -->
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
+              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
+                <span class="dashicons dashicons-randomize" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+                Manage Redirects
+              </h3>
+              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+                Guide visitors to correct pages when URLs change
+              </p>
+              <a href="?page=cfseo-redirects" class="button">Manage Redirects</a>
+            </div>
+            
+            <!-- Action 5 -->
+            <div>
+              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
+                <span class="dashicons dashicons-shield" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+                Edit Robots.txt
+              </h3>
+              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+                Control which pages search engines can visit and read
+              </p>
+              <a href="?page=cfseo-robots" class="button">Edit Robots.txt</a>
+            </div>
           </div>
         </div>
         

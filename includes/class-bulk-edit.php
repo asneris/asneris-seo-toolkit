@@ -69,7 +69,7 @@ class CFSEO_Bulk_Edit {
         <span class="dashicons dashicons-edit"></span>
         <?php _e('SEO Bulk Edit', 'cfseo'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php _e('Bulk edit SEO metadata for multiple posts', 'cfseo'); ?></p>
+      <p class="cfseo-subtitle"><?php _e('Update SEO titles, descriptions, and indexing settings for multiple posts at once.', 'cfseo'); ?></p>
       
       <div class="cfseo-settings-form">
         <div class="cfseo-tab-content">
@@ -77,6 +77,7 @@ class CFSEO_Bulk_Edit {
       <!-- Filters -->
       <div class="cfseo-card">
         <h2><span class="dashicons dashicons-filter"></span> <?php _e('Filters', 'cfseo'); ?></h2>
+        <p class="description" style="margin-top: 0;"><?php _e('Narrow down which posts you want to edit before making bulk changes.', 'cfseo'); ?></p>
         <form method="get" action="">
           <input type="hidden" name="page" value="cfseo-bulk-edit">
           <table class="form-table">
@@ -116,13 +117,13 @@ class CFSEO_Bulk_Edit {
       <!-- Bulk Actions -->
       <div class="cfseo-card" style="max-width: 100%; margin-top: 20px;">
         <h2><span class="dashicons dashicons-admin-generic"></span> <?php _e('Bulk Actions', 'cfseo'); ?></h2>
-        <p style="color: #646970;"><?php _e('Select posts below and apply bulk actions. Changes will be previewed before applying.', 'cfseo'); ?></p>
+        <p style="color: #646970;"><?php _e('Select posts below and apply bulk actions.', 'cfseo'); ?><br><?php _e('Changes are only saved when you click Save All Changes.', 'cfseo'); ?></p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
           <button type="button" id="cfseo-bulk-set-index" class="button">
-            <?php _e('Set to Index', 'cfseo'); ?>
+            <?php _e('Set to Index (Show in search)', 'cfseo'); ?>
           </button>
           <button type="button" id="cfseo-bulk-set-noindex" class="button">
-            <?php _e('Set to NoIndex', 'cfseo'); ?>
+            <?php _e('Set to Noindex (Hide from search)', 'cfseo'); ?>
           </button>
           <button type="button" id="cfseo-bulk-clear-title" class="button">
             <?php _e('Clear SEO Titles', 'cfseo'); ?>
@@ -210,7 +211,7 @@ class CFSEO_Bulk_Edit {
           
           <?php if ($posts_query->have_posts()): ?>
             <div style="margin-top: 20px;">
-              <button type="submit" class="button button-primary button-large">
+              <button type="submit" class="button button-primary button-large" title="<?php esc_attr_e('Applies all selected edits to the filtered posts.', 'cfseo'); ?>">
                 <?php _e('Save All Changes', 'cfseo'); ?>
               </button>
               <span id="cfseo-bulk-status" style="margin-left: 15px;"></span>
@@ -222,59 +223,8 @@ class CFSEO_Bulk_Edit {
         </div><!-- .cfseo-tab-content -->
       </div><!-- .cfseo-settings-form -->
         
-      <!-- Help Sidebar -->
-      <aside class="cfseo-sidebar">
-        <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
-          <span class="dashicons dashicons-editor-help"></span>
-          <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
-        </button>
-        
-        <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
-          <div class="cfseo-help-card">
-            <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
-            <ul>
-              <li>Filter by post type and indexing status to target specific content</li>
-              <li>Use bulk actions (Set to Index, Set to Noindex, Clear Titles, Clear Descriptions) for quick changes</li>
-              <li>Edit individual fields directly in the table for precise control</li>
-              <li>Changes are previewed before saving - review carefully</li>
-              <li>Click "Save All Changes" to apply modifications to all visible posts</li>
-            </ul>
-          </div>
-          
-          <div class="cfseo-help-card">
-            <h3><span class="dashicons dashicons-yes"></span> Need Help?</h3>
-            <p>Learn about bulk editing SEO metadata:</p>
-            <ul>
-              <li><a href="https://clarityfirstseo.com/docs/bulk-edit/" target="_blank">Bulk Edit Guide</a></li>
-              <li><a href="https://clarityfirstseo.com/docs/meta-tags/" target="_blank">Meta Tags Best Practices</a></li>
-              <li><a href="https://clarityfirstseo.com/docs/indexing/" target="_blank">Indexing Control</a></li>
-            </ul>
-          </div>
-        </div>
-      </aside>
+      <?php CFSEO_Help_Content::render_sidebar('bulk-edit'); ?>
     </div>
-    
-    <script>
-    (function() {
-      const toggle = document.getElementById('cfseo-sidebar-toggle');
-      const content = document.getElementById('cfseo-sidebar-content');
-      const storageKey = 'cfseo_sidebar_visible';
-      
-      // Restore sidebar state
-      const isVisible = localStorage.getItem(storageKey) !== 'false';
-      if (!isVisible) {
-        content.style.display = 'none';
-        toggle.classList.add('collapsed');
-      }
-      
-      toggle.addEventListener('click', function() {
-        const visible = content.style.display !== 'none';
-        content.style.display = visible ? 'none' : 'block';
-        toggle.classList.toggle('collapsed');
-        localStorage.setItem(storageKey, !visible);
-      });
-    })();
-    </script>
     <?php
   }
   

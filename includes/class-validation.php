@@ -546,6 +546,9 @@ class CFSEO_Validation {
         
         $data['results'] = $results;
         $data['score'] = self::calculate_overall_score($results, $data);
+        
+        // Save validation results for dashboard
+        self::save_validation_results($data);
       } else {
         $data['results'] = $results; // Contains error
       }
@@ -741,12 +744,85 @@ class CFSEO_Validation {
   }
 
   /**
+   * Save validation results to database
+   */
+  private static function save_validation_results($data) {
+    // Count warnings and conflicts
+    $warnings = 0;
+    $conflicts = 0;
+    
+    if (isset($data['results'])) {
+      // Check for multiple/missing critical elements
+      if (isset($data['results']['title']) && count($data['results']['title']) !== 1) $conflicts++;
+      if (isset($data['results']['description']) && count($data['results']['description']) > 1) $warnings++;
+      if (isset($data['results']['canonical']) && count($data['results']['canonical']) !== 1) $conflicts++;
+      
+      // Check sitemap and robots
+      if ($data['sitemap'] && $data['sitemap']['status'] !== 'exists') $warnings++;
+      if ($data['robots'] && $data['robots']['status'] !== 'exists') $warnings++;
+    }
+    
+    $summary = [
+      'last_checked' => 'Today',
+      'timestamp' => current_time('timestamp'),
+      'warnings' => $warnings,
+      'conflicts' => $conflicts,
+      'passed' => isset($data['score']) ? $data['score']['passed'] : 0,
+    ];
+    
+    update_option('cfseo_validation_summary', $summary);
+  }
+  
+  /**
+   * Save diagnostics summary (called when Site Diagnostics page loads)
+   */
+  private static function save_diagnostics_summary() {
+    $sitemap_status = self::check_sitemap_visibility();
+    $duplicate_status = self::detect_duplicate_outputs();
+    
+    // Count warnings and issues
+    $warnings = 0;
+    $conflicts = 0;
+    
+    // Sitemap checks
+    if (!$sitemap_status['found']) $conflicts++;
+    if ($sitemap_status['http_status'] !== 200) $conflicts++;
+    if (!$sitemap_status['in_robots']) $warnings++;
+    
+    // Plugin conflicts
+    if (!empty($duplicate_status['active_plugins'])) {
+      $conflicts += count($duplicate_status['active_plugins']);
+    }
+    
+    $summary = [
+      'last_checked' => 'Today',
+      'timestamp' => current_time('timestamp'),
+      'warnings' => $warnings,
+      'conflicts' => $conflicts,
+      'passed' => 0, // Site diagnostics doesn't have a "passed" count
+    ];
+    
+    update_option('cfseo_validation_summary', $summary);
+  }
+  
+  /**
+   * Get saved validation results
+   */
+  public static function get_saved_results() {
+    return get_option('cfseo_validation_summary', null);
+  }
+  
+  /**
    * Render validation checklist page
    */
   public static function render_page() {
     // Prepare all validation data
     $data = self::prepare_validation_data();
     extract($data);
+    
+    // Save diagnostics results when page loads
+    // This happens automatically for Site Diagnostics (no form submission needed)
+    self::save_diagnostics_summary();
     
     // Load template parts
     $template_dir = plugin_dir_path(dirname(__FILE__)) . 'templates/validation/';

@@ -12,8 +12,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 
 <!-- Sitemap Visibility -->
 <div class="cfseo-card">
-  <h2><span class="dashicons dashicons-networking"></span> Sitemap Visibility</h2>
-  <p style="margin-top: 0; color: #646970;">Validate existing sitemaps (we don't generate them)</p>
+  <h2><span class="dashicons dashicons-networking"></span> Can search engines easily find your pages?</h2>
   <table class="widefat striped">
     <thead>
       <tr>
@@ -25,22 +24,23 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     <tbody>
       <tr>
         <td><strong>Sitemap URL</strong></td>
-        <td><?php echo $sitemap_status['found'] ? '<span style="color: #46b450;">✓ Found</span>' : '<span style="color: #dc3232;">✗ Not Found</span>'; ?></td>
-        <td><?php echo esc_html($sitemap_status['url']); ?></td>
+        <td><?php echo $sitemap_status['found'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo $sitemap_status['found'] ? 'Found: ' : 'Not Found: '; echo esc_html($sitemap_status['url']); ?></td>
       </tr>
       <tr>
         <td><strong>HTTP Status</strong></td>
-        <td><?php echo $sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ 200 OK</span>' : '<span style="color: #dc3232;">✗ ' . esc_html($sitemap_status['http_status']) . '</span>'; ?></td>
-        <td><?php echo esc_html($sitemap_status['http_message']); ?></td>
+        <td><?php echo $sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo $sitemap_status['http_status'] === 200 ? 'HTTP ' . esc_html($sitemap_status['http_status']) . ' - ' . esc_html($sitemap_status['http_message']) : 'Sitemap URL could not be checked'; ?></td>
       </tr>
       <tr>
         <td><strong>Robots.txt Reference</strong></td>
-        <td><?php echo $sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Referenced</span>' : '<span style="color: #f0ad4e;">⚠ Not Found</span>'; ?></td>
-        <td><?php echo esc_html($sitemap_status['robots_message']); ?></td>
+        <td><?php echo $sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #f0ad4e;">⚠ Warning</span>'; ?></td>
+        <td><?php echo $sitemap_status['in_robots'] ? 'Referenced in robots.txt - ' : 'Not found in robots.txt - '; echo esc_html($sitemap_status['robots_message']); ?></td>
       </tr>
       <tr>
         <td><strong>Controlled By</strong></td>
-        <td colspan="2"><?php echo wp_kses_post($sitemap_status['controller']); ?></td>
+        <td><span style="color: #46b450;">✓ Pass</span></td>
+        <td>WordPress automatically manages your sitemap.</td>
       </tr>
     </tbody>
   </table>
@@ -48,8 +48,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 
 <!-- Duplicate Output Detector -->
 <div class="cfseo-card">
-  <h2><span class="dashicons dashicons-warning"></span> Duplicate Output Detector</h2>
-  <p style="margin-top: 0; color: #646970;">Detect multiple SEO plugins causing conflicts</p>
+  <h2><span class="dashicons dashicons-warning"></span> Is your site sending clear, single signals?</h2>
   <?php if ($has_issues): ?>
     <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
       <strong>⚠️ Potential Conflicts Detected</strong>
@@ -73,14 +72,14 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     <tbody>
       <tr>
         <td><strong>Active SEO Plugins</strong></td>
-        <td><?php echo empty($duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Only This Plugin</span>' : '<span style="color: #dc3232;">✗ Multiple Detected</span>'; ?></td>
-        <td><?php echo empty($duplicate_status['active_plugins']) ? 'No conflicts' : esc_html(implode(', ', $duplicate_status['active_plugins'])); ?></td>
+        <td><?php echo empty($duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo empty($duplicate_status['active_plugins']) ? 'Only this plugin - No conflicts' : 'Multiple detected: ' . esc_html(implode(', ', $duplicate_status['active_plugins'])); ?></td>
       </tr>
       <?php foreach (['title', 'description', 'canonical', 'robots', 'schema'] as $type): ?>
         <tr>
           <td><strong><?php echo ucfirst($type); ?> Tags</strong></td>
-          <td><?php echo empty($duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Single Output</span>' : '<span style="color: #dc3232;">✗ Duplicate Found</span>'; ?></td>
-          <td><?php echo empty($duplicate_status['duplicates'][$type]) ? 'No duplicates' : esc_html($duplicate_status['duplicates'][$type]); ?></td>
+          <td><?php echo empty($duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+          <td><?php echo empty($duplicate_status['duplicates'][$type]) ? 'Single output - No duplicates' : 'Duplicate found: ' . esc_html($duplicate_status['duplicates'][$type]); ?></td>
         </tr>
       <?php endforeach; ?>
     </tbody>
@@ -89,8 +88,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 
 <!-- Indexing Safety (Patterns) -->
 <div class="cfseo-card">
-  <h2><span class="dashicons dashicons-shield"></span> Indexing Safety (Patterns)</h2>
-  <p style="margin-top: 0; color: #646970;">Detect site-wide signals that may prevent indexing</p>
+  <h2><span class="dashicons dashicons-shield"></span> Is anything blocking your site from search results?</h2>
   <?php
   // Check for site-wide indexing safety patterns
   $indexing_warnings = [];
@@ -226,7 +224,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
   
   <?php if ($has_conflicts): ?>
     <div style="background: #f8d7da; border-left: 4px solid #dc3232; padding: 12px; margin-bottom: 15px;">
-      <strong>❌ Global noindex detected</strong>
+      <strong>❌ Search engines are blocked from indexing your site</strong>
       <p style="margin: 5px 0 0 0;">Your site has settings that prevent search engine indexing.</p>
     </div>
   <?php elseif ($has_warnings): ?>
@@ -245,13 +243,25 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     <thead>
       <tr>
         <th>Check</th>
-        <th style="width: 60%;">Details</th>
+        <th>Status</th>
+        <th>Details</th>
       </tr>
     </thead>
     <tbody>
       <?php foreach ($indexing_warnings as $item): ?>
         <tr>
           <td><strong><?php echo esc_html($item['check']); ?></strong></td>
+          <td>
+            <?php 
+            if ($item['status'] === 'pass') {
+              echo '<span style="color: #46b450;">✓ Pass</span>';
+            } elseif ($item['status'] === 'warning') {
+              echo '<span style="color: #f0ad4e;">⚠ Warning</span>';
+            } elseif ($item['status'] === 'conflict') {
+              echo '<span style="color: #dc3232;">✗ Issue</span>';
+            }
+            ?>
+          </td>
           <td>
             <?php echo esc_html($item['details']); ?>
             <?php if (isset($item['why'])): ?>
@@ -266,8 +276,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 
 <!-- Canonical Consistency (Patterns) -->
 <div class="cfseo-card">
-  <h2><span class="dashicons dashicons-admin-links"></span> Canonical Consistency (Patterns)</h2>
-  <p style="margin-top: 0; color: #646970;">Ensure canonical usage is consistent across the site</p>
+  <h2><span class="dashicons dashicons-admin-links"></span> Do pages clearly identify their main URL?</h2>
   <?php
   // Check canonical patterns across the site
   global $wpdb;
@@ -452,7 +461,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     </div>
   <?php else: ?>
     <div style="background: #d4edda; border-left: 4px solid #46b450; padding: 12px; margin-bottom: 15px;">
-      <strong>✅ Canonical usage appears consistent</strong>
+      <strong>✅ Pages clearly point to their main URL</strong>
       <p style="margin: 5px 0 0 0;">No structural issues detected with canonical URLs.</p>
     </div>
   <?php endif; ?>
@@ -461,13 +470,25 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     <thead>
       <tr>
         <th>Check</th>
-        <th style="width: 60%;">Details</th>
+        <th>Status</th>
+        <th>Details</th>
       </tr>
     </thead>
     <tbody>
       <?php foreach ($canonical_checks as $item): ?>
         <tr>
           <td><strong><?php echo esc_html($item['check']); ?></strong></td>
+          <td>
+            <?php 
+            if ($item['status'] === 'pass') {
+              echo '<span style="color: #46b450;">✓ Pass</span>';
+            } elseif ($item['status'] === 'warning') {
+              echo '<span style="color: #f0ad4e;">⚠ Warning</span>';
+            } elseif ($item['status'] === 'conflict') {
+              echo '<span style="color: #dc3232;">✗ Issue</span>';
+            }
+            ?>
+          </td>
           <td>
             <?php echo esc_html($item['details']); ?>
             <?php if (isset($item['why'])): ?>

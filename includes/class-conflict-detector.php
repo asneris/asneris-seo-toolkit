@@ -109,6 +109,7 @@ class CFSEO_Conflict_Detector {
       <div class="cfseo-info-box cfseo-success-box">
         <h3><span class="dashicons dashicons-yes"></span> <?php _e('No Conflicts Detected', 'cfseo'); ?></h3>
         <p><?php _e('No other SEO plugins are currently active. Your site is using Clarity-First SEO exclusively.', 'cfseo'); ?></p>
+        <p style="margin-top: 8px; color: #2271b1;"><strong>Note:</strong> This confirms no other SEO plugins are active.</p>
       </div>
       <?php
     } else {

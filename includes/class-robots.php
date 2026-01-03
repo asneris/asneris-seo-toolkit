@@ -59,13 +59,13 @@ class CFSEO_Robots {
         $exists = file_exists(self::$robots_file);
         $results['checks']['exists'] = [
             'status' => $exists ? 'pass' : 'fail',
-            'label' => 'robots.txt exists',
-            'message' => $exists ? 'robots.txt file found' : 'robots.txt file not found'
+            'label' => 'robots.txt file',
+            'message' => $exists ? 'robots.txt file found' : 'Not found on your site'
         ];
         
         if (!$exists) {
             $results['status'] = 'warning';
-            $results['warnings'][] = 'No robots.txt file. Search engines will assume full access.';
+            $results['warnings'][] = 'No robots.txt file found. Search engines will crawl all accessible pages by default.';
             return $results;
         }
         
@@ -257,6 +257,7 @@ Sitemap: {$sitemap_url}
         ?>
         <div class="wrap cfseo-admin-wrap has-sidebar">
             <h1><?php _e('Robots.txt Editor & Validator', 'cfseo'); ?></h1>
+            <p class="cfseo-subtitle"><?php _e('Control which parts of your site search engines are allowed to visit.', 'cfseo'); ?></p>
             
             <?php if ($saved): ?>
                 <div class="notice notice-success is-dismissible">
@@ -331,8 +332,8 @@ Sitemap: {$sitemap_url}
                         <h2><?php _e('Edit robots.txt', 'cfseo'); ?></h2>
                         
                         <p class="description" style="margin-bottom: 12px;">
-                            <strong><?php _e('Controls which URLs search engines may crawl.', 'cfseo'); ?></strong>
-                            <?php _e('It does not control ranking or indexing.', 'cfseo'); ?>
+                            <strong><?php _e('Controls which URLs search engines are allowed to crawl.', 'cfseo'); ?></strong><br>
+                            <?php _e('It does not control rankings or guarantee indexing.', 'cfseo'); ?>
                         </p>
                         
                         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
@@ -351,7 +352,7 @@ Sitemap: {$sitemap_url}
                                     <?php _e('Save robots.txt', 'cfseo'); ?>
                                 </button>
                                 
-                                <a href="<?php echo home_url('/robots.txt'); ?>" target="_blank" class="button" style="margin-left: 8px;">
+                                <a href="<?php echo home_url('/robots.txt'); ?>" target="_blank" class="button" style="margin-left: 8px;" title="<?php esc_attr_e('Opens the active robots.txt file as seen by search engines.', 'cfseo'); ?>">
                                     <?php _e('View Live File', 'cfseo'); ?>
                                 </a>
                             </p>
@@ -359,7 +360,7 @@ Sitemap: {$sitemap_url}
                         
                         <!-- Safe Defaults Info -->
                         <div style="margin-top: 24px; padding: 16px; background: #f6f7f7; border-left: 4px solid #00a0d2;">
-                            <h3 style="margin-top: 0;"><?php _e('Safe Defaults', 'cfseo'); ?></h3>
+                            <h3 style="margin-top: 0;"><?php _e('Recommended Safe Defaults', 'cfseo'); ?></h3>
                             <p><?php _e('If you\'re unsure, use these safe defaults:', 'cfseo'); ?></p>
                             <ul style="list-style: disc; padding-left: 20px;">
                                 <li><?php _e('Block /wp-admin/ except admin-ajax.php', 'cfseo'); ?></li>
@@ -373,63 +374,8 @@ Sitemap: {$sitemap_url}
                 </div><!-- .cfseo-tab-content -->
             </div><!-- .cfseo-settings-form -->
                 
-            <!-- Help Sidebar -->
-            <aside class="cfseo-sidebar">
-                <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
-                    <span class="dashicons dashicons-editor-help"></span>
-                    <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
-                </button>
-                    
-                    <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
-                        <div class="cfseo-help-card">
-                            <h3><span class="dashicons dashicons-info"></span> Quick Tips</h3>
-                            <ul>
-                                <li>robots.txt only controls <strong>crawling</strong>, not ranking</li>
-                                <li>Don't use robots.txt to hide sensitive content</li>
-                                <li>Allow CSS and JS files for proper rendering</li>
-                                <li>Always include your sitemap location</li>
-                                <li>Test changes with Google Search Console</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="cfseo-help-card">
-                            <h3><span class="dashicons dashicons-admin-links"></span> Integration</h3>
-                            <p>This works together with:</p>
-                            <ul>
-                                <li><a href="<?php echo admin_url('admin.php?page=clarity-first-seo-validation'); ?>">Validation checks</a></li>
-                                <li>Canonical validation</li>
-                                <li>Meta robots checks</li>
-                                <li>Sitemap checks</li>
-                            </ul>
-                            <p style="margin-top: 12px; font-weight: 500;">
-                                Together they answer: "Can search engines reach, crawl, and understand my site correctly?"
-                            </p>
-                        </div>
-                    </div>
-                </aside>
-            </div><!-- .wrap -->
-        
-        <script>
-        (function() {
-            const toggle = document.getElementById('cfseo-sidebar-toggle');
-            const content = document.getElementById('cfseo-sidebar-content');
-            const storageKey = 'cfseo_sidebar_visible';
-            
-            // Restore sidebar state
-            const isVisible = localStorage.getItem(storageKey) !== 'false';
-            if (!isVisible) {
-                content.style.display = 'none';
-                toggle.classList.add('collapsed');
-            }
-            
-            toggle.addEventListener('click', function() {
-                const visible = content.style.display !== 'none';
-                content.style.display = visible ? 'none' : 'block';
-                toggle.classList.toggle('collapsed');
-                localStorage.setItem(storageKey, !visible);
-            });
-        })();
-        </script>
+            <?php CFSEO_Help_Content::render_sidebar('robots-txt'); ?>
+        </div><!-- .wrap -->
         <?php
     }
     
