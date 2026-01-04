@@ -42,6 +42,7 @@ require_once CFSEO_DIR . 'includes/class-diagnostics.php';
 require_once CFSEO_DIR . 'includes/class-robots.php';
 require_once CFSEO_DIR . 'includes/class-help.php';
 require_once CFSEO_DIR . 'includes/class-help-content.php';
+require_once CFSEO_DIR . 'includes/class-help-modal.php';
 
 add_action('init', function () {
   CFSEO_Meta::register_post_meta();

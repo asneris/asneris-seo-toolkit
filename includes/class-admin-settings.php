@@ -41,12 +41,8 @@ class CFSEO_Admin_Settings {
   }
 
   public static function sanitize($opt) {
-    // Debug: Log what we're receiving
-    error_log('CFSEO Sanitize - Received data: ' . print_r($opt, true));
-    
     // Get existing options to preserve data from other tabs
     $existing = get_option(self::OPT, []);
-    error_log('CFSEO Sanitize - Existing data: ' . print_r($existing, true));
     
     $clean = [
       'google_verification' => sanitize_text_field($opt['google_verification'] ?? $existing['google_verification'] ?? ''),
@@ -80,9 +76,6 @@ class CFSEO_Admin_Settings {
     if ($clean['indexnow_enabled'] && $clean['indexnow_key'] === '') {
       $clean['indexnow_key'] = CFSEO_IndexNow::generate_key();
     }
-    
-    // Debug: Log what we're saving
-    error_log('CFSEO Sanitize - Cleaned data to save: ' . print_r($clean, true));
     
     return $clean;
   }
@@ -302,10 +295,11 @@ class CFSEO_Admin_Settings {
               <label for="google_verification">Verification Code</label>
             </th>
             <td>
-              <input type="text" id="google_verification" class="large-text code" name="<?php echo self::OPT; ?>[google_verification]" value="<?php echo esc_attr(self::get('google_verification')); ?>">
+              <input type="text" id="google_verification" class="large-text code" name="<?php echo self::OPT; ?>[google_verification]" value="<?php echo esc_attr(self::get('google_verification')); ?>" placeholder="abc123xyz456">
               <p class="description">
-                Paste the content value only from:<br>
-                <code>&lt;meta name="google-site-verification" content="<strong>YOUR_CODE_HERE</strong>" /&gt;</code>
+                <strong><?php _e('Enter ONLY the code value:', 'cfseo'); ?></strong><br>
+                <?php _e('If Google gives you:', 'cfseo'); ?> <code>&lt;meta name="google-site-verification" content="<strong style="color: #d63638;">abc123xyz456</strong>" /&gt;</code><br>
+                <?php _e('Enter only:', 'cfseo'); ?> <strong style="color: #00a32a;">abc123xyz456</strong> <?php _e('in the field above', 'cfseo'); ?>
               </p>
             </td>
           </tr>
@@ -320,10 +314,11 @@ class CFSEO_Admin_Settings {
               <label for="bing_verification">Verification Code</label>
             </th>
             <td>
-              <input type="text" id="bing_verification" class="large-text code" name="<?php echo self::OPT; ?>[bing_verification]" value="<?php echo esc_attr(self::get('bing_verification')); ?>">
+              <input type="text" id="bing_verification" class="large-text code" name="<?php echo self::OPT; ?>[bing_verification]" value="<?php echo esc_attr(self::get('bing_verification')); ?>" placeholder="1234ABCD5678EFGH">
               <p class="description">
-                Paste the content value only from:<br>
-                <code>&lt;meta name="msvalidate.01" content="<strong>YOUR_CODE_HERE</strong>" /&gt;</code>
+                <strong><?php _e('Enter ONLY the code value:', 'cfseo'); ?></strong><br>
+                <?php _e('If Bing gives you:', 'cfseo'); ?> <code>&lt;meta name="msvalidate.01" content="<strong style="color: #d63638;">1234ABCD5678EFGH</strong>" /&gt;</code><br>
+                <?php _e('Enter only:', 'cfseo'); ?> <strong style="color: #00a32a;">1234ABCD5678EFGH</strong> <?php _e('in the field above', 'cfseo'); ?>
               </p>
             </td>
           </tr>
@@ -338,10 +333,11 @@ class CFSEO_Admin_Settings {
               <label for="yandex_verification">Verification Code</label>
             </th>
             <td>
-              <input type="text" id="yandex_verification" class="large-text code" name="<?php echo self::OPT; ?>[yandex_verification]" value="<?php echo esc_attr(self::get('yandex_verification')); ?>">
+              <input type="text" id="yandex_verification" class="large-text code" name="<?php echo self::OPT; ?>[yandex_verification]" value="<?php echo esc_attr(self::get('yandex_verification')); ?>" placeholder="1234567890abcdef">
               <p class="description">
-                Paste the content value only from:<br>
-                <code>&lt;meta name="yandex-verification" content="<strong>YOUR_CODE_HERE</strong>" /&gt;</code>
+                <strong><?php _e('Enter ONLY the code value:', 'cfseo'); ?></strong><br>
+                <?php _e('If Yandex gives you:', 'cfseo'); ?> <code>&lt;meta name="yandex-verification" content="<strong style="color: #d63638;">1234567890abcdef</strong>" /&gt;</code><br>
+                <?php _e('Enter only:', 'cfseo'); ?> <strong style="color: #00a32a;">1234567890abcdef</strong> <?php _e('in the field above', 'cfseo'); ?>
               </p>
             </td>
           </tr>

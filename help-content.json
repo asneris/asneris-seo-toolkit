@@ -202,7 +202,25 @@
         "content": "<p>This tool manages redirects only.</p><p>It does not modify page content, predict rankings, or guarantee SEO improvements.</p>",
         "review_url": "https://clarityfirstseo.com/docs/facts-based-approach/"
       }
-    ]
+    ],
+    "modals": {
+      "redirects-overview": {
+        "title": "What Are Redirects?",
+        "body": "<h3>Purpose</h3><p>Redirects automatically send visitors and search engines from one URL to another. Use them when:</p><ul><li>A page's URL changes (permalink updated)</li><li>Content moves to a new location</li><li>You delete a page but want visitors to see related content</li><li>You're consolidating similar pages</li></ul><div class=\"cfseo-info-box\"><strong>Important:</strong> Redirects preserve existing signals. They do <strong>not</strong> improve rankings or create new value.</div><h3>Automatic Redirects</h3><p>This plugin automatically creates 301 redirects when you change a published post's permalink. Manual redirects give you full control for other scenarios.</p><h3>When NOT to Use Redirects</h3><ul><li>Don't redirect pages that still exist at their original URL</li><li>Don't create redirect chains (A → B → C). Use direct redirects (A → C)</li><li>Don't redirect to unrelated content</li></ul>"
+      },
+      "from-url": {
+        "title": "From (Old URL)",
+        "body": "<h3>What to Enter</h3><p>Enter the <strong>old URL path</strong> that visitors or search engines might request. Do not include your domain name.</p><h3>Supported Formats</h3><ul><li><code>/old-page/</code> - Pretty permalink</li><li><code>/old-page</code> - Without trailing slash</li><li><code>/?page_id=123</code> - Query string format</li><li><code>/category/old-post/</code> - With path segments</li></ul><div class=\"cfseo-info-box\"><strong>Tip:</strong> You can copy the URL from your browser and remove the <code>http://yoursite.com</code> part.</div><h3>Example</h3><p>If your old page was:<br><code>https://example.com/old-page/</code></p><p>Enter only:<br><code>/old-page/</code></p>"
+      },
+      "to-url": {
+        "title": "To (New URL)",
+        "body": "<h3>What to Enter</h3><p>Enter the <strong>new URL</strong> where visitors should land. You can use:</p><h3>Supported Formats</h3><ul><li><code>/new-page/</code> - Internal page (recommended)</li><li><code>/?page_id=456</code> - Query string format</li><li><code>https://example.com/page/</code> - Full URL for external sites</li></ul><div class=\"cfseo-warning-box\"><strong>Important:</strong> Make sure the destination page exists and is accessible. Redirecting to a broken page creates a bad user experience.</div><h3>Example</h3><p>If your new page is:<br><code>https://example.com/new-page/</code></p><p>You can enter:<br><code>/new-page/</code></p><h3>External Redirects</h3><p>To redirect to another domain, use the full URL:<br><code>https://otherdomain.com/page/</code></p>"
+      },
+      "redirect-types": {
+        "title": "Redirect Types (301, 302, 307)",
+        "body": "<h3>301 Permanent (Most Common)</h3><p>Use when the old page is <strong>permanently replaced</strong> by the new page.</p><ul><li>Tells search engines: \"This page moved permanently\"</li><li>Preserves existing signals for the new URL</li><li>Browsers may cache this redirect</li></ul><p><strong>Use for:</strong> Permalink changes, content consolidation, deleted pages</p><h3>302 Temporary</h3><p>Use when the redirect is <strong>temporary</strong> and the old URL may come back.</p><ul><li>Tells search engines: \"This is temporary, check back later\"</li><li>Does not transfer signals to the new URL</li><li>Less likely to be cached</li></ul><p><strong>Use for:</strong> Maintenance pages, A/B testing, seasonal content</p><h3>307 Temporary (Preserve Method)</h3><p>Similar to 302, but guarantees that POST requests stay as POST (not converted to GET).</p><p><strong>Use for:</strong> Form submissions, API endpoints (rare for most sites)</p><div class=\"cfseo-info-box\"><strong>Recommendation:</strong> When in doubt, use <strong>301 Permanent</strong>. It's the right choice for 95% of scenarios.</div><h3>Important</h3><p>Redirects preserve existing value. They do <strong>not</strong> improve rankings or create new value.</p>"
+      }
+    }
   },
   "robots-txt": {
     "cards": [

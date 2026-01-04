@@ -35,6 +35,72 @@ class CFSEO_Dashboard {
   }
   
   /**
+   * Get configuration status for all sections
+   */
+  private static function get_config_status() {
+    $settings = get_option('CFSEO_settings', []);
+    
+    return [
+      'general' => [
+        'label' => 'General Settings',
+        'icon' => 'dashicons-admin-generic',
+        'completed' => !empty($settings['org_name']) && !empty($settings['org_logo']),
+        'items' => [
+          'Organization name configured' => !empty($settings['org_name']),
+          'Logo uploaded' => !empty($settings['org_logo']),
+        ]
+      ],
+      'verification' => [
+        'label' => 'Search Engine Verification',
+        'icon' => 'dashicons-yes-alt',
+        'completed' => !empty($settings['google_verification']) && !empty($settings['bing_verification']) && !empty($settings['yandex_verification']),
+        'items' => [
+          'Google Search Console' => !empty($settings['google_verification']),
+          'Bing Webmaster Tools' => !empty($settings['bing_verification']),
+          'Yandex Webmaster' => !empty($settings['yandex_verification']),
+        ]
+      ],
+      'indexnow' => [
+        'label' => 'IndexNow',
+        'icon' => 'dashicons-update',
+        'completed' => !empty($settings['indexnow_enabled']) && !empty($settings['indexnow_key']),
+        'items' => [
+          'IndexNow enabled' => !empty($settings['indexnow_enabled']),
+          'API key generated' => !empty($settings['indexnow_key']),
+        ]
+      ],
+      'social' => [
+        'label' => 'Social Media',
+        'icon' => 'dashicons-share',
+        'completed' => !empty($settings['default_og_image']) && !empty($settings['twitter_username']) && !empty($settings['facebook_app_id']),
+        'items' => [
+          'Default OG image set' => !empty($settings['default_og_image']),
+          'Twitter username' => !empty($settings['twitter_username']),
+          'Facebook App ID' => !empty($settings['facebook_app_id']),
+        ]
+      ],
+      'schema' => [
+        'label' => 'Schema Markup',
+        'icon' => 'dashicons-editor-code',
+        'completed' => !empty($settings['enable_breadcrumbs']) && !empty($settings['enable_local_business']),
+        'items' => [
+          'Breadcrumbs enabled' => !empty($settings['enable_breadcrumbs']),
+          'Local Business schema' => !empty($settings['enable_local_business']),
+        ]
+      ],
+      'templates' => [
+        'label' => 'SEO Templates',
+        'icon' => 'dashicons-text',
+        'completed' => !empty($settings['title_templates']) && !empty($settings['description_templates']),
+        'items' => [
+          'Title templates configured' => !empty($settings['title_templates']),
+          'Description templates configured' => !empty($settings['description_templates']),
+        ]
+      ],
+    ];
+  }
+  
+  /**
    * Get validation summary counts
    */
   private static function get_validation_summary() {
@@ -114,6 +180,10 @@ class CFSEO_Dashboard {
   public static function render_page() {
     $validation_summary = self::get_validation_summary();
     $diagnostic_summary = self::get_diagnostic_summary();
+    $config_status = self::get_config_status();
+    $total_sections = count($config_status);
+    $completed_sections = count(array_filter($config_status, function($s) { return $s['completed']; }));
+    $progress_percent = round(($completed_sections / $total_sections) * 100);
     ?>
     <div class="wrap cfseo-admin-wrap" style="max-width: 1400px;">
       <h1>
@@ -124,89 +194,97 @@ class CFSEO_Dashboard {
         <?php _e('Clarity-First SEO checks what search engines can see on your site. It does not predict rankings.', 'cfseo'); ?>
       </p>
       
-      <div class="cfseo-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
-        
-        <!-- Site Diagnostics Summary -->
-        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-          <h2><span class="dashicons dashicons-analytics"></span> Site Diagnostics</h2>
+      <!-- Configuration Status -->
+      <div class="cfseo-card" style="margin: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+        <div style="padding: 20px;">
+          <h2 style="margin: 0 0 15px; color: white; display: flex; align-items: center; gap: 10px;">
+            <span class="dashicons dashicons-admin-settings" style="font-size: 24px;"></span>
+            <?php _e('Configuration Status', 'cfseo'); ?>
+          </h2>
           
-          <?php if ($validation_summary['last_checked'] === null): ?>
-            <!-- State 1: Never run (Blue) -->
-            <div class="cfseo-validation-status cfseo-status-never-run">
-              <div class="cfseo-status-icon">🟦</div>
-              <p class="cfseo-status-message">You haven't reviewed your site's SEO configuration yet.</p>
-              <p class="cfseo-status-actions">
-                <a href="?page=cfseo-validation" class="button button-primary button-large">Run First Validation</a>
-              </p>
-            </div>
-          
-          <?php elseif ($validation_summary['warnings'] === 0 && $validation_summary['conflicts'] === 0): ?>
-            <!-- State 2: Recently run, healthy (Green) -->
-            <div class="cfseo-validation-status cfseo-status-healthy">
-              <div class="cfseo-status-icon">🟩</div>
-              <div class="cfseo-status-info">
-                <div class="cfseo-status-line"><strong>Last checked:</strong> <?php echo esc_html($validation_summary['last_checked']); ?></div>
-                <div class="cfseo-status-line"><strong>Status:</strong> Configuration looks clear</div>
-              </div>
-              <p class="cfseo-status-actions">
-                <a href="?page=cfseo-validation" class="button button-primary">View Site Diagnostics</a>
-              </p>
-            </div>
-          
-          <?php else: ?>
-            <!-- State 3: Issues detected (Yellow) -->
-            <div class="cfseo-validation-status cfseo-status-issues">
-              <div class="cfseo-status-icon">🟨</div>
-              <div class="cfseo-status-info">
-                <div class="cfseo-status-line"><strong>Last checked:</strong> <?php echo esc_html($validation_summary['last_checked']); ?></div>
-                <div class="cfseo-status-line"><strong>Status:</strong> Some settings may affect indexing</div>
-              </div>
-              <div style="background: #fff9e6; border-left: 3px solid #f0ad4e; padding: 12px; margin: 15px 0; border-radius: 4px;">
-                <p style="margin: 0 0 10px 0; font-size: 13px; line-height: 1.6; color: #1d2327;">
-                  <strong>What this means:</strong> Your site has configuration issues that could prevent search engines from properly indexing your content.
-                </p>
-                <table style="width: 100%; font-size: 14px;">
-                  <tr>
-                    <td style="padding: 6px 0; width: 60px; text-align: left; font-weight: 600; color: #f0ad4e; font-size: 24px;"><?php echo esc_html($validation_summary['warnings']); ?></td>
-                    <td style="padding: 6px 0;">⚠ <strong>Warnings</strong><br><span style="font-size: 12px; color: #646970;">Minor issues that should be reviewed</span></td>
-                  </tr>
-                  <tr>
-                    <td colspan="2" style="padding: 5px 0;"></td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; width: 60px; text-align: left; font-weight: 600; color: #dc3232; font-size: 24px;"><?php echo esc_html($validation_summary['conflicts']); ?></td>
-                    <td style="padding: 6px 0;">✗ <strong>Issues</strong><br><span style="font-size: 12px; color: #646970;">Problems that may block indexing</span></td>
-                  </tr>
-                </table>
-              </div>
-              <p class="cfseo-status-actions">
-                <a href="?page=cfseo-validation" class="button button-primary">View Site Diagnostics</a>
-              </p>
-            </div>
-          <?php endif; ?>
-        </div>
-        
-        <!-- Page Diagnostics Summary -->
-        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-          <h2><span class="dashicons dashicons-search"></span> Page Diagnostics</h2>
-          <p style="color: #646970; margin-top: 5px;">Inspect what a single page exposes to search engines</p>
-          
-          <div style="padding: 20px 0;">
-            <p style="margin: 0 0 15px 0; font-size: 14px; line-height: 1.6;">
-              Analyze individual pages to see exactly what search engines read from your content.
-            </p>
-            <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #50575e;">
-              <li>Title tags and meta descriptions</li>
-              <li>Canonical URLs and robots directives</li>
-              <li>Open Graph and Twitter cards</li>
-              <li>Schema markup and structured data</li>
-            </ul>
+          <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 20px; margin-bottom: 15px; overflow: hidden;">
+            <div style="background: #00a32a; height: 100%; width: <?php echo $progress_percent; ?>%; transition: width 0.3s;"></div>
           </div>
           
-          <p style="margin-top: 15px;">
-            <a href="?page=cfseo-diagnostics" class="button button-primary">Analyze a Page</a>
+          <p style="margin: 0 0 20px; font-size: 16px; opacity: 0.95;">
+            <strong><?php echo $completed_sections; ?> <?php _e('of', 'cfseo'); ?> <?php echo $total_sections; ?></strong> <?php _e('sections configured', 'cfseo'); ?> 
+            (<?php echo $progress_percent; ?>%)
+            <a href="?page=cfseo-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php _e('Go to Settings', 'cfseo'); ?></a>
           </p>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+            <?php foreach ($config_status as $key => $section): ?>
+              <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 15px; backdrop-filter: blur(10px);">
+                <h3 style="margin: 0 0 10px; color: white; display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                  <span class="dashicons <?php echo $section['icon']; ?>"></span>
+                  <?php echo $section['label']; ?>
+                  <?php if ($section['completed']): ?>
+                    <span class="dashicons dashicons-yes-alt" style="color: #00a32a; background: white; border-radius: 50%; font-size: 16px; width: 20px; height: 20px; line-height: 20px; margin-left: auto;"></span>
+                  <?php else: ?>
+                    <span class="dashicons dashicons-warning" style="color: #ffc107; background: white; border-radius: 50%; font-size: 16px; width: 20px; height: 20px; line-height: 20px; margin-left: auto;"></span>
+                  <?php endif; ?>
+                </h3>
+                <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; opacity: 0.9;">
+                  <?php foreach ($section['items'] as $item => $done): ?>
+                    <li style="<?php echo $done ? 'color: #c3ffd8;' : 'opacity: 0.6;'; ?>">
+                      <?php echo $done ? '✓' : '○'; ?> <?php echo $item; ?>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+              </div>
+            <?php endforeach; ?>
+          </div>
         </div>
+      </div>
+      
+      <!-- Diagnostics Tools -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 30px;">
+        
+        <!-- Site Diagnostics -->
+        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <span class="dashicons dashicons-analytics" style="color: #2271b1; font-size: 24px;"></span>
+            Site Diagnostics
+          </h2>
+          <p style="color: #646970; margin: 0 0 15px 0; line-height: 1.6;">
+            Check site-wide SEO configuration including sitemaps, robots.txt, verification codes, and plugin conflicts.
+          </p>
+          <ul style="margin: 0 0 20px 20px; padding: 0; list-style: none; color: #50575e; line-height: 1.8;">
+            <li>✓ Sitemap accessibility</li>
+            <li>✓ Robots.txt validation</li>
+            <li>✓ Search engine verification</li>
+            <li>✓ Plugin conflict detection</li>
+          </ul>
+          <a href="?page=cfseo-validation" class="button button-primary button-large" style="width: 100%;">
+            <span class="dashicons dashicons-yes-alt" style="margin-top: 3px;"></span> 
+            Run Site Diagnostics
+          </a>
+        </div>
+        
+        <!-- Page Diagnostics -->
+        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <span class="dashicons dashicons-search" style="color: #2271b1; font-size: 24px;"></span>
+            Page Diagnostics
+          </h2>
+          <p style="color: #646970; margin: 0 0 15px 0; line-height: 1.6;">
+            Inspect what search engines see on individual pages including title tags, meta descriptions, and structured data.
+          </p>
+          <ul style="margin: 0 0 20px 20px; padding: 0; list-style: none; color: #50575e; line-height: 1.8;">
+            <li>✓ Title tags & meta descriptions</li>
+            <li>✓ Canonical URLs & robots directives</li>
+            <li>✓ Open Graph & Twitter cards</li>
+            <li>✓ Schema markup validation</li>
+          </ul>
+          <a href="?page=cfseo-diagnostics" class="button button-primary button-large" style="width: 100%;">
+            <span class="dashicons dashicons-visibility" style="margin-top: 3px;"></span> 
+            Analyze a Page
+          </a>
+        </div>
+        
+      </div>
+      
+      <div class="cfseo-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
         
         <!-- Quick Actions -->
         <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -215,18 +293,6 @@ class CFSEO_Dashboard {
           
           <div style="margin-top: 20px;">
             <!-- Action 1 -->
-            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
-              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
-                <span class="dashicons dashicons-chart-line" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
-                Run Validation Check
-              </h3>
-              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
-                Check site-wide SEO patterns like sitemaps and plugin conflicts
-              </p>
-              <a href="?page=cfseo-validation" class="button">Run Check</a>
-            </div>
-            
-            <!-- Action 2 -->
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
               <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
                 <span class="dashicons dashicons-edit" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>

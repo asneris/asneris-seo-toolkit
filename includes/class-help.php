@@ -43,7 +43,7 @@ class CFSEO_Help {
           <li>✅ Detects technical SEO signals on your pages</li>
           <li>✅ Identifies conflicts and ambiguities</li>
           <li>✅ Explains why clarity matters</li>
-          <li>✅ Prevents accidental SEO breakage</li>
+          <li>✅ Helps prevent accidental SEO misconfiguration</li>
           <li>✅ Provides safe redirect management</li>
           <li>✅ Validates robots.txt syntax</li>
         </ul>
@@ -61,6 +61,7 @@ class CFSEO_Help {
           <li>❌ Does NOT rewrite your content with AI</li>
           <li>❌ Does NOT analyze keyword density</li>
           <li>❌ Does NOT guarantee traffic or conversions</li>
+          <li>❌ Does NOT submit data to third-party services without consent</li>
         </ul>
       </div>
       
@@ -69,7 +70,7 @@ class CFSEO_Help {
         <h2>Key SEO Concepts</h2>
         
         <h3>What is a Title Tag?</h3>
-        <p>The <code>&lt;title&gt;</code> element in your page's HTML. It appears in browser tabs and search results. Search engines use it to understand page content.</p>
+        <p>The <code>&lt;title&gt;</code> element in your page's HTML. It appears in browser tabs and search results. Search engines may use it to understand page content.</p>
         <p><strong>Important:</strong> Having a title tag does not guarantee rankings. It provides clarity about your page's topic.</p>
         
         <h3>What is a Canonical URL?</h3>
@@ -78,19 +79,19 @@ class CFSEO_Help {
         
         <h3>What is Meta Robots (noindex)?</h3>
         <p>A <code>&lt;meta name="robots" content="noindex"&gt;</code> tag blocks search engines from indexing a page.</p>
-        <p><strong>Important:</strong> This does NOT hide the page from users or make it inaccessible. It only affects search engine indexing.</p>
+        <p><strong>Important:</strong> This does NOT hide the page from users or remove it from your website. It only affects search engine indexing.</p>
         
         <h3>What is Schema Markup?</h3>
         <p>Structured data (JSON-LD) that helps search engines understand entities on your page (articles, products, events, etc.).</p>
         <p><strong>Important:</strong> Schema does NOT guarantee rich results. It provides clarity, not ranking boosts.</p>
         
         <h3>What is a 301 Redirect?</h3>
-        <p>A permanent redirect from one URL to another. Used when content moves to preserve link value.</p>
+        <p>A permanent redirect from one URL to another. Used when content moves. Redirects help preserve existing signals when URLs change.</p>
         <p><strong>Important:</strong> Redirects preserve existing value. They do not improve rankings or create new value.</p>
         
         <h3>What is Robots.txt?</h3>
         <p>A file that tells search engine crawlers which parts of your site to avoid crawling.</p>
-        <p><strong>Important:</strong> Robots.txt is about crawl efficiency, not security. It does not hide content from determined users.</p>
+        <p><strong>Important:</strong> Robots.txt is about crawl efficiency, not security. It does not hide content from users.</p>
       </div>
       
       <!-- Understanding Validation Status -->
@@ -98,13 +99,13 @@ class CFSEO_Help {
         <h2>Understanding Validation Status</h2>
         
         <h3 style="color: #46b450;">✅ Pass</h3>
-        <p>The check found clear, unambiguous signals. This does NOT mean "perfect SEO" or "guaranteed ranking."</p>
+        <p>Clear, unambiguous signals were detected. This does NOT mean "perfect SEO" or "guaranteed ranking."</p>
         
         <h3 style="color: #f0ad4e;">⚠️ Warning</h3>
-        <p>Something is missing or could be clearer. This does NOT mean "failure" or "penalty." It means review is recommended.</p>
+        <p>Something is missing or could be clearer. This does NOT mean failure or penalty.</p>
         
         <h3 style="color: #dc3232;">❌ Conflict</h3>
-        <p>Ambiguous or contradictory signals were detected. This creates clarity risk but does NOT guarantee indexing failure.</p>
+        <p>Contradictory signals were detected. This creates clarity risk but does NOT guarantee indexing failure.</p>
       </div>
       
       <!-- Support & Feedback -->
@@ -115,9 +116,8 @@ class CFSEO_Help {
         
         <p><strong>Need help or found a bug?</strong></p>
         <ul>
-          <li>📧 Email: <a href="mailto:support@example.com">support@example.com</a></li>
+          <li>📧 Email: support@clarityfirstseo.com</li>
           <li>🐛 Report issues: <a href="https://github.com/yourusername/clarity-first-seo/issues" target="_blank">GitHub Issues</a></li>
-          <li>📖 Documentation: <a href="https://docs.example.com" target="_blank">Full Documentation</a></li>
         </ul>
       </div>
       

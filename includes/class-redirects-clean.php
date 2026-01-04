@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 if (!defined('ABSPATH')) exit;
 
 class CFSEO_Redirects {
@@ -345,9 +345,9 @@ class CFSEO_Redirects {
                 <tr>
                   <td>
                     <?php if ($redirect['enabled']): ?>
-                      <span style="color: #46b450;">● <?php _e('Active', 'cfseo'); ?></span>
+                      <span style="color: #46b450;">â— <?php _e('Active', 'cfseo'); ?></span>
                     <?php else: ?>
-                      <span style="color: #dba617;">● <?php _e('Disabled', 'cfseo'); ?></span>
+                      <span style="color: #dba617;">â— <?php _e('Disabled', 'cfseo'); ?></span>
                     <?php endif; ?>
                   </td>
                   <td><code><?php echo esc_html($redirect['from']); ?></code></td>
