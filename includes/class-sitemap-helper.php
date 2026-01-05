@@ -56,6 +56,7 @@ class CFSEO_Sitemap_Helper {
       <h3>
         <span class="dashicons <?php echo esc_attr($icon_class); ?>"></span> 
         <?php _e('XML Sitemap', 'cfseo'); ?>
+        <?php CFSEO_Help_Modal::render_help_icon('sitemap-info', 'XML Sitemap'); ?>
       </h3>
       <p>
         <?php _e('WordPress automatically generates an XML sitemap for your site.', 'cfseo'); ?>

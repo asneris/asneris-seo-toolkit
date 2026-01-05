@@ -187,6 +187,7 @@ class CFSEO_Diagnostics_Page {
       <h1>
         <span class="dashicons dashicons-analytics"></span>
         <?php _e('Page Diagnostics', 'cfseo'); ?>
+        <?php CFSEO_Help_Modal::render_help_button('page-diagnostics-overview'); ?>
       </h1>
       <p class="cfseo-subtitle">
         <?php _e('Inspect what a single page exposes to search engines — read-only facts only.', 'cfseo'); ?>
@@ -197,7 +198,10 @@ class CFSEO_Diagnostics_Page {
       
       <!-- URL Input -->
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-search"></span> Analyze Any URL</h2>
+        <h2>
+          <span class="dashicons dashicons-search"></span> Analyze Any URL
+          <?php CFSEO_Help_Modal::render_help_icon('page-fetch-status', 'Learn about page fetch and HTTP status'); ?>
+        </h2>
         <p style="color: #646970;">Fetch & inspect a single page</p>
         
         <form method="post" action="" id="cfseo-diagnostics-form">
@@ -278,7 +282,10 @@ class CFSEO_Diagnostics_Page {
         
         <!-- Fetch Results -->
         <div class="cfseo-card">
-          <h2>Fetch Results</h2>
+          <h2>
+            Fetch Results
+            <?php CFSEO_Help_Modal::render_help_icon('page-fetch-status', 'Learn about HTTP status codes'); ?>
+          </h2>
           <table class="widefat">
             <tr>
               <th style="width: 200px;">Tested URL</th>
@@ -301,7 +308,10 @@ class CFSEO_Diagnostics_Page {
         
         <!-- Canonical Details -->
         <div class="cfseo-card">
-          <h2><span class="dashicons dashicons-admin-links"></span> Canonical Details</h2>
+          <h2>
+            <span class="dashicons dashicons-admin-links"></span> Canonical Details
+            <?php CFSEO_Help_Modal::render_help_icon('canonical-url', 'Learn about canonical URLs'); ?>
+          </h2>
           <p style="color: #646970;">Canonical tags and target status for this URL</p>
           
           <table class="widefat striped">
@@ -348,7 +358,10 @@ class CFSEO_Diagnostics_Page {
         
         <!-- Indexing Signals -->
         <div class="cfseo-card">
-          <h2><span class="dashicons dashicons-admin-site-alt3"></span> Indexing Signals</h2>
+          <h2>
+            <span class="dashicons dashicons-admin-site-alt3"></span> Indexing Signals
+            <?php CFSEO_Help_Modal::render_help_icon('indexing-rules', 'Learn about indexing rules'); ?>
+          </h2>
           <p style="color: #646970;">Signals that may affect indexing for this URL</p>
           
           <table class="widefat striped">
@@ -413,13 +426,14 @@ class CFSEO_Diagnostics_Page {
           </table>
         </div>
         
-        <!-- Meta & Schema Inspection -->
+        <!-- Meta Tags (Title & Description) -->
         <div class="cfseo-card">
-          <h2><span class="dashicons dashicons-editor-code"></span> Meta & Schema Inspection</h2>
-          <p style="color: #646970;">Title, description, social tags, and JSON-LD for this URL</p>
+          <h2>
+            <span class="dashicons dashicons-editor-textmode"></span> Meta Tags
+            <?php CFSEO_Help_Modal::render_help_icon('meta-tags', 'Learn about meta tags'); ?>
+          </h2>
+          <p style="color: #646970;">Title tags and meta descriptions for this URL</p>
           
-          <!-- SEO Snippet Basics -->
-          <h3 style="margin-top: 0;">SEO Snippet Basics</h3>
           <table class="widefat striped">
             <tr>
               <th style="width: 200px;">Title Tags</th>
@@ -448,10 +462,17 @@ class CFSEO_Diagnostics_Page {
               </td>
             </tr>
           </table>
+        </div>
+        
+        <!-- Social Media Preview Tags -->
+        <div class="cfseo-card">
+          <h2>
+            <span class="dashicons dashicons-share"></span> Social Media Preview
+            <?php CFSEO_Help_Modal::render_help_icon('social-preview', 'Learn about social preview tags'); ?>
+          </h2>
+          <p style="color: #646970;">Open Graph and Twitter Card tags for social sharing</p>
           
-          <!-- Social Meta -->
-          <h3 style="margin-top: 25px;">Social Meta</h3>
-          <h4 style="margin: 10px 0 5px 0;">Open Graph (Facebook/LinkedIn)</h4>
+          <h3 style="margin-top: 0;">Open Graph (Facebook/LinkedIn)</h3>
           <p><strong>Count:</strong> <?php echo count($results['og_tags']); ?></p>
           <?php if (!empty($results['og_tags'])): ?>
             <table class="widefat striped">
@@ -469,7 +490,7 @@ class CFSEO_Diagnostics_Page {
             <p style="color: #646970;">No Open Graph tags detected</p>
           <?php endif; ?>
           
-          <h4 style="margin: 20px 0 5px 0;">Twitter Card</h4>
+          <h3 style="margin-top: 20px;">Twitter Card</h3>
           <p><strong>Count:</strong> <?php echo count($results['twitter_tags']); ?></p>
           <?php if (!empty($results['twitter_tags'])): ?>
             <table class="widefat striped">
@@ -486,10 +507,17 @@ class CFSEO_Diagnostics_Page {
           <?php else: ?>
             <p style="color: #646970;">No Twitter Card tags detected</p>
           <?php endif; ?>
+        </div>
+        
+        <!-- Structured Data (Schema) -->
+        <div class="cfseo-card">
+          <h2>
+            <span class="dashicons dashicons-editor-code"></span> Structured Data (Schema)
+            <?php CFSEO_Help_Modal::render_help_icon('structured-data', 'Learn about structured data'); ?>
+          </h2>
+          <p style="color: #646970;">JSON-LD structured data blocks for this URL</p>
           
-          <!-- Schema -->
-          <h3 style="margin-top: 25px;">Schema (JSON-LD)</h3>
-          <p><strong>Count:</strong> <?php echo count($results['schema_blocks']); ?></p>
+          <p><strong>Schema Block Count:</strong> <?php echo count($results['schema_blocks']); ?></p>
           <?php if (!empty($results['schema_blocks'])): ?>
             <table class="widefat striped">
               <thead><tr><th style="width: 100px;">#</th><th style="width: 150px;">Valid JSON?</th><th>@type</th></tr></thead>
@@ -523,6 +551,7 @@ class CFSEO_Diagnostics_Page {
       <?php CFSEO_Help_Content::render_sidebar('page-diagnostics'); ?>
       
     </div>
+    <?php CFSEO_Help_Modal::render_modals('page-diagnostics'); ?>
     <?php
   }
 }

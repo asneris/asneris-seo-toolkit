@@ -89,6 +89,7 @@ class CFSEO_Admin_Settings {
       <h1>
         <span class="dashicons dashicons-search"></span>
         Clarity-First SEO
+        <?php CFSEO_Help_Modal::render_help_button('settings-general'); ?>
       </h1>
       <p class="cfseo-subtitle"><?php _e('Clear and simple SEO configuration for your WordPress site.', 'cfseo'); ?></p>
 
@@ -158,6 +159,8 @@ class CFSEO_Admin_Settings {
       <?php CFSEO_Help_Content::render_sidebar('settings'); ?>
     </div>
     
+    <?php CFSEO_Help_Modal::render_modals('settings'); ?>
+    
     <script>
     jQuery(document).ready(function($) {
       $('#CFSEO_run_http_test').on('click', function() {
@@ -217,7 +220,10 @@ class CFSEO_Admin_Settings {
     ?>
     <div class="cfseo-tab-content">
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-admin-home"></span> Site Information</h2>
+        <h2>
+          <span class="dashicons dashicons-admin-home"></span> Site Information
+          <?php CFSEO_Help_Modal::render_help_icon('settings-general', 'Site Information'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">
@@ -254,7 +260,10 @@ class CFSEO_Admin_Settings {
       <?php CFSEO_Sitemap_Helper::render_sitemap_info(); ?>
 
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-visibility"></span> Default Robots Settings</h2>
+        <h2>
+          <span class="dashicons dashicons-visibility"></span> Default Robots Settings
+          <?php CFSEO_Help_Modal::render_help_icon('default-robots', 'Default Robots Settings'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">
@@ -288,7 +297,10 @@ class CFSEO_Admin_Settings {
     ?>
     <div class="cfseo-tab-content">
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-google"></span> Google Search Console</h2>
+        <h2>
+          <span class="dashicons dashicons-google"></span> Google Search Console
+          <?php CFSEO_Help_Modal::render_help_icon('verification-codes', 'Verification Codes'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">
@@ -396,7 +408,10 @@ class CFSEO_Admin_Settings {
     ?>
     <div class="cfseo-tab-content">
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-update"></span> IndexNow Configuration</h2>
+        <h2>
+          <span class="dashicons dashicons-update"></span> IndexNow Configuration
+          <?php CFSEO_Help_Modal::render_help_icon('indexnow-protocol', 'IndexNow Protocol'); ?>
+        </h2>
         <p class="description" style="margin-bottom: 20px;">
           IndexNow is a protocol that allows you to instantly notify search engines about content changes on your site.
         </p>
@@ -448,7 +463,10 @@ class CFSEO_Admin_Settings {
     ?>
     <div class="cfseo-tab-content">
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-format-image"></span> Default Open Graph Image</h2>
+        <h2>
+          <span class="dashicons dashicons-format-image"></span> Default Open Graph Image
+          <?php CFSEO_Help_Modal::render_help_icon('social-media-tags', 'Social Media Tags'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">
@@ -549,7 +567,10 @@ class CFSEO_Admin_Settings {
     ?>
     <div class="cfseo-tab-content">
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-admin-home"></span> Organization Schema</h2>
+        <h2>
+          <span class="dashicons dashicons-admin-home"></span> Organization Schema
+          <?php CFSEO_Help_Modal::render_help_icon('schema-structured-data', 'Schema & Structured Data'); ?>
+        </h2>
         <p class="description" style="margin-bottom: 20px;">
           Schema.org markup helps search engines understand your content better and can enhance search results with rich snippets.
         </p>
@@ -570,7 +591,10 @@ class CFSEO_Admin_Settings {
       </div>
 
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-store"></span> Local Business Schema</h2>
+        <h2>
+          <span class="dashicons dashicons-store"></span> Local Business Schema
+          <?php CFSEO_Help_Modal::render_help_icon('schema-structured-data', 'Local Business Schema'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">
@@ -784,7 +808,10 @@ class CFSEO_Admin_Settings {
     ?>
     <div class="cfseo-tab-content">
       <div class="cfseo-info-box cfseo-info">
-        <h3><span class="dashicons dashicons-info"></span> About Templates</h3>
+        <h3>
+          <span class="dashicons dashicons-info"></span> About Templates
+          <?php CFSEO_Help_Modal::render_help_icon('seo-templates', 'SEO Templates'); ?>
+        </h3>
         <p>
           Title and description templates provide automated fallbacks when per-page values aren't set.
           Use variables like <code>{title}</code>, <code>{site}</code>, and <code>{separator}</code> to create dynamic templates.
@@ -882,7 +909,10 @@ class CFSEO_Admin_Settings {
       <?php CFSEO_Conflict_Detector::render_status(); ?>
       
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-admin-tools"></span> Import / Export Settings</h2>
+        <h2>
+          <span class="dashicons dashicons-admin-tools"></span> Import / Export Settings
+          <?php CFSEO_Help_Modal::render_help_icon('maintenance-safety', 'Maintenance & Safety'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">Export Settings</th>

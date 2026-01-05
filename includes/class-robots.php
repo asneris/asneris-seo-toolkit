@@ -264,7 +264,10 @@ Sitemap: {$sitemap_url}
         
         ?>
         <div class="wrap cfseo-admin-wrap has-sidebar">
-            <h1><?php _e('Robots.txt Editor & Validator', 'cfseo'); ?></h1>
+            <h1>
+                <?php _e('Robots.txt Editor & Validator', 'cfseo'); ?>
+                <?php CFSEO_Help_Modal::render_help_button('robots-overview'); ?>
+            </h1>
             <p class="cfseo-subtitle"><?php _e('Control which parts of your site search engines are allowed to visit.', 'cfseo'); ?></p>
             
             <?php if ($saved): ?>
@@ -337,7 +340,10 @@ Sitemap: {$sitemap_url}
                     
                     <!-- Editor -->
                     <div class="cfseo-robots-editor">
-                        <h2><?php _e('Edit robots.txt', 'cfseo'); ?></h2>
+                        <h2>
+                            <?php _e('Edit robots.txt', 'cfseo'); ?>
+                            <?php CFSEO_Help_Modal::render_help_icon('robots-syntax', 'Learn about robots.txt syntax'); ?>
+                        </h2>
                         
                         <p class="description" style="margin-bottom: 12px;">
                             <strong><?php _e('Controls which URLs search engines are allowed to crawl.', 'cfseo'); ?></strong><br>
@@ -368,7 +374,10 @@ Sitemap: {$sitemap_url}
                         
                         <!-- Safe Defaults Info -->
                         <div style="margin-top: 24px; padding: 16px; background: #f6f7f7; border-left: 4px solid #00a0d2;">
-                            <h3 style="margin-top: 0;"><?php _e('Recommended Safe Defaults', 'cfseo'); ?></h3>
+                            <h3 style="margin-top: 0;">
+                                <?php _e('Recommended Safe Defaults', 'cfseo'); ?>
+                                <?php CFSEO_Help_Modal::render_help_icon('robots-best-practices', 'Learn about best practices'); ?>
+                            </h3>
                             <p><?php _e('If you\'re unsure, use these safe defaults:', 'cfseo'); ?></p>
                             <ul style="list-style: disc; padding-left: 20px;">
                                 <li><?php _e('Block /wp-admin/ except admin-ajax.php', 'cfseo'); ?></li>
@@ -384,6 +393,7 @@ Sitemap: {$sitemap_url}
                 
             <?php CFSEO_Help_Content::render_sidebar('robots-txt'); ?>
         </div><!-- .wrap -->
+        <?php CFSEO_Help_Modal::render_modals('robots-txt'); ?>
         <?php
     }
     

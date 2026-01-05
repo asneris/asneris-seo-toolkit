@@ -68,6 +68,7 @@ class CFSEO_Bulk_Edit {
       <h1>
         <span class="dashicons dashicons-edit"></span>
         <?php _e('SEO Bulk Edit', 'cfseo'); ?>
+        <?php CFSEO_Help_Modal::render_help_button('bulk-overview'); ?>
       </h1>
       <p class="cfseo-subtitle"><?php _e('Update SEO titles, descriptions, and indexing settings for multiple posts at once.', 'cfseo'); ?></p>
       
@@ -116,7 +117,10 @@ class CFSEO_Bulk_Edit {
       
       <!-- Bulk Actions -->
       <div class="cfseo-card" style="max-width: 100%; margin-top: 20px;">
-        <h2><span class="dashicons dashicons-admin-generic"></span> <?php _e('Quick Bulk Actions', 'cfseo'); ?></h2>
+        <h2>
+          <span class="dashicons dashicons-admin-generic"></span> <?php _e('Quick Bulk Actions', 'cfseo'); ?>
+          <?php CFSEO_Help_Modal::render_help_icon('indexing-status', 'Learn about indexing status'); ?>
+        </h2>
         <p style="color: #646970;"><?php _e('Check the boxes next to posts below, then click a bulk action button to apply changes to all selected posts at once.', 'cfseo'); ?><br><strong><?php _e('Remember:', 'cfseo'); ?></strong> <?php _e('Nothing is saved until you click "Save All Changes" at the bottom.', 'cfseo'); ?></p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
           <button type="button" id="cfseo-bulk-set-index" class="button">
@@ -246,6 +250,7 @@ class CFSEO_Bulk_Edit {
         
       <?php CFSEO_Help_Content::render_sidebar('bulk-edit'); ?>
     </div>
+    <?php CFSEO_Help_Modal::render_modals('bulk-edit'); ?>
     
     <!-- Custom Modal for Confirmations -->
     <div id="cfseo-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:100000; align-items:center; justify-content:center;">
