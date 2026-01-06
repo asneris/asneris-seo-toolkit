@@ -64,7 +64,7 @@ class CFSEO_Bulk_Edit {
     
     $posts_query = new WP_Query($args);
     ?>
-    <div class="wrap cfseo-admin-wrap has-sidebar">
+    <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-edit"></span>
         <?php _e('SEO Bulk Edit', 'cfseo'); ?>
@@ -248,7 +248,7 @@ class CFSEO_Bulk_Edit {
         </div><!-- .cfseo-tab-content -->
       </div><!-- .cfseo-settings-form -->
         
-      <?php CFSEO_Help_Content::render_sidebar('bulk-edit'); ?>
+      <?php // CFSEO_Help_Content::render_sidebar('bulk-edit'); ?>
     </div>
     <?php CFSEO_Help_Modal::render_modals('bulk-edit'); ?>
     

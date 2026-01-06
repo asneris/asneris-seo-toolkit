@@ -263,7 +263,7 @@ Sitemap: {$sitemap_url}
         $error = isset($_GET['error']) && $_GET['error'] === '1';
         
         ?>
-        <div class="wrap cfseo-admin-wrap has-sidebar">
+        <div class="wrap cfseo-admin-wrap">
             <h1>
                 <?php _e('Robots.txt Editor & Validator', 'cfseo'); ?>
                 <?php CFSEO_Help_Modal::render_help_button('robots-overview'); ?>
@@ -391,7 +391,7 @@ Sitemap: {$sitemap_url}
                 </div><!-- .cfseo-tab-content -->
             </div><!-- .cfseo-settings-form -->
                 
-            <?php CFSEO_Help_Content::render_sidebar('robots-txt'); ?>
+            <?php // CFSEO_Help_Content::render_sidebar('robots-txt'); ?>
         </div><!-- .wrap -->
         <?php CFSEO_Help_Modal::render_modals('robots-txt'); ?>
         <?php

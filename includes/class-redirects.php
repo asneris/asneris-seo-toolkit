@@ -258,7 +258,7 @@ class CFSEO_Redirects {
     
     $redirects = self::get_redirects();
     ?>
-    <div class="wrap cfseo-admin-wrap has-sidebar">
+    <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-controls-forward"></span>
         <?php _e('SEO Redirects', 'cfseo'); ?>
@@ -387,7 +387,7 @@ class CFSEO_Redirects {
         </div><!-- .cfseo-tab-content -->
       </div><!-- .cfseo-settings-form -->
         
-      <?php CFSEO_Help_Content::render_sidebar('redirects'); ?>
+      <?php // CFSEO_Help_Content::render_sidebar('redirects'); ?>
     </div>
     
     <?php CFSEO_Help_Modal::render_modals('redirects'); ?>

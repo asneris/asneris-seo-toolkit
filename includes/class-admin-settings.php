@@ -85,7 +85,7 @@ class CFSEO_Admin_Settings {
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
-    <div class="wrap cfseo-admin-wrap has-sidebar">
+    <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-search"></span>
         Clarity-First SEO
@@ -156,7 +156,7 @@ class CFSEO_Admin_Settings {
         <?php endif; ?>
       </form>
 
-      <?php CFSEO_Help_Content::render_sidebar('settings'); ?>
+      <?php // CFSEO_Help_Content::render_sidebar('settings'); ?>
     </div>
     
     <?php CFSEO_Help_Modal::render_modals('settings'); ?>

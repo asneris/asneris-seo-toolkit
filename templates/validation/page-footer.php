@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) exit;
     </div><!-- .cfseo-tab-content -->
   </div><!-- .cfseo-settings-form -->
     
-  <?php CFSEO_Help_Content::render_sidebar('site-diagnostics'); ?>
+  <?php // CFSEO_Help_Content::render_sidebar('site-diagnostics'); ?>
 </div><!-- .wrap -->
 
 <script>
