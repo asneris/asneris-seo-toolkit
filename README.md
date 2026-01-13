@@ -1,6 +1,6 @@
-# Clarity‑First SEO (Beta)
+# Clarity First SEO (Beta)
 
-Clarity‑First SEO is a **facts-first** WordPress SEO plugin focused on **clear signals** (titles, descriptions, canonicals, robots, schema) and **readable diagnostics**. It’s built for site owners and teams who want to **see what search engines can read**—without “magic” promises.
+Clarity First SEO is a **facts-first** WordPress SEO plugin focused on **clear signals** (titles, descriptions, canonicals, robots, schema) and **readable diagnostics**. It's built for site owners and teams who want to **see what search engines can read**—without "magic" promises.
 
 > **Beta note:** This is an early release. UI and behaviors may change between versions.
 
@@ -44,7 +44,7 @@ If you ship to the WordPress Plugin Directory, make sure your WP.org `readme.txt
 
 - WordPress **5.8+**
 - PHP **7.4+**
-- Tested on modern WP 6.x (update as you test)
+- Tested on WordPress **6.9**
 
 ---
 
@@ -72,7 +72,7 @@ clarity-first-seo/
 ## Local development
 
 1. Clone the repo into `wp-content/plugins/clarity-first-seo`
-2. Activate **Clarity‑First SEO** in WP Admin → Plugins
+2. Activate **Clarity First SEO** in WP Admin → Plugins
 3. Build editor assets (if you ship Gutenberg integration):
    - `npm install`
    - `npm run build`
@@ -89,8 +89,6 @@ clarity-first-seo/
 - Build and commit `/build` artifacts for release (if required)
 - Validate output on a clean site with only this plugin active
 - Prepare WP.org assets (banner/icon/screenshots)
-
-See: `WPORG-PUBLISH-GUIDE.md` for full details.
 
 ---
 
