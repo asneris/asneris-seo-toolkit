@@ -68,7 +68,7 @@ class CFSEO_Bulk_Edit {
       <h1>
         <span class="dashicons dashicons-edit"></span>
         <?php _e('SEO Bulk Edit', 'cfseo'); ?>
-        <?php CFSEO_Help_Modal::render_help_button('bulk-overview'); ?>
+        <?php CFSEO_Help_Modal::render_help_icon('bulk-overview', 'Learn about bulk edit'); ?>
       </h1>
       <p class="cfseo-subtitle"><?php _e('Update SEO titles, descriptions, and indexing settings for multiple posts at once.', 'cfseo'); ?></p>
       
@@ -77,14 +77,14 @@ class CFSEO_Bulk_Edit {
       
       <!-- Filters -->
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-filter"></span> <?php _e('Filter Posts', 'cfseo'); ?></h2>
-        <p class="description" style="margin-top: 0;"><?php _e('Filter which posts appear in the table below. Use these filters to find specific posts you want to edit.', 'cfseo'); ?></p>
+        <h2><span class="dashicons dashicons-filter"></span> <?php _e('Filter Content', 'cfseo'); ?></h2>
+        <p class="description" style="margin-top: 0;"><?php _e('Filter which content appear in the table below. Use these filters to find specific content you want to edit.', 'cfseo'); ?></p>
         <form method="get" action="">
           <input type="hidden" name="page" value="cfseo-bulk-edit">
           <table class="form-table">
             <tr>
               <th scope="row">
-                <label for="filter_type"><?php _e('Post Type', 'cfseo'); ?></label>
+                <label for="filter_type"><?php _e('Content Type', 'cfseo'); ?></label>
               </th>
               <td>
                 <select name="filter_type" id="filter_type">
@@ -119,9 +119,13 @@ class CFSEO_Bulk_Edit {
       <div class="cfseo-card" style="max-width: 100%; margin-top: 20px;">
         <h2>
           <span class="dashicons dashicons-admin-generic"></span> <?php _e('Quick Bulk Actions', 'cfseo'); ?>
-          <?php CFSEO_Help_Modal::render_help_icon('indexing-status', 'Learn about indexing status'); ?>
+          <?php CFSEO_Help_Modal::render_help_icon('quick-bulk-actions', 'Learn about quick bulk actions'); ?>
         </h2>
-        <p style="color: #646970;"><?php _e('Check the boxes next to posts below, then click a bulk action button to apply changes to all selected posts at once.', 'cfseo'); ?><br><strong><?php _e('Remember:', 'cfseo'); ?></strong> <?php _e('Nothing is saved until you click "Save All Changes" at the bottom.', 'cfseo'); ?></p>
+        <?php
+        $post_type_obj = get_post_type_object($selected_post_type);
+        $content_label = $post_type_obj ? strtolower($post_type_obj->labels->name) : 'items';
+        ?>
+        <p style="color: #646970;"><?php printf(__('Check the boxes next to %s below, then click a bulk action button to apply changes to all selected %s at once.', 'cfseo'), $content_label, $content_label); ?><br><strong><?php _e('Remember:', 'cfseo'); ?></strong> <?php _e('Nothing is saved until you click "Save All Changes" at the bottom.', 'cfseo'); ?></p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
           <button type="button" id="cfseo-bulk-set-index" class="button">
             <?php _e('✓ Allow in Search (Index)', 'cfseo'); ?>
@@ -130,7 +134,7 @@ class CFSEO_Bulk_Edit {
             <?php _e('✗ Hide from Search (NoIndex)', 'cfseo'); ?>
           </button>
           <button type="button" id="cfseo-bulk-clear-title" class="button">
-            <?php _e('Clear SEO Titles', 'cfseo'); ?>
+            <?php _e('Clear Content Titles', 'cfseo'); ?>
           </button>
           <button type="button" id="cfseo-bulk-clear-description" class="button">
             <?php _e('Clear Descriptions', 'cfseo'); ?>
@@ -171,9 +175,20 @@ class CFSEO_Bulk_Edit {
                   <input type="checkbox" id="cfseo-select-all" title="<?php esc_attr_e('Select/deselect all posts', 'cfseo'); ?>">
                 </td>
                 <th class="col-title"><?php _e('Post/Page', 'cfseo'); ?></th>
-                <th class="col-seo-title"><?php _e('Custom SEO Title', 'cfseo'); ?><br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'cfseo'); ?></small></th>
-                <th class="col-description"><?php _e('Meta Description', 'cfseo'); ?><br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'cfseo'); ?></small></th>
-                <th class="col-robots"><?php _e('Search Visibility', 'cfseo'); ?></th>
+                <th class="col-seo-title">
+                  <?php _e('Custom Content Title', 'cfseo'); ?>
+                  <?php CFSEO_Help_Modal::render_help_icon('seo-title-field', 'Learn about custom content titles'); ?>
+                  <br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'cfseo'); ?></small>
+                </th>
+                <th class="col-description">
+                  <?php _e('Custom Content Description', 'cfseo'); ?>
+                  <?php CFSEO_Help_Modal::render_help_icon('meta-description-field', 'Learn about custom content descriptions'); ?>
+                  <br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'cfseo'); ?></small>
+                </th>
+                <th class="col-robots">
+                  <?php _e('Search Visibility', 'cfseo'); ?>
+                  <?php CFSEO_Help_Modal::render_help_icon('indexing-status', 'Learn about search visibility'); ?>
+                </th>
                 <th class="col-actions"></th>
               </tr>
             </thead>

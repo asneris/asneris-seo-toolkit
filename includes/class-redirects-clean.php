@@ -262,7 +262,7 @@ class CFSEO_Redirects {
       <h1>
         <span class="dashicons dashicons-controls-forward"></span>
         <?php _e('SEO Redirects', 'cfseo'); ?>
-        <?php CFSEO_Help_Modal::render_help_button('redirects-overview'); ?>
+        <?php CFSEO_Help_Modal::render_help_icon('redirects-overview', 'Learn about redirects'); ?>
       </h1>
       <p class="cfseo-subtitle"><?php _e('Send visitors and search engines to the right page when a URL changes.', 'cfseo'); ?></p>
       

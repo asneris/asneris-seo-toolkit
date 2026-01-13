@@ -266,7 +266,7 @@ Sitemap: {$sitemap_url}
         <div class="wrap cfseo-admin-wrap">
             <h1>
                 <?php _e('Robots.txt Editor & Validator', 'cfseo'); ?>
-                <?php CFSEO_Help_Modal::render_help_button('robots-overview'); ?>
+                <?php CFSEO_Help_Modal::render_help_icon('robots-overview', 'Learn about robots.txt'); ?>
             </h1>
             <p class="cfseo-subtitle"><?php _e('Control which parts of your site search engines are allowed to visit.', 'cfseo'); ?></p>
             

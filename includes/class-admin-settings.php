@@ -89,7 +89,7 @@ class CFSEO_Admin_Settings {
       <h1>
         <span class="dashicons dashicons-search"></span>
         Clarity-First SEO
-        <?php CFSEO_Help_Modal::render_help_button('settings-general'); ?>
+        <?php CFSEO_Help_Modal::render_help_icon('settings-general', 'Learn about settings'); ?>
       </h1>
       <p class="cfseo-subtitle"><?php _e('Clear and simple SEO configuration for your WordPress site.', 'cfseo'); ?></p>
 

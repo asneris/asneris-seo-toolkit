@@ -187,7 +187,7 @@ class CFSEO_Diagnostics_Page {
       <h1>
         <span class="dashicons dashicons-analytics"></span>
         <?php _e('Page Diagnostics', 'cfseo'); ?>
-        <?php CFSEO_Help_Modal::render_help_button('page-diagnostics-overview'); ?>
+        <?php CFSEO_Help_Modal::render_help_icon('page-diagnostics-overview', 'Learn about page diagnostics'); ?>
       </h1>
       <p class="cfseo-subtitle">
         <?php _e('Inspect what a single page exposes to search engines — read-only facts only.', 'cfseo'); ?>

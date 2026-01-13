@@ -267,8 +267,8 @@ class CFSEO_Help_Modal {
    */
   public static function render_help_icon($modal_id, $title = 'Help') {
     ?>
-    <button type="button" class="cfseo-help-icon" onclick="CFSEOHelpModal.open('<?php echo esc_js($modal_id); ?>')" title="<?php echo esc_attr($title); ?>">
-      <span class="dashicons dashicons-editor-help"></span>
+    <button type="button" class="cfseo-help-icon" onclick="CFSEOHelpModal.open('<?php echo esc_js($modal_id); ?>')" title="<?php echo esc_attr($title); ?>" style="background: #2271b1; border: none; border-radius: 50%; width: 18px; height: 18px; padding: 0; margin-left: 5px; cursor: pointer; color: #ffffff; font-size: 12px; font-weight: bold; vertical-align: middle; line-height: 18px; display: inline-block; text-align: center;">
+      ?
     </button>
     <?php
   }
