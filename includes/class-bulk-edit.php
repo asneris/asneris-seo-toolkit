@@ -121,11 +121,7 @@ class CFSEO_Bulk_Edit {
           <span class="dashicons dashicons-admin-generic"></span> <?php _e('Quick Bulk Actions', 'cfseo'); ?>
           <?php CFSEO_Help_Modal::render_help_icon('quick-bulk-actions', 'Learn about quick bulk actions'); ?>
         </h2>
-        <?php
-        $post_type_obj = get_post_type_object($selected_post_type);
-        $content_label = $post_type_obj ? strtolower($post_type_obj->labels->name) : 'items';
-        ?>
-        <p style="color: #646970;"><?php printf(__('Check the boxes next to %s below, then click a bulk action button to apply changes to all selected %s at once.', 'cfseo'), $content_label, $content_label); ?><br><strong><?php _e('Remember:', 'cfseo'); ?></strong> <?php _e('Nothing is saved until you click "Save All Changes" at the bottom.', 'cfseo'); ?></p>
+        <p style="color: #646970;"><?php _e('Changes are previewed in the table. Nothing is saved until you click \'Save All Changes\'.', 'cfseo'); ?></p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
           <button type="button" id="cfseo-bulk-set-index" class="button">
             <?php _e('✓ Allow in Search (Index)', 'cfseo'); ?>
@@ -177,12 +173,12 @@ class CFSEO_Bulk_Edit {
                 <th class="col-title"><?php _e('Post/Page', 'cfseo'); ?></th>
                 <th class="col-seo-title">
                   <?php _e('Custom Content Title', 'cfseo'); ?>
-                  <?php CFSEO_Help_Modal::render_help_icon('seo-title-field', 'Learn about custom content titles'); ?>
+                  <?php CFSEO_Help_Modal::render_help_icon('seo-title-field', 'Leave blank to use auto-generated values.'); ?>
                   <br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'cfseo'); ?></small>
                 </th>
                 <th class="col-description">
                   <?php _e('Custom Content Description', 'cfseo'); ?>
-                  <?php CFSEO_Help_Modal::render_help_icon('meta-description-field', 'Learn about custom content descriptions'); ?>
+                  <?php CFSEO_Help_Modal::render_help_icon('meta-description-field', 'Leave blank to use auto-generated values.'); ?>
                   <br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'cfseo'); ?></small>
                 </th>
                 <th class="col-robots">

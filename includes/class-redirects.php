@@ -312,7 +312,22 @@ class CFSEO_Redirects {
                   <option value="302"><?php _e('302 Temporary', 'cfseo'); ?></option>
                   <option value="307"><?php _e('307 Temporary (Preserve Method)', 'cfseo'); ?></option>
                 </select>
-                <p class="description"><?php _e('Use 301 when the old page is permanently replaced by the new page.', 'cfseo'); ?></p>
+                <p class="description" id="redirect-type-description"><?php _e('Use 301 when the old page is permanently replaced by the new page.', 'cfseo'); ?></p>
+                <script>
+                  (function() {
+                    const descriptions = {
+                      '301': '<?php echo esc_js(__('Use 301 when the old page is permanently replaced by the new page.', 'cfseo')); ?>',
+                      '302': '<?php echo esc_js(__('Use 302 when the redirect is temporary and the original URL may return.', 'cfseo')); ?>',
+                      '307': '<?php echo esc_js(__('Use 307 for temporary redirects that preserve the HTTP method (POST stays POST).', 'cfseo')); ?>'
+                    };
+                    const select = document.getElementById('code');
+                    const description = document.getElementById('redirect-type-description');
+                    
+                    select.addEventListener('change', function() {
+                      description.textContent = descriptions[this.value];
+                    });
+                  })();
+                </script>
               </td>
             </tr>
           </table>
