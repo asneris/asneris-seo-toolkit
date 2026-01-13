@@ -419,7 +419,7 @@ class CFSEO_Admin_Settings {
           <?php CFSEO_Help_Modal::render_help_icon('indexnow-protocol', 'IndexNow Protocol'); ?>
         </h2>
         <p class="description" style="margin-bottom: 20px;">
-          IndexNow is a protocol that allows you to instantly notify search engines about content changes on your site.
+          Notify Bing, Yandex, and other participating search engines when content changes (Google not included).
         </p>
         <table class="form-table">
           <tr>
