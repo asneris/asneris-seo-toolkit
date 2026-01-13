@@ -93,4 +93,4 @@ jQuery(document).ready(function($) {
 });
 </script>
 
-<?php CFSEO_Help_Modal::render_modals('validation'); ?>
+<?php CFSEO_Help_Modal::render_modals('site-diagnostics'); ?>
