@@ -188,6 +188,9 @@ add_filter('pre_get_document_title', function($title) {
  * Implements POST to api.indexnow.org/IndexNow per Bing's IndexNow docs.
  */
 add_action('transition_post_status', function ($new_status, $old_status, $post) {
+  // Only check for IndexNow if it's actually enabled
+  if (!CFSEO_IndexNow::is_enabled()) return;
+  
   if (!($post instanceof WP_Post)) return;
   if ($new_status !== 'publish') return;
   if (wp_is_post_revision($post->ID) || wp_is_post_autosave($post->ID)) return;
@@ -204,6 +207,9 @@ add_action('transition_post_status', function ($new_status, $old_status, $post) 
 }, 10, 3);
 
 add_action('before_delete_post', function ($post_id) {
+  // Only check for IndexNow if it's actually enabled
+  if (!CFSEO_IndexNow::is_enabled()) return;
+  
   $post = get_post($post_id);
   if (!$post) return;
   if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) return;
