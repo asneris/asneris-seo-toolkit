@@ -1,8 +1,8 @@
-=== Clarity-First SEO ===
+=== Clarity First SEO ===
 Contributors: clarityfirstseo
-Tags: seo, meta tags, schema, open graph, canonical, robots, indexnow, diagnostics, bulk edit
+Tags: seo, schema, meta tags, canonical, indexnow
 Requires at least: 5.8
-Tested up to: 6.4
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 0.0.1
 License: GPLv2 or later

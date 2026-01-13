@@ -7,7 +7,6 @@
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Clarity First SEO
- * Author URI: https://clarityfirstseo.com
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: clarity-first-seo
@@ -41,6 +40,7 @@ require_once CFSEO_DIR . 'includes/class-validation.php';
 require_once CFSEO_DIR . 'includes/class-diagnostics.php';
 require_once CFSEO_DIR . 'includes/class-robots.php';
 require_once CFSEO_DIR . 'includes/class-help.php';
+require_once CFSEO_DIR . 'includes/class-help-modal.php';
 require_once CFSEO_DIR . 'includes/class-migration.php';
 require_once CFSEO_DIR . 'includes/class-help-content.php';
 
