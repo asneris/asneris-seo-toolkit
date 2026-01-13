@@ -9,8 +9,8 @@ class CFSEO_Validation {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Site Diagnostics', 'cfseo'),
-      __('Site Diagnostics', 'cfseo'),
+      __('Site Diagnostics', 'clarity-first-seo'),
+      __('Site Diagnostics', 'clarity-first-seo'),
       'manage_options',
       'cfseo-validation',
       [__CLASS__, 'render_page']
@@ -619,16 +619,16 @@ class CFSEO_Validation {
     // Determine color and status based on percentage
     if ($percentage >= 90) {
       $color = '#00a32a';
-      $status_text = __('Excellent', 'cfseo');
+      $status_text = __('Excellent', 'clarity-first-seo');
     } elseif ($percentage >= 70) {
       $color = '#00a32a';
-      $status_text = __('Good', 'cfseo');
+      $status_text = __('Good', 'clarity-first-seo');
     } elseif ($percentage >= 50) {
       $color = '#f0c33c';
-      $status_text = __('Fair', 'cfseo');
+      $status_text = __('Fair', 'clarity-first-seo');
     } else {
       $color = '#d63638';
-      $status_text = __('Needs Work', 'cfseo');
+      $status_text = __('Needs Work', 'clarity-first-seo');
     }
     
     return [

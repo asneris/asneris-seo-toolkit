@@ -18,8 +18,8 @@ class CFSEO_Dashboard {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Dashboard', 'cfseo'),
-      __('Dashboard', 'cfseo'),
+      __('Dashboard', 'clarity-first-seo'),
+      __('Dashboard', 'clarity-first-seo'),
       'manage_options',
       'cfseo-dashboard',
       [__CLASS__, 'render_page']
@@ -188,10 +188,10 @@ class CFSEO_Dashboard {
     <div class="wrap cfseo-admin-wrap" style="max-width: 1400px;">
       <h1>
         <span class="dashicons dashicons-dashboard"></span>
-        <?php _e('Dashboard', 'cfseo'); ?>
+        <?php _e('Dashboard', 'clarity-first-seo'); ?>
       </h1>
       <p class="cfseo-subtitle">
-        <?php _e('Clarity-First SEO checks what search engines can see on your site. It does not predict rankings.', 'cfseo'); ?>
+        <?php _e('Clarity-First SEO checks what search engines can see on your site. It does not predict rankings.', 'clarity-first-seo'); ?>
       </p>
       
       <!-- Configuration Status -->
@@ -199,7 +199,7 @@ class CFSEO_Dashboard {
         <div style="padding: 20px;">
           <h2 style="margin: 0 0 15px; color: white; display: flex; align-items: center; gap: 10px;">
             <span class="dashicons dashicons-admin-settings" style="font-size: 24px;"></span>
-            <?php _e('Configuration Status', 'cfseo'); ?>
+            <?php _e('Configuration Status', 'clarity-first-seo'); ?>
           </h2>
           
           <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 20px; margin-bottom: 15px; overflow: hidden;">
@@ -207,9 +207,9 @@ class CFSEO_Dashboard {
           </div>
           
           <p style="margin: 0 0 20px; font-size: 16px; opacity: 0.95;">
-            <strong><?php echo $completed_sections; ?> <?php _e('of', 'cfseo'); ?> <?php echo $total_sections; ?></strong> <?php _e('sections configured', 'cfseo'); ?> 
+            <strong><?php echo $completed_sections; ?> <?php _e('of', 'clarity-first-seo'); ?> <?php echo $total_sections; ?></strong> <?php _e('sections configured', 'clarity-first-seo'); ?> 
             (<?php echo $progress_percent; ?>%)
-            <a href="?page=cfseo-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php _e('Go to Settings', 'cfseo'); ?></a>
+            <a href="?page=cfseo-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php _e('Go to Settings', 'clarity-first-seo'); ?></a>
           </p>
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">

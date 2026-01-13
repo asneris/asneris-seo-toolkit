@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if (!defined('ABSPATH')) exit;
 
 class CFSEO_Redirects {
@@ -203,8 +203,8 @@ class CFSEO_Redirects {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Redirect', 'cfseo'),
-      __('Redirect', 'cfseo'),
+      __('Redirect', 'clarity-first-seo'),
+      __('Redirect', 'clarity-first-seo'),
       'manage_options',
       'cfseo-redirects',
       [__CLASS__, 'render_page']
@@ -235,25 +235,25 @@ class CFSEO_Redirects {
       
       if (!empty($from) && !empty($to)) {
         self::add_redirect($from, $to, $code, 'manual');
-        echo '<div class="notice notice-success"><p>' . __('Redirect added successfully!', 'cfseo') . '</p></div>';
+        echo '<div class="notice notice-success"><p>' . __('Redirect added successfully!', 'clarity-first-seo') . '</p></div>';
       }
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['index'])) {
       check_admin_referer('CFSEO_redirect_delete_' . $_GET['index']);
       self::delete_redirect((int)$_GET['index']);
-      echo '<div class="notice notice-success"><p>' . __('Redirect deleted!', 'cfseo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . __('Redirect deleted!', 'clarity-first-seo') . '</p></div>';
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'toggle' && isset($_GET['index'])) {
       check_admin_referer('CFSEO_redirect_toggle_' . $_GET['index']);
       self::toggle_redirect((int)$_GET['index']);
-      echo '<div class="notice notice-success"><p>' . __('Redirect status updated!', 'cfseo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . __('Redirect status updated!', 'clarity-first-seo') . '</p></div>';
     }
     
     if (isset($_POST['CFSEO_clear_auto']) && check_admin_referer('CFSEO_clear_auto')) {
       self::clear_auto_redirects();
-      echo '<div class="notice notice-success"><p>' . __('Automatic redirects cleared!', 'cfseo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . __('Automatic redirects cleared!', 'clarity-first-seo') . '</p></div>';
     }
     
     $redirects = self::get_redirects();
@@ -261,83 +261,83 @@ class CFSEO_Redirects {
     <div class="wrap cfseo-admin-wrap has-sidebar">
       <h1>
         <span class="dashicons dashicons-controls-forward"></span>
-        <?php _e('SEO Redirects', 'cfseo'); ?>
+        <?php _e('SEO Redirects', 'clarity-first-seo'); ?>
         <?php CFSEO_Help_Modal::render_help_icon('redirects-overview', 'Learn about redirects'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php _e('Send visitors and search engines to the right page when a URL changes.', 'cfseo'); ?></p>
+      <p class="cfseo-subtitle"><?php _e('Send visitors and search engines to the right page when a URL changes.', 'clarity-first-seo'); ?></p>
       
       <div class="cfseo-settings-form">
         <div class="cfseo-tab-content">
       
       <!-- Add New Redirect -->
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-plus-alt"></span> <?php _e('Add New Redirect', 'cfseo'); ?></h2>
+        <h2><span class="dashicons dashicons-plus-alt"></span> <?php _e('Add New Redirect', 'clarity-first-seo'); ?></h2>
         <form method="post" action="">
           <?php wp_nonce_field('CFSEO_redirect_add'); ?>
           <table class="form-table">
             <tr>
               <th scope="row">
                 <label for="from">
-                  <?php _e('From (Old URL)', 'cfseo'); ?>
+                  <?php _e('From (Old URL)', 'clarity-first-seo'); ?>
                   <?php CFSEO_Help_Modal::render_help_icon('from-url'); ?>
                 </label>
               </th>
               <td>
                 <input type="text" id="from" name="from" class="regular-text" placeholder="/?page_id=2 or /old-page/" required>
-                <p class="description"><?php _e('The old page address (path or query string). Examples: /old-page/ or /?page_id=2', 'cfseo'); ?></p>
+                <p class="description"><?php _e('The old page address (path or query string). Examples: /old-page/ or /?page_id=2', 'clarity-first-seo'); ?></p>
               </td>
             </tr>
             <tr>
               <th scope="row">
                 <label for="to">
-                  <?php _e('To (New URL)', 'cfseo'); ?>
+                  <?php _e('To (New URL)', 'clarity-first-seo'); ?>
                   <?php CFSEO_Help_Modal::render_help_icon('to-url'); ?>
                 </label>
               </th>
               <td>
                 <input type="text" id="to" name="to" class="regular-text" placeholder="/?page_id=10 or /new-page/" required>
-                <p class="description"><?php _e('The destination page. Examples: /new-page/ or /?page_id=10 or https://example.com/page/', 'cfseo'); ?></p>
+                <p class="description"><?php _e('The destination page. Examples: /new-page/ or /?page_id=10 or https://example.com/page/', 'clarity-first-seo'); ?></p>
               </td>
             </tr>
             <tr>
               <th scope="row">
                 <label for="code">
-                  <?php _e('Redirect Type', 'cfseo'); ?>
+                  <?php _e('Redirect Type', 'clarity-first-seo'); ?>
                   <?php CFSEO_Help_Modal::render_help_icon('redirect-types'); ?>
                 </label>
               </th>
               <td>
                 <select id="code" name="code">
-                  <option value="301"><?php _e('301 Permanent', 'cfseo'); ?></option>
-                  <option value="302"><?php _e('302 Temporary', 'cfseo'); ?></option>
-                  <option value="307"><?php _e('307 Temporary (Preserve Method)', 'cfseo'); ?></option>
+                  <option value="301"><?php _e('301 Permanent', 'clarity-first-seo'); ?></option>
+                  <option value="302"><?php _e('302 Temporary', 'clarity-first-seo'); ?></option>
+                  <option value="307"><?php _e('307 Temporary (Preserve Method)', 'clarity-first-seo'); ?></option>
                 </select>
-                <p class="description"><?php _e('Use 301 when the old page is permanently replaced by the new page.', 'cfseo'); ?></p>
+                <p class="description"><?php _e('Use 301 when the old page is permanently replaced by the new page.', 'clarity-first-seo'); ?></p>
               </td>
             </tr>
           </table>
           <button type="submit" name="CFSEO_add_redirect" class="button button-primary">
-            <?php _e('Add Redirect', 'cfseo'); ?>
+            <?php _e('Add Redirect', 'clarity-first-seo'); ?>
           </button>
         </form>
       </div>
       
       <!-- Redirects List -->
       <div class="cfseo-card" style="max-width: 100%; margin-top: 20px;">
-        <h2><span class="dashicons dashicons-list-view"></span> <?php _e('Active Redirects', 'cfseo'); ?></h2>
+        <h2><span class="dashicons dashicons-list-view"></span> <?php _e('Active Redirects', 'clarity-first-seo'); ?></h2>
         
         <?php if (empty($redirects)): ?>
-          <p style="color: #646970;"><?php _e('No redirects added yet.', 'cfseo'); ?><br><?php _e('Add one above when a page URL changes.', 'cfseo'); ?></p>
+          <p style="color: #646970;"><?php _e('No redirects added yet.', 'clarity-first-seo'); ?><br><?php _e('Add one above when a page URL changes.', 'clarity-first-seo'); ?></p>
         <?php else: ?>
           <table class="wp-list-table widefat fixed striped">
             <thead>
               <tr>
-                <th style="width: 10%;"><?php _e('Status', 'cfseo'); ?></th>
-                <th style="width: 30%;"><?php _e('From', 'cfseo'); ?></th>
-                <th style="width: 30%;"><?php _e('To', 'cfseo'); ?></th>
-                <th style="width: 10%;"><?php _e('Code', 'cfseo'); ?></th>
-                <th style="width: 10%;"><?php _e('Type', 'cfseo'); ?></th>
-                <th style="width: 10%;"><?php _e('Actions', 'cfseo'); ?></th>
+                <th style="width: 10%;"><?php _e('Status', 'clarity-first-seo'); ?></th>
+                <th style="width: 30%;"><?php _e('From', 'clarity-first-seo'); ?></th>
+                <th style="width: 30%;"><?php _e('To', 'clarity-first-seo'); ?></th>
+                <th style="width: 10%;"><?php _e('Code', 'clarity-first-seo'); ?></th>
+                <th style="width: 10%;"><?php _e('Type', 'clarity-first-seo'); ?></th>
+                <th style="width: 10%;"><?php _e('Actions', 'clarity-first-seo'); ?></th>
               </tr>
             </thead>
             <tbody>
@@ -345,9 +345,9 @@ class CFSEO_Redirects {
                 <tr>
                   <td>
                     <?php if ($redirect['enabled']): ?>
-                      <span style="color: #46b450;">â— <?php _e('Active', 'cfseo'); ?></span>
+                      <span style="color: #46b450;">● <?php _e('Active', 'clarity-first-seo'); ?></span>
                     <?php else: ?>
-                      <span style="color: #dba617;">â— <?php _e('Disabled', 'cfseo'); ?></span>
+                      <span style="color: #dba617;">● <?php _e('Disabled', 'clarity-first-seo'); ?></span>
                     <?php endif; ?>
                   </td>
                   <td><code><?php echo esc_html($redirect['from']); ?></code></td>
@@ -355,17 +355,17 @@ class CFSEO_Redirects {
                   <td><?php echo esc_html($redirect['code']); ?></td>
                   <td>
                     <?php if ($redirect['type'] === 'auto'): ?>
-                      <span class="dashicons dashicons-update" title="<?php esc_attr_e('Auto-generated', 'cfseo'); ?>"></span> <?php _e('Auto', 'cfseo'); ?>
+                      <span class="dashicons dashicons-update" title="<?php esc_attr_e('Auto-generated', 'clarity-first-seo'); ?>"></span> <?php _e('Auto', 'clarity-first-seo'); ?>
                     <?php else: ?>
-                      <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Manual', 'cfseo'); ?>"></span> <?php _e('Manual', 'cfseo'); ?>
+                      <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Manual', 'clarity-first-seo'); ?>"></span> <?php _e('Manual', 'clarity-first-seo'); ?>
                     <?php endif; ?>
                   </td>
                   <td>
                     <a href="<?php echo wp_nonce_url(admin_url('options-general.php?page=cfseo-redirects&action=toggle&index=' . $index), 'CFSEO_redirect_toggle_' . $index); ?>" class="button button-small">
-                      <?php $redirect['enabled'] ? _e('Disable', 'cfseo') : _e('Enable', 'cfseo'); ?>
+                      <?php $redirect['enabled'] ? _e('Disable', 'clarity-first-seo') : _e('Enable', 'clarity-first-seo'); ?>
                     </a>
-                    <a href="<?php echo wp_nonce_url(admin_url('options-general.php?page=cfseo-redirects&action=delete&index=' . $index), 'CFSEO_redirect_delete_' . $index); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php esc_attr_e('Delete this redirect?', 'cfseo'); ?>');">
-                      <?php _e('Delete', 'cfseo'); ?>
+                    <a href="<?php echo wp_nonce_url(admin_url('options-general.php?page=cfseo-redirects&action=delete&index=' . $index), 'CFSEO_redirect_delete_' . $index); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php esc_attr_e('Delete this redirect?', 'clarity-first-seo'); ?>');">
+                      <?php _e('Delete', 'clarity-first-seo'); ?>
                     </a>
                   </td>
                 </tr>
@@ -376,8 +376,8 @@ class CFSEO_Redirects {
           <div style="margin-top: 20px;">
             <form method="post" action="" style="display: inline;">
               <?php wp_nonce_field('CFSEO_clear_auto'); ?>
-              <button type="submit" name="CFSEO_clear_auto" class="button" onclick="return confirm('<?php esc_attr_e('Clear all automatic redirects?', 'cfseo'); ?>');">
-                <?php _e('Clear All Auto Redirects', 'cfseo'); ?>
+              <button type="submit" name="CFSEO_clear_auto" class="button" onclick="return confirm('<?php esc_attr_e('Clear all automatic redirects?', 'clarity-first-seo'); ?>');">
+                <?php _e('Clear All Auto Redirects', 'clarity-first-seo'); ?>
               </button>
             </form>
           </div>

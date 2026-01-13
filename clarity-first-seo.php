@@ -1,29 +1,29 @@
 <?php
 /**
- * Plugin Name: Clarity-First SEO
+ * Plugin Name: Clarity First SEO
  * Plugin URI: https://clarityfirstseo.com
- * Description: Professional SEO plugin with modern UI, designed for clarity and simplicity. Features intuitive tabbed interface, media uploader, SEO score calculator, and comprehensive schema markup.
- * Version: 0.2.0
+ * Description: Clarity-first SEO tools for WordPress: site diagnostics, page diagnostics, robots.txt editor, redirects, verification codes, and optional IndexNow notifications. Focuses on factual output — no ranking promises.
+ * Version: 0.0.1
  * Requires at least: 5.8
  * Requires PHP: 7.4
- * Author: Clarity-First SEO
+ * Author: Clarity First SEO
  * Author URI: https://clarityfirstseo.com
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: cfseo
+ * Text Domain: clarity-first-seo
  * Domain Path: /languages
- * 
+ *
  * @package Clarity_First_SEO
- * @version 0.2.0
  */
 
 if (!defined('ABSPATH')) exit;
 
 // Plugin constants
-define('CFSEO_VERSION', '0.2.1');
+define('CFSEO_VERSION', '0.0.1');
 define('CFSEO_DIR', plugin_dir_path(__FILE__));
 define('CFSEO_URL', plugin_dir_url(__FILE__));
 define('CFSEO_BASENAME', plugin_basename(__FILE__));
+
 
 require_once CFSEO_DIR . 'includes/class-meta.php';
 require_once CFSEO_DIR . 'includes/class-render.php';
@@ -45,6 +45,13 @@ require_once CFSEO_DIR . 'includes/class-migration.php';
 require_once CFSEO_DIR . 'includes/class-help-content.php';
 
 add_action('init', function () {
+  // Load text domain for translations
+  load_plugin_textdomain(
+    'clarity-first-seo',
+    false,
+    dirname(plugin_basename(__FILE__)) . '/languages'
+  );
+  
   CFSEO_Meta::register_post_meta();
   CFSEO_IndexNow::register_rewrite();
   CFSEO_Redirects::init();
@@ -57,8 +64,8 @@ add_action('init', function () {
 add_action('admin_menu', function () {
   // Create top-level menu
   add_menu_page(
-    __('Clarity-First SEO', 'cfseo'),
-    __('Clarity-First SEO', 'cfseo'),
+    __('Clarity-First SEO', 'clarity-first-seo'),
+    __('Clarity-First SEO', 'clarity-first-seo'),
     'manage_options',
     'clarity-first-seo',
     [CFSEO_Dashboard::class, 'render_page'],
@@ -70,8 +77,8 @@ add_action('admin_menu', function () {
   // Dashboard (replaces default first submenu)
   add_submenu_page(
     'clarity-first-seo',
-    __('Dashboard', 'cfseo'),
-    __('Dashboard', 'cfseo'),
+    __('Dashboard', 'clarity-first-seo'),
+    __('Dashboard', 'clarity-first-seo'),
     'manage_options',
     'clarity-first-seo',
     [CFSEO_Dashboard::class, 'render_page']
@@ -80,8 +87,8 @@ add_action('admin_menu', function () {
   // Settings (configuration)
   add_submenu_page(
     'clarity-first-seo',
-    __('Settings', 'cfseo'),
-    __('Settings', 'cfseo'),
+    __('Settings', 'clarity-first-seo'),
+    __('Settings', 'clarity-first-seo'),
     'manage_options',
     'cfseo-settings',
     [CFSEO_Admin_Settings::class, 'render_page']
