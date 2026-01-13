@@ -15,8 +15,8 @@ class CFSEO_Tools_Menu {
    */
   public static function register_top_level_menu() {
     add_menu_page(
-      __('Clarity-First SEO', 'cfseo'),
-      __('Clarity-First SEO', 'cfseo'),
+      __('Clarity-First SEO', 'clarity-first-seo'),
+      __('Clarity-First SEO', 'clarity-first-seo'),
       'manage_options',
       'clarity-first-seo',
       '', // No callback - will be handled by first submenu (Dashboard/Settings)

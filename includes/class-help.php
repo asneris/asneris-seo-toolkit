@@ -15,8 +15,8 @@ class CFSEO_Help {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Help', 'cfseo'),
-      __('Help', 'cfseo'),
+      __('Help', 'clarity-first-seo'),
+      __('Help', 'clarity-first-seo'),
       'manage_options',
       'cfseo-help',
       [__CLASS__, 'render_page']
@@ -31,7 +31,7 @@ class CFSEO_Help {
     <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-editor-help"></span>
-        <?php _e('Help & Documentation', 'cfseo'); ?>
+        <?php _e('Help & Documentation', 'clarity-first-seo'); ?>
       </h1>
       
       <!-- What This Plugin Does -->

@@ -23,8 +23,8 @@ class CFSEO_Diagnostics_Page {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Page Diagnostics', 'cfseo'),
-      __('Page Diagnostics', 'cfseo'),
+      __('Page Diagnostics', 'clarity-first-seo'),
+      __('Page Diagnostics', 'clarity-first-seo'),
       'manage_options',
       'cfseo-diagnostics',
       [__CLASS__, 'render_page']
@@ -186,11 +186,11 @@ class CFSEO_Diagnostics_Page {
     <div class="wrap cfseo-admin-wrap has-sidebar">
       <h1>
         <span class="dashicons dashicons-analytics"></span>
-        <?php _e('Page Diagnostics', 'cfseo'); ?>
+        <?php _e('Page Diagnostics', 'clarity-first-seo'); ?>
         <?php CFSEO_Help_Modal::render_help_icon('page-diagnostics-overview', 'Learn about page diagnostics'); ?>
       </h1>
       <p class="cfseo-subtitle">
-        <?php _e('Inspect what a single page exposes to search engines — read-only facts only.', 'cfseo'); ?>
+        <?php _e('Inspect what a single page exposes to search engines — read-only facts only.', 'clarity-first-seo'); ?>
       </p>
       
       <div class="cfseo-settings-form">

@@ -156,16 +156,16 @@ class CFSEO_Templates {
    */
   public static function get_available_variables() {
     return [
-      '{title}' => __('Post/Page title', 'cfseo'),
-      '{site}' => __('Site name', 'cfseo'),
-      '{separator}' => __('Title separator', 'cfseo'),
-      '{post_type}' => __('Post type label', 'cfseo'),
-      '{category}' => __('Primary category', 'cfseo'),
-      '{tag}' => __('First tag', 'cfseo'),
-      '{author}' => __('Author name', 'cfseo'),
-      '{date}' => __('Publication date', 'cfseo'),
-      '{year}' => __('Publication year', 'cfseo'),
-      '{month}' => __('Publication month', 'cfseo'),
+      '{title}' => __('Post/Page title', 'clarity-first-seo'),
+      '{site}' => __('Site name', 'clarity-first-seo'),
+      '{separator}' => __('Title separator', 'clarity-first-seo'),
+      '{post_type}' => __('Post type label', 'clarity-first-seo'),
+      '{category}' => __('Primary category', 'clarity-first-seo'),
+      '{tag}' => __('First tag', 'clarity-first-seo'),
+      '{author}' => __('Author name', 'clarity-first-seo'),
+      '{date}' => __('Publication date', 'clarity-first-seo'),
+      '{year}' => __('Publication year', 'clarity-first-seo'),
+      '{month}' => __('Publication month', 'clarity-first-seo'),
     ];
   }
 }

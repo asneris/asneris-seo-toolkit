@@ -83,30 +83,30 @@ class CFSEO_IndexNow {
     check_ajax_referer('CFSEO_manual_indexnow', 'nonce');
     
     if (!current_user_can('edit_posts')) {
-      wp_send_json_error(['message' => __('Permission denied', 'cfseo')]);
+      wp_send_json_error(['message' => __('Permission denied', 'clarity-first-seo')]);
       return;
     }
 
     $post_id = isset($_POST['post_id']) ? (int)$_POST['post_id'] : 0;
     if (!$post_id) {
-      wp_send_json_error(['message' => __('Invalid post ID', 'cfseo')]);
+      wp_send_json_error(['message' => __('Invalid post ID', 'clarity-first-seo')]);
       return;
     }
 
     $post = get_post($post_id);
     if (!$post || $post->post_status !== 'publish') {
-      wp_send_json_error(['message' => __('Post must be published', 'cfseo')]);
+      wp_send_json_error(['message' => __('Post must be published', 'clarity-first-seo')]);
       return;
     }
 
     if (!self::is_enabled()) {
-      wp_send_json_error(['message' => __('IndexNow is not enabled', 'cfseo')]);
+      wp_send_json_error(['message' => __('IndexNow is not enabled', 'clarity-first-seo')]);
       return;
     }
 
     $url = get_permalink($post_id);
     if (!$url) {
-      wp_send_json_error(['message' => __('Could not get permalink', 'cfseo')]);
+      wp_send_json_error(['message' => __('Could not get permalink', 'clarity-first-seo')]);
       return;
     }
 
@@ -114,7 +114,7 @@ class CFSEO_IndexNow {
     update_post_meta($post_id, '_CFSEO_indexnow_last', time());
     
     wp_send_json_success([
-      'message' => __('URL successfully submitted to IndexNow!', 'cfseo'),
+      'message' => __('URL successfully submitted to IndexNow!', 'clarity-first-seo'),
       'url' => $url
     ]);
   }

@@ -65,7 +65,7 @@ class CFSEO_Conflict_Detector {
         'Warning: Another SEO plugin detected: %s. Having multiple SEO plugins active may cause duplicate meta tags and conflicts.',
         'Warning: Multiple SEO plugins detected: %s. Having multiple SEO plugins active may cause duplicate meta tags and conflicts.',
         $count,
-        'cfseo'
+        'clarity-first-seo'
       ),
       '<strong>' . $plugin_list . '</strong>'
     );
@@ -91,8 +91,8 @@ class CFSEO_Conflict_Detector {
     <div class="notice notice-warning is-dismissible">
       <p><?php echo wp_kses_post($message); ?></p>
       <p>
-        <strong><?php _e('Recommendation:', 'cfseo'); ?></strong> 
-        <?php _e('Deactivate other SEO plugins to avoid conflicts and ensure proper functionality.', 'cfseo'); ?>
+        <strong><?php _e('Recommendation:', 'clarity-first-seo'); ?></strong> 
+        <?php _e('Deactivate other SEO plugins to avoid conflicts and ensure proper functionality.', 'clarity-first-seo'); ?>
       </p>
     </div>
     <?php
@@ -107,15 +107,15 @@ class CFSEO_Conflict_Detector {
     if (empty($conflicts)) {
       ?>
       <div class="cfseo-info-box cfseo-success-box">
-        <h3><span class="dashicons dashicons-yes"></span> <?php _e('No Conflicts Detected', 'cfseo'); ?></h3>
-        <p><?php _e('No other SEO plugins are currently active. Your site is using Clarity-First SEO exclusively.', 'cfseo'); ?></p>
+        <h3><span class="dashicons dashicons-yes"></span> <?php _e('No Conflicts Detected', 'clarity-first-seo'); ?></h3>
+        <p><?php _e('No other SEO plugins are currently active. Your site is using Clarity-First SEO exclusively.', 'clarity-first-seo'); ?></p>
         <p style="margin-top: 8px; color: #2271b1;"><strong>Note:</strong> This confirms no other SEO plugins are active.</p>
       </div>
       <?php
     } else {
       ?>
       <div class="cfseo-info-box" style="background: #fff8e5; border-left-color: #f0b849;">
-        <h3><span class="dashicons dashicons-warning"></span> <?php _e('Potential Conflicts', 'cfseo'); ?></h3>
+        <h3><span class="dashicons dashicons-warning"></span> <?php _e('Potential Conflicts', 'clarity-first-seo'); ?></h3>
         <p><?php echo wp_kses_post(self::get_conflict_message()); ?></p>
         <ul style="margin: 10px 0 0 20px;">
           <?php foreach ($conflicts as $plugin_name): ?>
@@ -124,7 +124,7 @@ class CFSEO_Conflict_Detector {
         </ul>
         <p>
           <a href="<?php echo esc_url(admin_url('plugins.php')); ?>" class="button">
-            <?php _e('Manage Plugins', 'cfseo'); ?>
+            <?php _e('Manage Plugins', 'clarity-first-seo'); ?>
           </a>
         </p>
       </div>
