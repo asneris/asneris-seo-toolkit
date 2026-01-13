@@ -228,6 +228,7 @@ class CFSEO_Admin_Settings {
           <tr>
             <th scope="row">
               <label for="org_name">Organization/Site Name</label>
+              <?php CFSEO_Help_Modal::render_help_icon('site-name', 'Organization/Site Name Help'); ?>
             </th>
             <td>
               <input type="text" id="org_name" class="large-text" name="<?php echo self::OPT; ?>[org_name]" value="<?php echo esc_attr(self::get('org_name', get_bloginfo('name'))); ?>">
@@ -237,6 +238,7 @@ class CFSEO_Admin_Settings {
           <tr>
             <th scope="row">
               <label for="org_logo">Logo URL</label>
+              <?php CFSEO_Help_Modal::render_help_icon('logo-url', 'Logo URL Help'); ?>
             </th>
             <td>
               <div class="cfseo-media-upload">
@@ -599,7 +601,7 @@ class CFSEO_Admin_Settings {
       <div class="cfseo-card">
         <h2>
           <span class="dashicons dashicons-store"></span> Local Business Schema
-          <?php CFSEO_Help_Modal::render_help_icon('schema-structured-data', 'Local Business Schema'); ?>
+          <?php CFSEO_Help_Modal::render_help_icon('local-biz-data', 'Local Business Schema'); ?>
         </h2>
         <table class="form-table">
           <tr>
