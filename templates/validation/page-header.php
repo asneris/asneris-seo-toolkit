@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) exit;
   <h1>
     <span class="dashicons dashicons-analytics"></span>
     <?php _e('Site Diagnostics', 'cfseo'); ?>
-    <?php CFSEO_Help_Modal::render_help_button('validation-overview'); ?>
+    <?php CFSEO_Help_Modal::render_help_icon('site-diagnostics-overview', 'Learn about Site Diagnostics'); ?>
   </h1>
   <p class="cfseo-subtitle"><?php _e('Check site-wide SEO settings that affect how search engines find and index your pages.', 'cfseo'); ?></p>
   

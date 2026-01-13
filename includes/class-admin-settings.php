@@ -299,7 +299,7 @@ class CFSEO_Admin_Settings {
       <div class="cfseo-card">
         <h2>
           <span class="dashicons dashicons-google"></span> Google Search Console
-          <?php CFSEO_Help_Modal::render_help_icon('verification-codes', 'Verification Codes'); ?>
+          <?php CFSEO_Help_Modal::render_help_icon('gsc-verification', 'Google Search Console Verification'); ?>
         </h2>
         <table class="form-table">
           <tr>
@@ -319,7 +319,10 @@ class CFSEO_Admin_Settings {
       </div>
 
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-admin-site"></span> Bing Webmaster Tools</h2>
+        <h2>
+          <span class="dashicons dashicons-admin-site"></span> Bing Webmaster Tools
+          <?php CFSEO_Help_Modal::render_help_icon('bing-verification', 'Bing Webmaster Tools Verification'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">
@@ -338,7 +341,10 @@ class CFSEO_Admin_Settings {
       </div>
 
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-admin-site-alt2"></span> Yandex Webmaster</h2>
+        <h2>
+          <span class="dashicons dashicons-admin-site-alt2"></span> Yandex Webmaster
+          <?php CFSEO_Help_Modal::render_help_icon('yandex-verification', 'Yandex Webmaster Verification'); ?>
+        </h2>
         <table class="form-table">
           <tr>
             <th scope="row">

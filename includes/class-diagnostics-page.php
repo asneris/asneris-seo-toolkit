@@ -536,7 +536,15 @@ class CFSEO_Diagnostics_Page {
               <summary style="cursor: pointer; color: #2271b1; font-weight: 600;">Show Raw JSON-LD Data</summary>
               <?php foreach ($results['schema_blocks'] as $i => $schema): ?>
                 <h4 style="margin: 15px 0 5px 0;">Block <?php echo $i + 1; ?></h4>
-                <pre style="background: #f6f7f7; padding: 10px; border-left: 3px solid #2271b1; overflow-x: auto; overflow-wrap: break-word; white-space: pre-wrap; word-break: break-all; font-size: 12px; max-width: 100%;"><?php echo esc_html($schema['raw']); ?></pre>
+                <pre style="background: #f6f7f7; padding: 10px; border-left: 3px solid #2271b1; overflow-x: auto; overflow-wrap: break-word; white-space: pre-wrap; word-break: break-all; font-size: 12px; max-width: 100%;"><?php 
+                  // Format JSON for better readability
+                  $decoded = json_decode($schema['raw'], true);
+                  if ($decoded !== null) {
+                    echo esc_html(json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                  } else {
+                    echo esc_html($schema['raw']);
+                  }
+                ?></pre>
               <?php endforeach; ?>
             </details>
           <?php else: ?>
@@ -548,7 +556,7 @@ class CFSEO_Diagnostics_Page {
       </div><!-- .cfseo-tab-content -->
       </div><!-- .cfseo-settings-form -->
       
-      <?php CFSEO_Help_Content::render_sidebar('page-diagnostics'); ?>
+      <?php // CFSEO_Help_Content::render_sidebar('page-diagnostics'); ?>
       
     </div>
     <?php CFSEO_Help_Modal::render_modals('page-diagnostics'); ?>

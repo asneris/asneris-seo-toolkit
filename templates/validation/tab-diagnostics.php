@@ -14,7 +14,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 <div class="cfseo-card">
   <h2>
     <span class="dashicons dashicons-networking"></span> Can search engines easily find your pages?
-    <?php CFSEO_Help_Modal::render_help_icon('discovery-checks', 'Learn about discovery and crawling'); ?>
+    <?php CFSEO_Help_Modal::render_help_icon('sitemap-discovery', 'Learn about sitemap discovery'); ?>
   </h2>
   <table class="widefat striped">
     <thead>
@@ -52,8 +52,8 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 <!-- Duplicate Output Detector -->
 <div class="cfseo-card">
   <h2>
-    <span class="dashicons dashicons-warning"></span> Is your site sending clear, single signals?
-    <?php CFSEO_Help_Modal::render_help_icon('indexing-checks', 'Learn about indexing status'); ?>
+    <span class="dashicons dashicons-yes"></span> Is your site sending clear, single signals?
+    <?php CFSEO_Help_Modal::render_help_icon('duplicate-signals', 'Learn about duplicate signals'); ?>
   </h2>
   <?php if ($has_issues): ?>
     <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
@@ -96,7 +96,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 <div class="cfseo-card">
   <h2>
     <span class="dashicons dashicons-shield"></span> Is anything blocking your site from search results?
-    <?php CFSEO_Help_Modal::render_help_icon('indexing-checks', 'Learn about indexing blocks'); ?>
+    <?php CFSEO_Help_Modal::render_help_icon('indexing-blocks', 'Learn about indexing blocks'); ?>
   </h2>
   <?php
   // Check for site-wide indexing safety patterns
@@ -287,7 +287,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
 <div class="cfseo-card">
   <h2>
     <span class="dashicons dashicons-admin-links"></span> Do pages clearly identify their main URL?
-    <?php CFSEO_Help_Modal::render_help_icon('canonical-checks', 'Learn about canonical URLs'); ?>
+    <?php CFSEO_Help_Modal::render_help_icon('canonical-consistency', 'Learn about canonical URLs'); ?>
   </h2>
   <?php
   // Check canonical patterns across the site
