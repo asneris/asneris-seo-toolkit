@@ -316,7 +316,10 @@ Sitemap: {$sitemap_url}
                     
                     <!-- Validation Checklist -->
                     <div class="cfseo-validation-checks" style="margin-bottom: 24px;">
-                        <h2><?php _e('Validation Checks', 'cfseo'); ?></h2>
+                        <h2>
+                            <?php _e('Validation Checks', 'cfseo'); ?>
+                            <?php CFSEO_Help_Modal::render_help_icon('robots-validation', 'Learn about robots.txt validation'); ?>
+                        </h2>
                         <table class="wp-list-table widefat striped">
                             <tbody>
                                 <?php foreach ($validation['checks'] as $check): ?>

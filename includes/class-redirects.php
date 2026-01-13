@@ -312,7 +312,22 @@ class CFSEO_Redirects {
                   <option value="302"><?php _e('302 Temporary', 'cfseo'); ?></option>
                   <option value="307"><?php _e('307 Temporary (Preserve Method)', 'cfseo'); ?></option>
                 </select>
-                <p class="description"><?php _e('Use 301 when the old page is permanently replaced by the new page.', 'cfseo'); ?></p>
+                <p class="description" id="redirect-type-description"><?php _e('Use 301 when the old page is permanently replaced by the new page.', 'cfseo'); ?></p>
+                <script>
+                  (function() {
+                    const descriptions = {
+                      '301': '<?php echo esc_js(__('Use 301 when the old page is permanently replaced by the new page.', 'cfseo')); ?>',
+                      '302': '<?php echo esc_js(__('Use 302 when the redirect is temporary and the original URL may return.', 'cfseo')); ?>',
+                      '307': '<?php echo esc_js(__('Use 307 for temporary redirects that preserve the HTTP method (POST stays POST).', 'cfseo')); ?>'
+                    };
+                    const select = document.getElementById('code');
+                    const description = document.getElementById('redirect-type-description');
+                    
+                    select.addEventListener('change', function() {
+                      description.textContent = descriptions[this.value];
+                    });
+                  })();
+                </script>
               </td>
             </tr>
           </table>
@@ -320,6 +335,17 @@ class CFSEO_Redirects {
             <?php _e('Add Redirect', 'cfseo'); ?>
           </button>
         </form>
+        
+        <!-- Important Notes -->
+        <div style="margin-top: 20px; padding: 12px; background: #f0f6fc; border-left: 4px solid #0073aa; border-radius: 4px;">
+          <h4 style="margin-top: 0; margin-bottom: 8px; color: #0073aa;">
+            <span class="dashicons dashicons-info" style="font-size: 16px; vertical-align: middle;"></span>
+            <?php _e('Important Notes', 'cfseo'); ?>
+          </h4>
+          <p style="margin: 0; color: #646970; font-size: 13px;">
+            <strong><?php _e('Auto vs Manual:', 'cfseo'); ?></strong> <?php _e('Auto redirects are created automatically by the system (for example, when URLs change). Manual redirects are created explicitly on this page.', 'cfseo'); ?>
+          </p>
+        </div>
       </div>
       
       <!-- Redirects List -->
@@ -357,7 +383,7 @@ class CFSEO_Redirects {
                     <?php if ($redirect['type'] === 'auto'): ?>
                       <span class="dashicons dashicons-update" title="<?php esc_attr_e('Auto-generated', 'cfseo'); ?>"></span> <?php _e('Auto', 'cfseo'); ?>
                     <?php else: ?>
-                      <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Manual', 'cfseo'); ?>"></span> <?php _e('Manual', 'cfseo'); ?>
+                      <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Auto Redirects', 'cfseo'); ?>"></span> <?php _e('Auto Redirects', 'cfseo'); ?>
                     <?php endif; ?>
                   </td>
                   <td>
