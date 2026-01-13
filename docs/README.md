@@ -161,7 +161,7 @@ Think of technical SEO as the foundation of a house. A strong foundation is nece
 ### Getting Help
 
 1. Check this documentation first
-2. Search [GitHub Issues](https://github.com/your-repo/issues)
+2. Search [GitHub Issues](https://github.com/clarify-first/clarity-first-seo/issues)
 3. Open a new issue with details
 
 ### Contributing

@@ -77,7 +77,10 @@ class CFSEO_Bulk_Edit {
       
       <!-- Filters -->
       <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-filter"></span> <?php _e('Filter Content', 'cfseo'); ?></h2>
+        <h2>
+          <span class="dashicons dashicons-filter"></span> <?php _e('Filter Content', 'cfseo'); ?>
+          <?php CFSEO_Help_Modal::render_help_icon('filter-content', 'Learn about filtering content'); ?>
+        </h2>
         <p class="description" style="margin-top: 0;"><?php _e('Filter which content appear in the table below. Use these filters to find specific content you want to edit.', 'cfseo'); ?></p>
         <form method="get" action="">
           <input type="hidden" name="page" value="cfseo-bulk-edit">
