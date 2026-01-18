@@ -227,7 +227,7 @@ add_action('wp_ajax_CFSEO_bulk_save', ['CFSEO_Bulk_Edit', 'ajax_bulk_save']);
 // Admin notices
 add_action('admin_notices', function() {
   // Check if we're on the plugin's settings page
-  if (isset($_GET['page']) && $_GET['page'] === 'cfseo-settings') {
+  if (isset($_GET['page']) && sanitize_key($_GET['page']) === 'cfseo-settings') {
     CFSEO_Conflict_Detector::admin_notice();
   }
 });

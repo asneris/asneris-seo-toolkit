@@ -313,9 +313,9 @@ class CFSEO_Bulk_Edit {
     }
     
     $post_ids = isset($_POST['post_ids']) ? array_map('intval', $_POST['post_ids']) : [];
-    $titles = isset($_POST['seo_title']) ? $_POST['seo_title'] : [];
-    $descriptions = isset($_POST['seo_description']) ? $_POST['seo_description'] : [];
-    $robots = isset($_POST['robots_index']) ? $_POST['robots_index'] : [];
+    $titles = isset($_POST['seo_title']) ? map_deep($_POST['seo_title'], 'sanitize_text_field') : [];
+    $descriptions = isset($_POST['seo_description']) ? map_deep($_POST['seo_description'], 'sanitize_textarea_field') : [];
+    $robots = isset($_POST['robots_index']) ? map_deep($_POST['robots_index'], 'sanitize_text_field') : [];
     
     $updated = 0;
     
@@ -323,15 +323,15 @@ class CFSEO_Bulk_Edit {
       if (!current_user_can('edit_post', $post_id)) continue;
       
       if (isset($titles[$post_id])) {
-        update_post_meta($post_id, '_CFSEO_title', sanitize_text_field($titles[$post_id]));
+        update_post_meta($post_id, '_CFSEO_title', $titles[$post_id]);
       }
       
       if (isset($descriptions[$post_id])) {
-        update_post_meta($post_id, '_CFSEO_description', sanitize_textarea_field($descriptions[$post_id]));
+        update_post_meta($post_id, '_CFSEO_description', $descriptions[$post_id]);
       }
       
       if (isset($robots[$post_id])) {
-        update_post_meta($post_id, '_CFSEO_robots_index', sanitize_text_field($robots[$post_id]));
+        update_post_meta($post_id, '_CFSEO_robots_index', $robots[$post_id]);
       }
       
       $updated++;

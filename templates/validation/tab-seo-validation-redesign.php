@@ -430,7 +430,7 @@ if (!defined('ABSPATH')) exit;
           // Check if canonical points to itself (best practice for non-paginated content)
           if ($canonical_count === 1 && !empty($_GET['url'])) {
             $canonical_url = $results['canonical'][0];
-            $current_url = esc_url($_GET['url']);
+            $current_url = esc_url_raw($_GET['url']); // Sanitize first
             
             // Normalize both URLs for comparison
             $canonical_normalized = untrailingslashit(strtolower($canonical_url));

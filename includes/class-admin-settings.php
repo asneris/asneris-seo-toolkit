@@ -95,7 +95,7 @@ class CFSEO_Admin_Settings {
 
       <?php
       // Display success message after settings saved
-      if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
+      if (isset($_GET['settings-updated']) && sanitize_key($_GET['settings-updated']) === 'true') {
         ?>
         <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
           <p><strong><?php esc_html_e('Settings saved successfully!', 'clarity-first-seo'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'clarity-first-seo'); ?></p>
@@ -1102,7 +1102,7 @@ class CFSEO_Admin_Settings {
       wp_send_json_error('Unauthorized');
     }
 
-    $settings = isset($_POST['settings']) ? $_POST['settings'] : [];
+    $settings = isset($_POST['settings']) ? map_deep($_POST['settings'], 'sanitize_text_field') : [];
     
     if (empty($settings)) {
       wp_send_json_error('No settings data provided');
