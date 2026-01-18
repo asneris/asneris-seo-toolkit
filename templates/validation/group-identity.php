@@ -5,8 +5,8 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$identity_pass = 0;
-$identity_total = 2;
+$cfseo_identity_pass = 0;
+$cfseo_identity_total = 0;
 if (count($results['title']) === 1) $identity_pass++;
 if (count($results['description']) === 1) $identity_pass++;
 ?>
@@ -47,8 +47,8 @@ if (count($results['description']) === 1) $identity_pass++;
       <?php else: ?>
         <p class="description" style="color: #d63638;">
           ✗ <?php esc_html_e('Multiple title tags found', 'clarity-first-seo'); ?>:
-          <?php foreach ($results['title'] as $idx => $t): ?>
-            <br><?php echo esc_html($idx + 1); ?>. <code><?php echo esc_html($t); ?></code>
+          <?php foreach ($results['title'] as $cfseo_idx => $cfseo_t): ?>
+            <br><?php echo esc_html($cfseo_idx + 1); ?>. <code><?php echo esc_html($cfseo_t); ?></code>
           <?php endforeach; ?>
         </p>
       <?php endif; ?>
@@ -72,15 +72,15 @@ if (count($results['description']) === 1) $identity_pass++;
         <?php echo esc_html(CFSEO_Validation::get_status_badge(count($results['description']), 1); ?>
       </div>
       <?php if (count($results['description']) === 1): 
-        $desc_length = strlen($results['description'][0]);
+        $cfseo_desc_length = strlen($results['description'][0]);
       ?>
         <div class="cfseo-check-details">
-          <code><?php echo esc_html(substr($results['description'][0], 0, 160)); ?><?php if ($desc_length > 160): ?>...<?php endif; ?></code>
+          <code><?php echo esc_html(substr($results['description'][0], 0, 160)); ?><?php if ($cfseo_desc_length > 160): ?>...<?php endif; ?></code>
           <p class="description">
             <?php
             /* translators: %d: number of characters in description */
-            printf(esc_html__('Length: %d characters', 'clarity-first-seo'), esc_html($desc_length)); ?>
-            <?php if ($desc_length < 120 || $desc_length > 160): ?>
+            printf(esc_html__('Length: %d characters', 'clarity-first-seo'), esc_html($cfseo_desc_length)); ?>
+            <?php if ($cfseo_desc_length < 120 || $cfseo_desc_length > 160): ?>
               <span style="color: #dba617;"> (<?php esc_html_e('recommended: 120-160', 'clarity-first-seo'); ?>)</span>
             <?php else: ?>
               ✓ <?php esc_html_e('Optimal length', 'clarity-first-seo'); ?>

@@ -35,15 +35,15 @@ if (!defined('ABSPATH')) exit;
     </h3>
     
     <?php 
-    $critical = $score['checks']['critical'];
-    $recommended = $score['checks']['recommended'];
-    $optimization = $score['checks']['optimization'];
+    $cfseo_critical = $score['checks']['critical'];
+    $cfseo_recommended = $score['checks']['recommended'];
+    $cfseo_optimization = $score['checks']['optimization'];
     
-    $can_index = $critical['passed'] === $critical['total'];
+    $cfseo_can_index = $cfseo_critical['passed'] === $cfseo_critical['total'];
     ?>
     
     <div style="margin: 10px 0;">
-      <?php if ($can_index): ?>
+      <?php if ($cfseo_can_index): ?>
         <p style="margin: 5px 0; color: #00a32a;">
           <strong>✓ <?php esc_html_e('Your page CAN be indexed', 'clarity-first-seo'); ?></strong> 
           (<?php esc_html_e('HTTP 200 + no blocking rules', 'clarity-first-seo'); ?>)

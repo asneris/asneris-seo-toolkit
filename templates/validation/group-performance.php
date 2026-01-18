@@ -5,8 +5,8 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$perf_pass = 0;
-$perf_total = 1;
+$cfseo_perf_pass = 0;
+$cfseo_perf_total = 0;
 if ($indexnow && $indexnow['configured']) $perf_pass++;
 ?>
 <div class="cfseo-function-group">

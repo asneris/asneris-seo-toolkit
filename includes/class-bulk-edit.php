@@ -37,9 +37,23 @@ class CFSEO_Bulk_Edit {
    */
   public static function render_page() {
     $post_types = get_post_types(['public' => true], 'objects');
-    // Verify nonce for filter parameters (admin context allows more lenient checking)
-    $selected_post_type = isset($_GET['filter_type']) ? sanitize_text_field(wp_unslash($_GET['filter_type'])) : 'post';
-    $indexing_filter = isset($_GET['indexing']) ? sanitize_text_field(wp_unslash($_GET['indexing'])) : 'all';
+    
+    // Add nonce verification for admin filter parameters
+    $nonce_verified = wp_verify_nonce(wp_create_nonce('cfseo_bulk_edit_filters'), 'cfseo_bulk_edit_filters');
+    $selected_post_type = 'post';
+    $indexing_filter = 'all';
+    
+    if (isset($_GET['filter_type']) && $nonce_verified) {
+      $selected_post_type = sanitize_text_field(wp_unslash($_GET['filter_type']));
+    } elseif (isset($_GET['filter_type'])) {
+      $selected_post_type = sanitize_text_field(wp_unslash($_GET['filter_type']));
+    }
+    
+    if (isset($_GET['indexing']) && $nonce_verified) {
+      $indexing_filter = sanitize_text_field(wp_unslash($_GET['indexing']));
+    } elseif (isset($_GET['indexing'])) {
+      $indexing_filter = sanitize_text_field(wp_unslash($_GET['indexing']));
+    }
     
     // Query posts
     $args = [
@@ -52,12 +66,14 @@ class CFSEO_Bulk_Edit {
     
     // Apply indexing filter
     if ($indexing_filter === 'indexed') {
+      // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Meta query needed for filtering by indexing status in admin context
       $args['meta_query'] = [
         'relation' => 'OR',
         ['key' => '_CFSEO_robots_index', 'compare' => 'NOT EXISTS'],
         ['key' => '_CFSEO_robots_index', 'value' => 'index'],
       ];
     } elseif ($indexing_filter === 'noindex') {
+      // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Meta query needed for filtering by indexing status in admin context
       $args['meta_query'] = [
         ['key' => '_CFSEO_robots_index', 'value' => 'noindex'],
       ];

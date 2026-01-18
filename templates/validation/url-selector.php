@@ -18,15 +18,15 @@ if (!defined('ABSPATH')) exit;
         🏠 <?php esc_html_e('Test Homepage', 'clarity-first-seo'); ?>
       </button>
       <?php if (!empty($published_posts)):
-        $latest_post = null;
-        $latest_page = null;
+        $cfseo_latest_post = null;
+        $cfseo_latest_page = null;
         foreach ($published_posts as $post) {
-          if ($post->post_type === 'post' && !$latest_post) $latest_post = $post;
-          if ($post->post_type === 'page' && !$latest_page) $latest_page = $post;
+          if ($post->post_type === 'post' && !$cfseo_latest_post) $cfseo_latest_post = $post;
+          if ($post->post_type === 'page' && !$cfseo_latest_page) $cfseo_latest_page = $post;
         }
-        if ($latest_post):
+        if ($cfseo_latest_post):
       ?>
-      <button type="button" class="button cfseo-quick-test" data-url="<?php echo esc_url(get_permalink($latest_post->ID)); ?>">
+      <button type="button" class="button cfseo-quick-test" data-url="<?php echo esc_url(get_permalink($cfseo_latest_post->ID)); ?>">
         📝 <?php esc_html_e('Test Latest Post', 'clarity-first-seo'); ?>
       </button>
       <?php endif; if ($latest_page): ?>
@@ -51,11 +51,11 @@ if (!defined('ABSPATH')) exit;
             <?php if (!empty($published_posts)): ?>
             <optgroup label="<?php esc_html_e('Recent Posts & Pages (100)', 'clarity-first-seo'); ?>">
               <?php foreach ($published_posts as $post):
-                $icon = $post->post_type === 'post' ? '📝' : '📄';
-                $permalink = get_permalink($post->ID);
+                $cfseo_icon = $post->post_type === 'post' ? '📝' : '📄';
+                $cfseo_permalink = get_permalink($post->ID);
               ?>
-              <option value="<?php echo esc_url($permalink); ?>">
-                <?php echo esc_html($icon); ?> <?php echo esc_html($post->post_title); ?> 
+              <option value="<?php echo esc_url($cfseo_permalink); ?>">
+                <?php echo esc_html($cfseo_icon); ?> <?php echo esc_html($post->post_title); ?> 
                 (<?php echo esc_html($post->post_type); ?>)
               </option>
               <?php endforeach; ?>

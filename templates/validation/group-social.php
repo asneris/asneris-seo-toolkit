@@ -5,8 +5,8 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$social_pass = 0;
-$social_total = 6;
+$cfseo_social_pass = 0;
+$cfseo_social_total = 0;
 if (count($results['og_title']) >= 1) $social_pass++;
 if (count($results['og_description']) >= 1) $social_pass++;
 if (count($results['og_image']) >= 1) $social_pass++;

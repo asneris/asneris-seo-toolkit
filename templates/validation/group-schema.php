@@ -6,8 +6,8 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$schema_pass = ($schema_check['status'] === 'pass') ? 1 : 0;
-$schema_total = 1;
+$cfseo_schema_pass = ($schema_check['status'] === 'pass') ? 1 : 0;
+$cfseo_schema_total = 1;
 ?>
 <div class="cfseo-function-group">
   <div class="cfseo-group-header" data-group="schema">
@@ -41,10 +41,10 @@ $schema_total = 1;
             /* translators: %d: number of schema blocks found */
             printf(esc_html__('%d Schema block(s) found', 'clarity-first-seo'), count($results['schema'])); ?>
           </p>
-          <?php foreach ($results['schema'] as $idx => $schema): 
-            $schema_data = json_decode($schema, true);
-            if (is_array($schema_data)):
-              $type = isset($schema_data['@type']) ? $schema_data['@type'] : 'Unknown';
+          <?php foreach ($results['schema'] as $cfseo_idx => $cfseo_schema): 
+            $cfseo_schema_data = json_decode($cfseo_schema, true);
+            if (is_array($cfseo_schema_data)):
+              $cfseo_type = isset($cfseo_schema_data['@type']) ? $cfseo_schema_data['@type'] : 'Unknown';
           ?>
           <details style="margin-top: 10px;">
             <summary><strong><?php

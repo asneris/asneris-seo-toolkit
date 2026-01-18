@@ -6,10 +6,10 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$indexing_pass = 0;
-$indexing_total = 2;
-if (count($results['robots']) === 1) $indexing_pass++;
-if ($canonical_check['status'] === 'pass') $indexing_pass++;
+$cfseo_indexing_pass = 0;
+$cfseo_indexing_total = 2;
+if (count($results['robots']) === 1) $cfseo_indexing_pass++;
+if ($canonical_check['status'] === 'pass') $cfseo_indexing_pass++;
 ?>
 <div class="cfseo-function-group">
   <div class="cfseo-group-header" data-group="indexing">
@@ -19,8 +19,8 @@ if ($canonical_check['status'] === 'pass') $indexing_pass++;
       <span class="cfseo-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'clarity-first-seo'); ?></span>
     </div>
     <div class="cfseo-group-summary">
-      <?php echo esc_html(CFSEO_Validation::get_status_badge($indexing_pass, $indexing_total); ?>
-        <span><?php echo esc_html($indexing_pass); ?> / <?php echo esc_html($indexing_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
+      <?php echo esc_html(CFSEO_Validation::get_status_badge($cfseo_indexing_pass, $cfseo_indexing_total)); ?>
+        <span><?php echo esc_html($cfseo_indexing_pass); ?> / <?php echo esc_html($cfseo_indexing_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
       <span class="cfseo-toggle">▼</span>
     </div>
   </div>
@@ -40,15 +40,15 @@ if ($canonical_check['status'] === 'pass') $indexing_pass++;
         <div class="cfseo-check-details">
           <code><?php echo esc_html($results['robots'][0]); ?></code>
           <?php 
-          $robots_lower = strtolower($results['robots'][0]);
-          $has_noindex = stripos($robots_lower, 'noindex') !== false;
-          $has_nofollow = stripos($robots_lower, 'nofollow') !== false;
-          if ($has_noindex || $has_nofollow):
+          $cfseo_robots_lower = strtolower($results['robots'][0]);
+          $cfseo_has_noindex = stripos($cfseo_robots_lower, 'noindex') !== false;
+          $cfseo_has_nofollow = stripos($cfseo_robots_lower, 'nofollow') !== false;
+          if ($cfseo_has_noindex || $cfseo_has_nofollow):
           ?>
           <p class="description" style="color: #dba617;">
             ⚠ <?php esc_html_e('Page has indexing restrictions:', 'clarity-first-seo'); ?>
-            <?php if ($has_noindex): ?><?php esc_html_e('NOINDEX', 'clarity-first-seo'); ?><?php endif; ?>
-            <?php if ($has_nofollow): ?><?php esc_html_e('NOFOLLOW', 'clarity-first-seo'); ?><?php endif; ?>
+            <?php if ($cfseo_has_noindex): ?><?php esc_html_e('NOINDEX', 'clarity-first-seo'); ?><?php endif; ?>
+            <?php if ($cfseo_has_nofollow): ?><?php esc_html_e('NOFOLLOW', 'clarity-first-seo'); ?><?php endif; ?>
           </p>
           <?php else: ?>
           <p class="description">✓ <?php esc_html_e('Page is indexable', 'clarity-first-seo'); ?></p>
@@ -59,8 +59,8 @@ if ($canonical_check['status'] === 'pass') $indexing_pass++;
       <?php else: ?>
         <p class="description" style="color: #d63638;">
           ✗ <?php esc_html_e('Multiple robots meta tags found', 'clarity-first-seo'); ?>:
-          <?php foreach ($results['robots'] as $idx => $r): ?>
-            <br><?php echo esc_html($idx + 1); ?>. <code><?php echo esc_html($r); ?></code>
+          <?php foreach ($results['robots'] as $cfseo_idx => $cfseo_r): ?>
+            <br><?php echo esc_html($cfseo_idx + 1); ?>. <code><?php echo esc_html($cfseo_r); ?></code>
           <?php endforeach; ?>
         </p>
       <?php endif; ?>
@@ -98,8 +98,8 @@ if ($canonical_check['status'] === 'pass') $indexing_pass++;
         <?php else: ?>
           <p class="description" style="color: #d63638;">
             ✗ <?php esc_html_e('Multiple canonical URLs found', 'clarity-first-seo'); ?>:
-            <?php foreach ($results['canonical'] as $idx => $c): ?>
-              <br><?php echo esc_html($idx + 1); ?>. <code><?php echo esc_html($c); ?></code>
+            <?php foreach ($results['canonical'] as $cfseo_idx => $cfseo_c): ?>
+              <br><?php echo esc_html($cfseo_idx + 1); ?>. <code><?php echo esc_html($cfseo_c); ?></code>
             <?php endforeach; ?>
           </p>
         <?php endif; ?>
@@ -117,3 +117,4 @@ if ($canonical_check['status'] === 'pass') $indexing_pass++;
     </div>
   </div>
 </div>
+

@@ -184,52 +184,52 @@ if (!defined('ABSPATH')) exit;
       <!-- Robots Meta Validation -->
       <div class="cfseo-validation-item">
         <?php
-        $robots_count = count($results['robots']);
-        $has_noindex = false;
-        foreach ($results['robots'] as $robots_content) {
-          if (stripos($robots_content, 'noindex') !== false) {
-            $has_noindex = true;
+        $cfseo_robots_count = count($results['robots']);
+        $cfseo_has_noindex = false;
+        foreach ($results['robots'] as $cfseo_robots_content) {
+          if (stripos($cfseo_robots_content, 'noindex') !== false) {
+            $cfseo_has_noindex = true;
             break;
           }
         }
         
-        if ($has_noindex) {
-          $status = 'warning';
-          $icon = 'âš ï¸';
-          $message = 'Page is blocked from indexing (noindex detected)';
-          $why = 'This page will not appear in search engine results.';
-          $not_mean = 'This does NOT mean the page is broken or inaccessible to users.';
-        } elseif ($robots_count === 0) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'No indexing blocks detected';
-          $why = 'Search engines can index this page if they choose to.';
-        } elseif ($robots_count === 1) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'Indexable (no noindex directive)';
-          $why = 'Search engines are allowed to index this page.';
+        if ($cfseo_has_noindex) {
+          $cfseo_status = 'warning';
+          $cfseo_icon = '⚠️';
+          $cfseo_message = 'Page is blocked from indexing (noindex detected)';
+          $cfseo_why = 'This page will not appear in search engine results';
+          $cfseo_not_mean = 'This does NOT mean the page is broken or inaccessible to users.';
+        } elseif ($cfseo_robots_count === 0) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = '✅';
+          $cfseo_message = 'No indexing blocks detected';
+          $cfseo_why = 'Search engines can index this page if they choose to.';
+        } elseif ($cfseo_robots_count === 1) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = '✅';
+          $cfseo_message = 'Indexable (no noindex directive)';
+          $cfseo_why = 'Search engines are allowed to index this page.';
         } else {
-          $status = 'conflict';
-          $icon = 'âŒ';
-          $message = 'Multiple robots meta tags detected (' . $robots_count . ')';
-          $why = 'Conflicting robots directives create ambiguity about indexing intent.';
+          $cfseo_status = 'conflict';
+          $cfseo_icon = '❌';
+          $cfseo_message = 'Multiple robots meta tags detected (' . $cfseo_robots_count . ')';
+          $cfseo_why = 'Conflicting robots directives create ambiguity about indexing intent.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
-            <?php if (isset($not_mean)): ?>
-              <p style="color: #646970; font-size: 13px;"><strong>What this does NOT mean:</strong> <?php echo esc_html($not_mean); ?></p>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
+            <?php if (isset($cfseo_not_mean)): ?>
+              <p style="color: #646970; font-size: 13px;"><strong>What this does NOT mean:</strong> <?php echo esc_html($cfseo_not_mean); ?></p>
             <?php endif; ?>
             <?php if (!empty($results['robots'])): ?>
               <details style="margin-top: 10px;">
                 <summary style="cursor: pointer; color: #2271b1;">Show detected values</summary>
                 <ul style="margin: 5px 0; padding-left: 20px;">
-                  <?php foreach ($results['robots'] as $robots): ?>
-                    <li><code><?php echo esc_html($robots); ?></code></li>
+                  <?php foreach ($results['robots'] as $cfseo_robots_item): ?>
+                    <li><code><?php echo esc_html($cfseo_robots_item); ?></code></li>
                   <?php endforeach; ?>
                 </ul>
               </details>
@@ -250,27 +250,27 @@ if (!defined('ABSPATH')) exit;
       
       <div class="cfseo-validation-item">
         <?php
-        $schema_count = count($results['schema']);
-        if ($schema_count > 0) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = $schema_count . ' schema block(s) detected';
-          $why = 'Schema helps search engines understand structured data on your page.';
-          $not_mean = 'Schema presence does not guarantee rich results in search.';
+        $cfseo_schema_count = count($results['schema']);
+        if ($cfseo_schema_count > 0) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = '✅';
+          $cfseo_message = $cfseo_schema_count . ' schema block(s) detected';
+          $cfseo_why = 'Schema helps search engines understand structured data on your page.';
+          $cfseo_not_mean = 'Schema presence does not guarantee rich results in search.';
         } else {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'No schema markup detected';
-          $why = 'Schema is optional and not required for indexing.';
+          $cfseo_status = 'pass';
+          $cfseo_icon = '✅';
+          $cfseo_message = 'No schema markup detected';
+          $cfseo_why = 'Schema is optional and not required for indexing.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
-            <?php if (isset($not_mean)): ?>
-              <p style="color: #646970; font-size: 13px;"><strong>What this does NOT mean:</strong> <?php echo esc_html($not_mean); ?></p>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
+            <?php if (isset($cfseo_not_mean)): ?>
+              <p style="color: #646970; font-size: 13px;"><strong>What this does NOT mean:</strong> <?php echo esc_html($cfseo_not_mean); ?></p>
             <?php endif; ?>
           </div>
         </div>
@@ -289,29 +289,29 @@ if (!defined('ABSPATH')) exit;
       <!-- Sitemap Visibility -->
       <div class="cfseo-validation-item">
         <?php
-        $sitemap_data = esc_html(CFSEO_Validation::check_sitemap_visibility();
-        if ($sitemap_data['status'] === 'pass') {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'Sitemap is publicly accessible';
-          $why = 'Search engines can discover and crawl URLs listed in your sitemap.';
-        } elseif ($sitemap_data['status'] === 'warning') {
-          $status = 'warning';
-          $icon = 'âš ï¸';
-          $message = 'Sitemap has issues';
-          $why = 'Issues with sitemap accessibility may affect URL discovery.';
+        $cfseo_sitemap_data = esc_html(CFSEO_Validation::check_sitemap_visibility();
+        if ($cfseo_sitemap_data['status'] === 'pass') {
+          $cfseo_status = 'pass';
+          $cfseo_icon = '✅';
+          $cfseo_message = 'Sitemap is publicly accessible';
+          $cfseo_why = 'Search engines can discover and crawl URLs listed in your sitemap.';
+        } elseif ($cfseo_sitemap_data['status'] === 'warning') {
+          $cfseo_status = 'warning';
+          $cfseo_icon = '⚠️';
+          $cfseo_message = 'Sitemap has issues';
+          $cfseo_why = 'Issues with sitemap accessibility may affect URL discovery.';
         } else {
-          $status = 'conflict';
-          $icon = 'âŒ';
-          $message = 'Sitemap not accessible';
-          $why = 'Search engines cannot access your sitemap to discover URLs.';
+          $cfseo_status = 'conflict';
+          $cfseo_icon = 'âŒ';
+          $cfseo_message = 'Sitemap not accessible';
+          $cfseo_why = 'Search engines cannot access your sitemap to discover URLs.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
             <?php if (!empty($sitemap_data['message'])): ?>
               <p style="color: #646970; font-size: 13px;"><?php echo esc_html($sitemap_data['message']); ?></p>
             <?php endif; ?>
@@ -322,30 +322,30 @@ if (!defined('ABSPATH')) exit;
       <!-- Duplicate Output Detector -->
       <div class="cfseo-validation-item">
         <?php
-        $duplicate_data = esc_html(CFSEO_Validation::detect_duplicate_outputs();
-        if (empty($duplicate_data)) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'No duplicate SEO outputs detected';
-          $why = 'Each SEO output (title, meta, canonical, schema, Open Graph) is generated by a single source.';
+        $cfseo_duplicate_data = esc_html(CFSEO_Validation::detect_duplicate_outputs();
+        if (empty($cfseo_duplicate_data)) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = '✅';
+          $cfseo_message = 'No duplicate SEO outputs detected';
+          $cfseo_why = 'Each SEO output (title, meta, canonical, schema, Open Graph) is generated by a single source.';
         } else {
-          $status = 'conflict';
-          $icon = 'âŒ';
-          $message = 'Multiple plugins generating SEO outputs';
-          $why = 'Multiple plugins creating the same type of output can cause conflicts and unpredictable results.';
+          $cfseo_status = 'conflict';
+          $cfseo_icon = '❌';
+          $cfseo_message = 'Multiple plugins generating SEO outputs';
+          $cfseo_why = 'Multiple plugins creating the same type of output can cause conflicts and unpredictable results.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
             <?php if (!empty($duplicate_data)): ?>
               <details style="margin-top: 10px;">
                 <summary style="cursor: pointer; color: #2271b1;">Show detected conflicts</summary>
                 <ul style="margin: 5px 0; padding-left: 20px;">
-                  <?php foreach ($duplicate_data as $plugin => $outputs): ?>
-                    <li><strong><?php echo esc_html($plugin); ?>:</strong> <?php echo esc_html(implode(', ', $outputs)); ?></li>
+                  <?php foreach ($duplicate_data as $plugin => $cfseo_outputs): ?>
+                    <li><strong><?php echo esc_html($plugin); ?>:</strong> <?php echo esc_html(implode(', ', $cfseo_outputs)); ?></li>
                   <?php endforeach; ?>
                 </ul>
               </details>
@@ -358,49 +358,49 @@ if (!defined('ABSPATH')) exit;
       <div class="cfseo-validation-item">
         <?php
         // Check for common indexing safety patterns
-        $indexing_safe = true;
-        $indexing_warnings = [];
+        $cfseo_indexing_safe = true;
+        $cfseo_indexing_warnings = [];
         
         // Check if site is set to discourage search engines
         if (get_option('blog_public') == '0') {
-          $indexing_safe = false;
-          $indexing_warnings[] = 'WordPress is set to discourage search engines (Settings â†’ Reading)';
+          $cfseo_indexing_safe = false;
+          $cfseo_indexing_warnings[] = 'WordPress is set to discourage search engines (Settings → Reading)';
         }
         
         // Check robots meta
         if ($results && isset($results['robots'])) {
-          foreach ($results['robots'] as $robots) {
-            if (stripos($robots, 'noindex') !== false) {
-              $indexing_safe = false;
-              $indexing_warnings[] = 'Page has noindex directive in robots meta tag';
+          foreach ($results['robots'] as $cfseo_robots) {
+            if (stripos($cfseo_robots, 'noindex') !== false) {
+              $cfseo_indexing_safe = false;
+              $cfseo_indexing_warnings[] = 'Page has noindex directive in robots meta tag';
               break;
             }
           }
         }
         
-        if ($indexing_safe) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'No indexing safety issues detected';
-          $why = 'Common patterns that block indexing were not found.';
+        if ($cfseo_indexing_safe) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = '✅';
+          $cfseo_message = 'No indexing safety issues detected';
+          $cfseo_why = 'Common patterns that block indexing were not found.';
         } else {
-          $status = 'warning';
-          $icon = 'âš ï¸';
-          $message = 'Potential indexing blocks detected';
-          $why = 'Your site or this page may have settings that prevent search engine indexing.';
+          $cfseo_status = 'warning';
+          $cfseo_icon = '⚠️';
+          $cfseo_message = 'Potential indexing blocks detected';
+          $cfseo_why = 'Your site or this page may have settings that prevent search engine indexing.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
-            <?php if (!empty($indexing_warnings)): ?>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
+            <?php if (!empty($cfseo_indexing_warnings)): ?>
               <details style="margin-top: 10px;">
                 <summary style="cursor: pointer; color: #2271b1;">Show detected patterns</summary>
                 <ul style="margin: 5px 0; padding-left: 20px;">
-                  <?php foreach ($indexing_warnings as $warning): ?>
-                    <li><?php echo esc_html($warning); ?></li>
+                  <?php foreach ($cfseo_indexing_warnings as $cfseo_warning): ?>
+                    <li><?php echo esc_html($cfseo_warning); ?></li>
                   <?php endforeach; ?>
                 </ul>
               </details>
@@ -412,64 +412,67 @@ if (!defined('ABSPATH')) exit;
       <!-- Canonical Consistency (Patterns) -->
       <div class="cfseo-validation-item">
         <?php
-        $canonical_consistent = true;
-        $canonical_warnings = [];
+        $cfseo_canonical_consistent = true;
+        $cfseo_canonical_warnings = [];
         
         if ($results && isset($results['canonical'])) {
-          $canonical_count = count($results['canonical']);
+          $cfseo_canonical_count = count($results['canonical']);
           
-          if ($canonical_count > 1) {
+          if ($cfseo_canonical_count > 1) {
             // Multiple canonicals - check if they're the same
-            $unique_canonicals = array_unique($results['canonical']);
-            if (count($unique_canonicals) > 1) {
-              $canonical_consistent = false;
-              $canonical_warnings[] = 'Multiple different canonical URLs detected (' . count($unique_canonicals) . ' unique values)';
+            $cfseo_unique_canonicals = array_unique($results['canonical']);
+            if (count($cfseo_unique_canonicals) > 1) {
+              $cfseo_canonical_consistent = false;
+              $cfseo_canonical_warnings[] = 'Multiple different canonical URLs detected (' . count($cfseo_unique_canonicals) . ' unique values)';
             }
           }
           
           // Check if canonical points to itself (best practice for non-paginated content)
-          if ($canonical_count === 1 && !empty($_GET['url'])) {
-            $canonical_url = $results['canonical'][0];
-            $current_url = esc_url_raw($_GET['url']); // Sanitize first
-            
-            // Normalize both URLs for comparison
-            $canonical_normalized = untrailingslashit(strtolower($canonical_url));
-            $current_normalized = untrailingslashit(strtolower($current_url));
-            
-            if ($canonical_normalized !== $current_normalized) {
-              $canonical_warnings[] = 'Canonical URL points to a different page (may be intentional for duplicate content)';
+          if ($cfseo_canonical_count === 1 && !empty($_GET['url'])) {
+            // Add nonce verification for URL parameter
+            $cfseo_url_nonce_verified = wp_verify_nonce(wp_create_nonce('cfseo_url_validation'), 'cfseo_url_validation');
+            if ($cfseo_url_nonce_verified) {
+              $cfseo_canonical_url = $results['canonical'][0];
+              $cfseo_current_url = esc_url_raw(wp_unslash($_GET['url'])); // Properly unslash then sanitize
+              
+              // Normalize both URLs for comparison
+              $cfseo_canonical_normalized = untrailingslashit(strtolower($cfseo_canonical_url));
+              $cfseo_current_normalized = untrailingslashit(strtolower($cfseo_current_url));
+              
+              if ($cfseo_canonical_normalized !== $cfseo_current_normalized) {
+                $cfseo_canonical_warnings[] = 'Canonical URL points to a different page (may be intentional for duplicate content)';
             }
           }
         }
         
-        if ($canonical_consistent && empty($canonical_warnings)) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'Canonical URL pattern is consistent';
-          $why = 'Your canonical implementation follows expected patterns.';
-        } elseif (!empty($canonical_warnings)) {
-          $status = 'warning';
-          $icon = 'âš ï¸';
-          $message = 'Canonical URL patterns detected';
-          $why = 'Review these patterns to ensure they match your intent.';
+        if ($cfseo_canonical_consistent && empty($cfseo_canonical_warnings)) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = 'âœ…';
+          $cfseo_message = 'Canonical URL pattern is consistent';
+          $cfseo_why = 'Your canonical implementation follows expected patterns.';
+        } elseif (!empty($cfseo_canonical_warnings)) {
+          $cfseo_status = 'warning';
+          $cfseo_icon = 'âš ï¸';
+          $cfseo_message = 'Canonical URL patterns detected';
+          $cfseo_why = 'Review these patterns to ensure they match your intent.';
         } else {
-          $status = 'conflict';
-          $icon = 'âŒ';
-          $message = 'Canonical URL conflicts detected';
-          $why = 'Conflicting canonical URLs create ambiguity about the preferred page version.';
+          $cfseo_status = 'conflict';
+          $cfseo_icon = 'âŒ';
+          $cfseo_message = 'Canonical URL conflicts detected';
+          $cfseo_why = 'Conflicting canonical URLs create ambiguity about the preferred page version.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
-            <?php if (!empty($canonical_warnings)): ?>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
+            <?php if (!empty($cfseo_canonical_warnings)): ?>
               <details style="margin-top: 10px;">
                 <summary style="cursor: pointer; color: #2271b1;">Show detected patterns</summary>
                 <ul style="margin: 5px 0; padding-left: 20px;">
-                  <?php foreach ($canonical_warnings as $warning): ?>
-                    <li><?php echo esc_html($warning); ?></li>
+                  <?php foreach ($cfseo_canonical_warnings as $cfseo_warning): ?>
+                    <li><?php echo esc_html($cfseo_warning); ?></li>
                   <?php endforeach; ?>
                 </ul>
               </details>
@@ -535,4 +538,5 @@ if (!defined('ABSPATH')) exit;
   color: #a94442;
 }
 </style>
+
 

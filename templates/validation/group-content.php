@@ -7,11 +7,11 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$content_pass = 0;
-$content_total = 3;
-if ($headings && $headings['has_h1']) $content_pass++;
-if ($images && $images['with_alt'] > 0) $content_pass++;
-if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass++;
+$cfseo_content_pass = 0;
+$cfseo_content_total = 3;
+if ($headings && $headings['has_h1']) $cfseo_content_pass++;
+if ($images && $images['with_alt'] > 0) $cfseo_content_pass++;
+if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $cfseo_content_pass++;
 ?>
 <div class="cfseo-function-group">
   <div class="cfseo-group-header" data-group="content">
@@ -21,8 +21,8 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
       <span class="cfseo-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'clarity-first-seo'); ?></span>
     </div>
     <div class="cfseo-group-summary">
-      <?php echo esc_html(CFSEO_Validation::get_status_badge($content_pass, $content_total); ?>
-        <span><?php echo esc_html($content_pass); ?> / <?php echo esc_html($content_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
+      <?php echo esc_html(CFSEO_Validation::get_status_badge($cfseo_content_pass, $cfseo_content_total)); ?>
+        <span><?php echo esc_html($cfseo_content_pass); ?> / <?php echo esc_html($cfseo_content_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
       <span class="cfseo-toggle">▼</span>
     </div>
   </div>
@@ -64,8 +64,8 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
           <?php if (!empty($headings['hierarchy_issues'])): ?>
           <p class="description" style="color: #dba617;">
             ⚠ <?php esc_html_e('Hierarchy warnings:', 'clarity-first-seo'); ?>
-            <?php foreach ($headings['hierarchy_issues'] as $issue): ?>
-              <br>• <?php echo esc_html($issue); ?>
+            <?php foreach ($headings['hierarchy_issues'] as $cfseo_issue): ?>
+              <br>• <?php echo esc_html($cfseo_issue); ?>
             <?php endforeach; ?>
           </p>
           <?php endif; ?>
@@ -73,8 +73,8 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
           <details style="margin-top: 10px;">
             <summary><?php esc_html_e('View all headings', 'clarity-first-seo'); ?></summary>
             <ul style="margin-top: 5px;">
-              <?php foreach ($headings['headings'] as $h): ?>
-                <li><strong><?php echo esc_html($h['tag']); ?>:</strong> <?php echo esc_html($h['text']); ?></li>
+              <?php foreach ($headings['headings'] as $cfseo_h): ?>
+                <li><strong>H<?php echo esc_html($cfseo_h['level']); ?>:</strong> <?php echo esc_html($cfseo_h['text']); ?></li>
               <?php endforeach; ?>
             </ul>
           </details>
@@ -126,8 +126,8 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
           <?php if (!empty($images['size_warnings'])): ?>
           <p class="description" style="color: #dba617;">
             ⚠ <?php esc_html_e('Image size warnings:', 'clarity-first-seo'); ?>
-            <?php foreach ($images['size_warnings'] as $warning): ?>
-              <br>• <?php echo esc_html($warning); ?>
+            <?php foreach ($images['size_warnings'] as $cfseo_warning): ?>
+              <br>• <?php echo esc_html($cfseo_warning); ?>
             <?php endforeach; ?>
           </p>
           <?php endif; ?>
@@ -188,3 +188,4 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
     </div>
   </div>
 </div>
+

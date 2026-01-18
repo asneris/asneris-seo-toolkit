@@ -174,6 +174,7 @@ class CFSEO_Dashboard {
     $table_exists = wp_cache_get($table_exists_cache_key);
     
     if (false === $table_exists) {
+      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check with proper caching
       $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name;
       wp_cache_set($table_exists_cache_key, $table_exists, '', 3600); // Cache for 1 hour
     }
@@ -187,6 +188,7 @@ class CFSEO_Dashboard {
     $count = wp_cache_get($cache_key);
     
     if (false === $count) {
+      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Count query with proper caching
       $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}CFSEO_redirects WHERE status = %s", 'active'));
       wp_cache_set($cache_key, $count, '', 300); // Cache for 5 minutes
     }
