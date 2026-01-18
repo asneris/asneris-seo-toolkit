@@ -162,7 +162,7 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // 3. Check sitemap URLs returning non-200
-  $cfseo_sitemap_check = esc_html(CFSEO_Validation::check_sitemap_visibility();
+  $cfseo_sitemap_check = CFSEO_Validation::check_sitemap_visibility();
   if ($cfseo_sitemap_check['found'] && $cfseo_sitemap_check['http_status'] !== 200) {
     $cfseo_indexing_warnings[] = [
       'check' => 'Sitemap Accessibility',
