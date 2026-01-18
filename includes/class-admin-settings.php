@@ -91,14 +91,14 @@ class CFSEO_Admin_Settings {
         Clarity-First SEO
         <?php CFSEO_Help_Modal::render_help_icon('settings-general', 'Learn about settings'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php _e('Clear and simple SEO configuration for your WordPress site.', 'clarity-first-seo'); ?></p>
+      <p class="cfseo-subtitle"><?php esc_html_e('Clear and simple SEO configuration for your WordPress site.', 'clarity-first-seo'); ?></p>
 
       <?php
       // Display success message after settings saved
       if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
         ?>
         <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
-          <p><strong><?php _e('Settings saved successfully!', 'clarity-first-seo'); ?></strong> <?php _e('Your changes have been saved and are now active.', 'clarity-first-seo'); ?></p>
+          <p><strong><?php esc_html_e('Settings saved successfully!', 'clarity-first-seo'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'clarity-first-seo'); ?></p>
         </div>
         <?php
       }
@@ -311,9 +311,9 @@ class CFSEO_Admin_Settings {
             <td>
               <input type="text" id="google_verification" class="large-text code" name="<?php echo self::OPT; ?>[google_verification]" value="<?php echo esc_attr(self::get('google_verification')); ?>" placeholder="abc123xyz456">
               <p class="description">
-                <strong><?php _e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
-                <?php _e('If Google gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="google-site-verification" content="<strong style="color: #d63638;">abc123xyz456</strong>" /&gt;</code><br>
-                <?php _e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">abc123xyz456</strong> <?php _e('in the field above', 'clarity-first-seo'); ?>
+                <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
+                <?php esc_html_e('If Google gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="google-site-verification" content="<strong style="color: #d63638;">abc123xyz456</strong>" /&gt;</code><br>
+                <?php esc_html_e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">abc123xyz456</strong> <?php esc_html_e('in the field above', 'clarity-first-seo'); ?>
               </p>
             </td>
           </tr>
@@ -333,9 +333,9 @@ class CFSEO_Admin_Settings {
             <td>
               <input type="text" id="bing_verification" class="large-text code" name="<?php echo self::OPT; ?>[bing_verification]" value="<?php echo esc_attr(self::get('bing_verification')); ?>" placeholder="1234ABCD5678EFGH">
               <p class="description">
-                <strong><?php _e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
-                <?php _e('If Bing gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="msvalidate.01" content="<strong style="color: #d63638;">1234ABCD5678EFGH</strong>" /&gt;</code><br>
-                <?php _e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">1234ABCD5678EFGH</strong> <?php _e('in the field above', 'clarity-first-seo'); ?>
+                <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
+                <?php esc_html_e('If Bing gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="msvalidate.01" content="<strong style="color: #d63638;">1234ABCD5678EFGH</strong>" /&gt;</code><br>
+                <?php esc_html_e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">1234ABCD5678EFGH</strong> <?php esc_html_e('in the field above', 'clarity-first-seo'); ?>
               </p>
             </td>
           </tr>
@@ -355,9 +355,9 @@ class CFSEO_Admin_Settings {
             <td>
               <input type="text" id="yandex_verification" class="large-text code" name="<?php echo self::OPT; ?>[yandex_verification]" value="<?php echo esc_attr(self::get('yandex_verification')); ?>" placeholder="1234567890abcdef">
               <p class="description">
-                <strong><?php _e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
-                <?php _e('If Yandex gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="yandex-verification" content="<strong style="color: #d63638;">1234567890abcdef</strong>" /&gt;</code><br>
-                <?php _e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">1234567890abcdef</strong> <?php _e('in the field above', 'clarity-first-seo'); ?>
+                <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
+                <?php esc_html_e('If Yandex gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="yandex-verification" content="<strong style="color: #d63638;">1234567890abcdef</strong>" /&gt;</code><br>
+                <?php esc_html_e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">1234567890abcdef</strong> <?php esc_html_e('in the field above', 'clarity-first-seo'); ?>
               </p>
             </td>
           </tr>
@@ -367,45 +367,45 @@ class CFSEO_Admin_Settings {
       <div class="cfseo-info-box" style="background: #e7f5fe; border-left: 4px solid #00a0d2; padding: 15px;">
         <p style="margin: 0 0 10px; font-weight: 600; color: #23282d;">
           <span class="dashicons dashicons-info" style="color: #00a0d2;"></span>
-          <?php _e('What are Webmaster Tools?', 'clarity-first-seo'); ?>
+          <?php esc_html_e('What are Webmaster Tools?', 'clarity-first-seo'); ?>
         </p>
         <p style="margin: 0 0 12px; color: #50575e; line-height: 1.6;">
-          <?php _e('Webmaster Tools are free platforms provided by search engines where you can:', 'clarity-first-seo'); ?>
+          <?php esc_html_e('Webmaster Tools are free platforms provided by search engines where you can:', 'clarity-first-seo'); ?>
         </p>
         <ul style="margin: 0 0 12px 20px; color: #50575e; line-height: 1.7;">
-          <li><?php _e('Monitor your site\'s search performance and rankings', 'clarity-first-seo'); ?></li>
-          <li><?php _e('Submit sitemaps to help search engines discover your content', 'clarity-first-seo'); ?></li>
-          <li><?php _e('Check indexing status and fix crawling issues', 'clarity-first-seo'); ?></li>
-          <li><?php _e('View search queries that bring visitors to your site', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('Monitor your site\'s search performance and rankings', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('Submit sitemaps to help search engines discover your content', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('Check indexing status and fix crawling issues', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('View search queries that bring visitors to your site', 'clarity-first-seo'); ?></li>
         </ul>
         <p style="margin: 0 0 10px; font-weight: 600; color: #23282d;">
-          <?php _e('Next Steps After Saving:', 'clarity-first-seo'); ?>
+          <?php esc_html_e('Next Steps After Saving:', 'clarity-first-seo'); ?>
         </p>
         <ol style="margin: 0 0 0 20px; color: #50575e; line-height: 1.7;">
-          <li><?php _e('Click "Save Settings" below', 'clarity-first-seo'); ?></li>
-          <li><?php _e('Visit the webmaster tool you\'re verifying and click their "Verify" button:', 'clarity-first-seo'); ?>
+          <li><?php esc_html_e('Click "Save Settings" below', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('Visit the webmaster tool you\'re verifying and click their "Verify" button:', 'clarity-first-seo'); ?>
             <ul style="margin: 5px 0 5px 20px;">
               <li>
                 <a href="https://search.google.com/search-console" target="_blank" style="text-decoration: none;">
-                  <?php _e('Google Search Console', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Google Search Console', 'clarity-first-seo'); ?>
                   <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
                 </a>
               </li>
               <li>
                 <a href="https://www.bing.com/webmasters" target="_blank" style="text-decoration: none;">
-                  <?php _e('Bing Webmaster Tools', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Bing Webmaster Tools', 'clarity-first-seo'); ?>
                   <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
                 </a>
               </li>
               <li>
                 <a href="https://webmaster.yandex.com" target="_blank" style="text-decoration: none;">
-                  <?php _e('Yandex Webmaster', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Yandex Webmaster', 'clarity-first-seo'); ?>
                   <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
                 </a>
               </li>
             </ul>
           </li>
-          <li><?php _e('Once verified, you can submit your sitemap (see General tab)', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('Once verified, you can submit your sitemap (see General tab)', 'clarity-first-seo'); ?></li>
         </ol>
       </div>
     </div>

@@ -117,7 +117,7 @@ class CFSEO_Help {
         <p><strong>Need help or found a bug?</strong></p>
         <ul>
           <li>📧 Email: clarity.first.seo@gmail.com</li>
-          <li>🐛 Report issues: <a href="https://github.com/clarify-first/clarity-first-seo/issues" target="_blank">GitHub Issues</a></li>
+          <li>🐛 Report issues: <a href="https://github.com/clarity-first/clarity-first-seo-plugin/issues" target="_blank">GitHub Issues</a></li>
         </ul>
       </div>
       

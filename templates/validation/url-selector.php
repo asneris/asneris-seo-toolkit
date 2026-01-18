@@ -79,7 +79,7 @@ if (!defined('ABSPATH')) exit;
     
     <button type="submit" name="run_validation" class="button button-primary button-large">
       <span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
-      <?php _e('Run Validation', 'clarity-first-seo'); ?>
+      <?php esc_html_e('Run Validation', 'clarity-first-seo'); ?>
     </button>
     <p class="description" style="margin-top: 8px; color: #646970;">
       <?php _e('This inspection does not modify the page.', 'clarity-first-seo'); ?>

@@ -9,8 +9,8 @@ class CFSEO_Bulk_Edit {
   public static function register_menu() {
     add_submenu_page(
       'clarity-first-seo',
-      __('Bulk Edit', 'clarity-first-seo'),
-      __('Bulk Edit', 'clarity-first-seo'),
+      esc_html__('Bulk Edit', 'clarity-first-seo'),
+      esc_html__('Bulk Edit', 'clarity-first-seo'),
       'edit_posts',
       'cfseo-bulk-edit',
       [__CLASS__, 'render_page']
@@ -67,10 +67,10 @@ class CFSEO_Bulk_Edit {
     <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-edit"></span>
-        <?php _e('SEO Bulk Edit', 'clarity-first-seo'); ?>
+        <?php esc_html_e('SEO Bulk Edit', 'clarity-first-seo'); ?>
         <?php CFSEO_Help_Modal::render_help_icon('bulk-overview', 'Learn about bulk edit'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php _e('Update SEO titles, descriptions, and indexing settings for multiple posts at once.', 'clarity-first-seo'); ?></p>
+      <p class="cfseo-subtitle"><?php esc_html_e('Update SEO titles, descriptions, and indexing settings for multiple posts at once.', 'clarity-first-seo'); ?></p>
       
       <div class="cfseo-settings-form">
         <div class="cfseo-tab-content">
@@ -78,16 +78,16 @@ class CFSEO_Bulk_Edit {
       <!-- Filters -->
       <div class="cfseo-card">
         <h2>
-          <span class="dashicons dashicons-filter"></span> <?php _e('Filter Content', 'clarity-first-seo'); ?>
+          <span class="dashicons dashicons-filter"></span> <?php esc_html_e('Filter Content', 'clarity-first-seo'); ?>
           <?php CFSEO_Help_Modal::render_help_icon('filter-content', 'Learn about filtering content'); ?>
         </h2>
-        <p class="description" style="margin-top: 0;"><?php _e('Filter which content appear in the table below. Use these filters to find specific content you want to edit.', 'clarity-first-seo'); ?></p>
+        <p class="description" style="margin-top: 0;"><?php esc_html_e('Filter which content appear in the table below. Use these filters to find specific content you want to edit.', 'clarity-first-seo'); ?></p>
         <form method="get" action="">
           <input type="hidden" name="page" value="cfseo-bulk-edit">
           <table class="form-table">
             <tr>
               <th scope="row">
-                <label for="filter_type"><?php _e('Content Type', 'clarity-first-seo'); ?></label>
+                <label for="filter_type"><?php esc_html_e('Content Type', 'clarity-first-seo'); ?></label>
               </th>
               <td>
                 <select name="filter_type" id="filter_type">
@@ -100,18 +100,18 @@ class CFSEO_Bulk_Edit {
               </td>
               
               <th scope="row">
-                <label for="indexing"><?php _e('Indexing Status', 'clarity-first-seo'); ?></label>
+                <label for="indexing"><?php esc_html_e('Indexing Status', 'clarity-first-seo'); ?></label>
               </th>
               <td>
                 <select name="indexing" id="indexing">
-                  <option value="all" <?php selected($indexing_filter, 'all'); ?>><?php _e('All', 'clarity-first-seo'); ?></option>
-                  <option value="indexed" <?php selected($indexing_filter, 'indexed'); ?>><?php _e('Indexed', 'clarity-first-seo'); ?></option>
-                  <option value="noindex" <?php selected($indexing_filter, 'noindex'); ?>><?php _e('NoIndex', 'clarity-first-seo'); ?></option>
+                  <option value="all" <?php selected($indexing_filter, 'all'); ?>><?php esc_html_e('All', 'clarity-first-seo'); ?></option>
+                  <option value="indexed" <?php selected($indexing_filter, 'indexed'); ?>><?php esc_html_e('Indexed', 'clarity-first-seo'); ?></option>
+                  <option value="noindex" <?php selected($indexing_filter, 'noindex'); ?>><?php esc_html_e('NoIndex', 'clarity-first-seo'); ?></option>
                 </select>
               </td>
               
               <td>
-                <button type="submit" class="button"><?php _e('Filter', 'clarity-first-seo'); ?></button>
+                <button type="submit" class="button"><?php esc_html_e('Filter', 'clarity-first-seo'); ?></button>
               </td>
             </tr>
           </table>
@@ -124,19 +124,19 @@ class CFSEO_Bulk_Edit {
           <span class="dashicons dashicons-admin-generic"></span> <?php _e('Quick Bulk Actions', 'clarity-first-seo'); ?>
           <?php CFSEO_Help_Modal::render_help_icon('quick-bulk-actions', 'Learn about quick bulk actions'); ?>
         </h2>
-        <p style="color: #646970;"><?php _e('Changes are previewed in the table. Nothing is saved until you click \'Save All Changes\'.', 'clarity-first-seo'); ?></p>
+        <p style="color: #646970;"><?php esc_html_e('Changes are previewed in the table. Nothing is saved until you click \'Save All Changes\'.', 'clarity-first-seo'); ?></p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
           <button type="button" id="cfseo-bulk-set-index" class="button">
-            <?php _e('✓ Allow in Search (Index)', 'clarity-first-seo'); ?>
+            <?php esc_html_e('✓ Allow in Search (Index)', 'clarity-first-seo'); ?>
           </button>
           <button type="button" id="cfseo-bulk-set-noindex" class="button">
-            <?php _e('✗ Hide from Search (NoIndex)', 'clarity-first-seo'); ?>
+            <?php esc_html_e('✗ Hide from Search (NoIndex)', 'clarity-first-seo'); ?>
           </button>
           <button type="button" id="cfseo-bulk-clear-title" class="button">
-            <?php _e('Clear Content Titles', 'clarity-first-seo'); ?>
+            <?php esc_html_e('Clear Content Titles', 'clarity-first-seo'); ?>
           </button>
           <button type="button" id="cfseo-bulk-clear-description" class="button">
-            <?php _e('Clear Descriptions', 'clarity-first-seo'); ?>
+            <?php esc_html_e('Clear Descriptions', 'clarity-first-seo'); ?>
           </button>
         </div>
       </div>
@@ -338,7 +338,7 @@ class CFSEO_Bulk_Edit {
     }
     
     wp_send_json_success([
-      'message' => sprintf(__('%d posts updated successfully!', 'clarity-first-seo'), $updated),
+      'message' => sprintf(esc_html__('%d posts updated successfully!', 'clarity-first-seo'), $updated),
       'updated' => $updated
     ]);
   }

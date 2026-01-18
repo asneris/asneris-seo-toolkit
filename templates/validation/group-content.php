@@ -50,7 +50,7 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
           <p class="description">
             <?php 
             printf(
-              __('Headings: H1=%d, H2=%d, H3=%d, H4=%d, H5=%d, H6=%d', 'clarity-first-seo'),
+              esc_html__('Headings: H1=%d, H2=%d, H3=%d, H4=%d, H5=%d, H6=%d', 'clarity-first-seo'),
               $headings['h1_count'],
               $headings['h2_count'],
               $headings['h3_count'],
@@ -104,14 +104,14 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
       <?php if ($images): ?>
         <div class="cfseo-check-details">
           <p class="description">
-            <?php printf(__('Total images: %d', 'clarity-first-seo'), $images['total']); ?>
+            <?php printf(esc_html__('Total images: %d', 'clarity-first-seo'), $images['total']); ?>
             <br>
-            <?php printf(__('Images with alt text: %d', 'clarity-first-seo'), $images['with_alt']); ?>
+            <?php printf(esc_html__('Images with alt text: %d', 'clarity-first-seo'), $images['with_alt']); ?>
             <?php if ($images['total'] > 0): ?>
               (<?php echo round(($images['with_alt'] / $images['total']) * 100); ?>%)
             <?php endif; ?>
             <?php if ($images['without_alt'] > 0): ?>
-              <br><span style="color: #dba617;">⚠ <?php printf(__('%d images missing alt text', 'clarity-first-seo'), $images['without_alt']); ?></span>
+              <br><span style="color: #dba617;">⚠ <?php printf(esc_html__('%d images missing alt text', 'clarity-first-seo'), $images['without_alt']); ?></span>
             <?php endif; ?>
           </p>
           <?php if (!empty($images['size_warnings'])): ?>
@@ -148,9 +148,9 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $content_pass+
       <?php if ($links): ?>
         <div class="cfseo-check-details">
           <p class="description">
-            <?php printf(__('Internal links: %d', 'clarity-first-seo'), $links['internal']); ?>
+            <?php printf(esc_html__('Internal links: %d', 'clarity-first-seo'), $links['internal']); ?>
             <br>
-            <?php printf(__('External links: %d', 'clarity-first-seo'), $links['external']); ?>
+            <?php printf(esc_html__('External links: %d', 'clarity-first-seo'), $links['external']); ?>
           </p>
           <?php if ($links['internal'] === 0): ?>
           <p class="description" style="color: #dba617;">

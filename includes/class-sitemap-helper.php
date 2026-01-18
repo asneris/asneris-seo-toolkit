@@ -100,7 +100,7 @@ class CFSEO_Sitemap_Helper {
         </li>
         <li>
           <a href="https://www.bing.com/webmasters" target="_blank">
-            <?php _e('Bing Webmaster Tools', 'clarity-first-seo'); ?>
+            <?php esc_html_e('Bing Webmaster Tools', 'clarity-first-seo'); ?>
             <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
           </a>
           → <?php _e('Sitemaps section', 'clarity-first-seo'); ?>

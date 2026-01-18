@@ -18,7 +18,7 @@ if ($results['http_status'] === 200) $discovery_pass++;
     <div class="cfseo-group-title">
       <span class="dashicons dashicons-admin-site"></span>
       <h3>🗺️ <?php _e('Discovery & Crawling', 'clarity-first-seo'); ?></h3>
-      <span class="cfseo-confidence-badge confidence-high"><?php _e('Confidence: High', 'clarity-first-seo'); ?></span>
+      <span class="cfseo-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'clarity-first-seo'); ?></span>
     </div>
     <div class="cfseo-group-summary">
       <?php echo CFSEO_Validation::get_status_badge($discovery_pass, $discovery_total); ?>
@@ -41,9 +41,9 @@ if ($results['http_status'] === 200) $discovery_pass++;
       <?php if ($sitemap && $sitemap['status'] === 'exists'): ?>
         <div class="cfseo-check-details">
           <p class="description">
-            ✓ <?php printf(__('Sitemap found at %s', 'clarity-first-seo'), '<code>/wp-sitemap.xml</code>'); ?>
+            ✓ <?php printf(wp_kses_post(__('Sitemap found at %s', 'clarity-first-seo')), '<code>/wp-sitemap.xml</code>'); ?>
             <?php if (isset($sitemap['page_count']) && $sitemap['page_count'] > 0): ?>
-              <br>📄 <?php printf(__('%d pages indexed', 'clarity-first-seo'), $sitemap['page_count']); ?>
+              <br>📄 <?php printf(esc_html__('%d pages indexed', 'clarity-first-seo'), $sitemap['page_count']); ?>
             <?php endif; ?>
           </p>
         </div>
@@ -73,7 +73,7 @@ if ($results['http_status'] === 200) $discovery_pass++;
       <?php if ($robots && $robots['status'] === 'exists'): ?>
         <div class="cfseo-check-details">
           <p class="description">
-            ✓ <?php printf(__('Robots.txt found at %s', 'clarity-first-seo'), '<code>/robots.txt</code>'); ?>
+            ✓ <?php printf(wp_kses_post(__('Robots.txt found at %s', 'clarity-first-seo')), '<code>/robots.txt</code>'); ?>
             <?php if (!empty($robots['rules'])): ?>
               <br><strong><?php _e('Rules:', 'clarity-first-seo'); ?></strong>
               <pre style="max-height: 200px; overflow-y: auto;"><?php echo esc_html(implode("\n", array_slice($robots['rules'], 0, 10))); ?></pre>

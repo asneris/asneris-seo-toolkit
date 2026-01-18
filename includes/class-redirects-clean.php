@@ -235,25 +235,25 @@ class CFSEO_Redirects {
       
       if (!empty($from) && !empty($to)) {
         self::add_redirect($from, $to, $code, 'manual');
-        echo '<div class="notice notice-success"><p>' . __('Redirect added successfully!', 'clarity-first-seo') . '</p></div>';
+        echo '<div class="notice notice-success"><p>' . esc_html__('Redirect added successfully!', 'clarity-first-seo') . '</p></div>';
       }
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['index'])) {
       check_admin_referer('CFSEO_redirect_delete_' . $_GET['index']);
       self::delete_redirect((int)$_GET['index']);
-      echo '<div class="notice notice-success"><p>' . __('Redirect deleted!', 'clarity-first-seo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . esc_html__('Redirect deleted!', 'clarity-first-seo') . '</p></div>';
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'toggle' && isset($_GET['index'])) {
       check_admin_referer('CFSEO_redirect_toggle_' . $_GET['index']);
       self::toggle_redirect((int)$_GET['index']);
-      echo '<div class="notice notice-success"><p>' . __('Redirect status updated!', 'clarity-first-seo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . esc_html__('Redirect status updated!', 'clarity-first-seo') . '</p></div>';
     }
     
     if (isset($_POST['CFSEO_clear_auto']) && check_admin_referer('CFSEO_clear_auto')) {
       self::clear_auto_redirects();
-      echo '<div class="notice notice-success"><p>' . __('Automatic redirects cleared!', 'clarity-first-seo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . esc_html__('Automatic redirects cleared!', 'clarity-first-seo') . '</p></div>';
     }
     
     $redirects = self::get_redirects();
@@ -332,7 +332,7 @@ class CFSEO_Redirects {
           <table class="wp-list-table widefat fixed striped">
             <thead>
               <tr>
-                <th style="width: 10%;"><?php _e('Status', 'clarity-first-seo'); ?></th>
+                <th style="width: 10%;"><?php esc_html_e('Status', 'clarity-first-seo'); ?></th>
                 <th style="width: 30%;"><?php _e('From', 'clarity-first-seo'); ?></th>
                 <th style="width: 30%;"><?php _e('To', 'clarity-first-seo'); ?></th>
                 <th style="width: 10%;"><?php _e('Code', 'clarity-first-seo'); ?></th>
