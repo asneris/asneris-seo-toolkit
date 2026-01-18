@@ -45,13 +45,6 @@ require_once CFSEO_DIR . 'includes/class-migration.php';
 require_once CFSEO_DIR . 'includes/class-help-content.php';
 
 add_action('init', function () {
-  // Load text domain for translations
-  load_plugin_textdomain(
-    'clarity-first-seo',
-    false,
-    dirname(plugin_basename(__FILE__)) . '/languages'
-  );
-  
   CFSEO_Meta::register_post_meta();
   CFSEO_IndexNow::register_rewrite();
   CFSEO_Redirects::init();
