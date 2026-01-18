@@ -265,20 +265,20 @@ Sitemap: {$sitemap_url}
         ?>
         <div class="wrap cfseo-admin-wrap">
             <h1>
-                <?php _e('Robots.txt Editor & Validator', 'clarity-first-seo'); ?>
+                <?php esc_html_e('Robots.txt Editor & Validator', 'clarity-first-seo'); ?>
                 <?php CFSEO_Help_Modal::render_help_icon('robots-overview', 'Learn about robots.txt'); ?>
             </h1>
-            <p class="cfseo-subtitle"><?php _e('Control which parts of your site search engines are allowed to visit.', 'clarity-first-seo'); ?></p>
+            <p class="cfseo-subtitle"><?php esc_html_e('Control which parts of your site search engines are allowed to visit.', 'clarity-first-seo'); ?></p>
             
             <?php if ($saved): ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><?php _e('robots.txt saved successfully!', 'clarity-first-seo'); ?></p>
+                    <p><?php esc_html_e('robots.txt saved successfully!', 'clarity-first-seo'); ?></p>
                 </div>
             <?php endif; ?>
             
             <?php if ($error): ?>
                 <div class="notice notice-error is-dismissible">
-                    <p><?php _e('Failed to save robots.txt. Check file permissions.', 'clarity-first-seo'); ?></p>
+                    <p><?php esc_html_e('Failed to save robots.txt. Check file permissions.', 'clarity-first-seo'); ?></p>
                 </div>
             <?php endif; ?>
             

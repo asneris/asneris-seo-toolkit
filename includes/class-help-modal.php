@@ -61,7 +61,7 @@ class CFSEO_Help_Modal {
       return;
     }
     
-    $modals_json = json_encode($content['modals']);
+    $modals_json = wp_json_encode($content['modals']);
     ?>
     <!-- Help Modals -->
     <div id="cfseo-help-modal-overlay" class="cfseo-modal-overlay" onclick="CFSEOHelpModal.close()"></div>

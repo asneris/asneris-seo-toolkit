@@ -278,8 +278,8 @@ class CFSEO_Bulk_Edit {
         <div style="padding:24px;">
           <p id="cfseo-confirm-message" style="margin:0 0 24px 0; font-size:15px; line-height:1.6; color:#3c434a;"></p>
           <div style="display:flex; justify-content:flex-end; gap:12px;">
-            <button type="button" class="button" id="cfseo-confirm-cancel" style="padding:6px 16px; font-size:13px;"><?php _e('Cancel', 'clarity-first-seo'); ?></button>
-            <button type="button" class="button button-primary" id="cfseo-confirm-ok" style="padding:6px 16px; font-size:13px; background:#2271b1; border-color:#2271b1;"><?php _e('Confirm', 'clarity-first-seo'); ?></button>
+            <button type="button" class="button" id="cfseo-confirm-cancel" style="padding:6px 16px; font-size:13px;"><?php esc_html_e('Cancel', 'clarity-first-seo'); ?></button>
+            <button type="button" class="button button-primary" id="cfseo-confirm-ok" style="padding:6px 16px; font-size:13px; background:#2271b1; border-color:#2271b1;"><?php esc_html_e('Confirm', 'clarity-first-seo'); ?></button>
           </div>
         </div>
       </div>

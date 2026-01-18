@@ -46,7 +46,7 @@ $schema_total = 1;
           ?>
           <details style="margin-top: 10px;">
             <summary><strong><?php printf(__('Block %d:', 'clarity-first-seo'), $idx + 1); ?></strong> <?php echo esc_html($type); ?></summary>
-            <pre style="max-height: 300px; overflow-y: auto; background: #f6f7f7; padding: 10px; border-radius: 4px;"><?php echo esc_html(json_encode($schema_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></pre>
+            <pre style="max-height: 300px; overflow-y: auto; background: #f6f7f7; padding: 10px; border-radius: 4px;"><?php echo esc_html(wp_json_encode($schema_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></pre>
           </details>
           <?php 
             endif;
