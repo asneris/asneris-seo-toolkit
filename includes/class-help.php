@@ -31,7 +31,7 @@ class CFSEO_Help {
     <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-editor-help"></span>
-        <?php _e('Help & Documentation', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Help & Documentation', 'clarity-first-seo'); ?>
       </h1>
       
       <!-- What This Plugin Does -->
@@ -117,7 +117,7 @@ class CFSEO_Help {
         <p><strong>Need help or found a bug?</strong></p>
         <ul>
           <li>📧 Email: clarity.first.seo@gmail.com</li>
-          <li>🐛 Report issues: <a href="https://github.com/clarify-first/clarity-first-seo/issues" target="_blank">GitHub Issues</a></li>
+          <li>🐛 Report issues: <a href="https://github.com/clarity-first/clarity-first-seo-plugin/issues" target="_blank">GitHub Issues</a></li>
         </ul>
       </div>
       

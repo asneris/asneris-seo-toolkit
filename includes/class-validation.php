@@ -29,7 +29,7 @@ class CFSEO_Validation {
    * Get fetchable URL (handles Docker/localhost environments)
    */
   private static function get_fetchable_url($url) {
-    $parsed = parse_url($url);
+    $parsed = wp_parse_url($url);
     
     // Check if this is localhost:8080 (common Docker setup)
     if (isset($parsed['host']) && in_array($parsed['host'], ['localhost', '127.0.0.1']) && 
@@ -51,7 +51,8 @@ class CFSEO_Validation {
       // Fallback: Try Docker gateway (usually 172.x.x.1)
       if (isset($_SERVER['SERVER_ADDR'])) {
         // Get gateway from container IP (e.g., 172.19.0.3 -> 172.19.0.1)
-        $parts = explode('.', $_SERVER['SERVER_ADDR']);
+        $server_addr = sanitize_text_field(wp_unslash($_SERVER['SERVER_ADDR']));
+        $parts = explode('.', $server_addr);
         if (count($parts) == 4) {
           $parts[3] = '1'; // Gateway is usually .1
           $gateway = implode('.', $parts);
@@ -401,12 +402,12 @@ class CFSEO_Validation {
     ];
     
     $links = $xpath->query('//a[@href]');
-    $parsed_base = parse_url($base_url);
+    $parsed_base = wp_parse_url($base_url);
     $base_host = isset($parsed_base['host']) ? $parsed_base['host'] : '';
     
     foreach ($links as $link) {
       $href = $link->getAttribute('href');
-      $parsed = parse_url($href);
+      $parsed = wp_parse_url($href);
       
       if (!isset($parsed['host']) || $parsed['host'] === $base_host) {
         $result['internal']++;
@@ -493,7 +494,7 @@ class CFSEO_Validation {
     ];
     
     // Handle form submission
-    $test_url = isset($_POST['test_url']) ? esc_url_raw($_POST['test_url']) : '';
+    $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $run_test = isset($_POST['run_validation']) && check_admin_referer('CFSEO_validation', '_wpnonce', false);
     
     $data['test_url'] = $test_url;
@@ -824,16 +825,114 @@ class CFSEO_Validation {
     // This happens automatically for Site Diagnostics (no form submission needed)
     self::save_diagnostics_summary();
     
-    // Load template parts
+    // Page content with inline header and footer
+    ?>
+    <div class="wrap cfseo-admin-wrap">
+      <h1>
+        <span class="dashicons dashicons-analytics"></span>
+        <?php esc_html_e('Site Diagnostics', 'clarity-first-seo'); ?>
+        <?php CFSEO_Help_Modal::render_help_icon('site-diagnostics-overview', 'Learn about Site Diagnostics'); ?>
+      </h1>
+      <p class="cfseo-subtitle"><?php esc_html_e('Check site-wide SEO settings that affect how search engines find and index your pages.', 'clarity-first-seo'); ?></p>
+      
+      <div class="cfseo-settings-form">
+        <div class="cfseo-tab-content">
+    <?php
+    
+    // Load main content template
     $template_dir = plugin_dir_path(dirname(__FILE__)) . 'templates/validation/';
-    
-    // Page header
-    include $template_dir . 'page-header.php';
-    
-    // Site Diagnostics content
     include $template_dir . 'tab-diagnostics.php';
     
-    // Page footer (CSS + JS)
-    include $template_dir . 'page-footer.php';
+    ?>
+        </div><!-- .cfseo-tab-content -->
+      </div><!-- .cfseo-settings-form -->
+        
+      <?php // CFSEO_Help_Content::render_sidebar('site-diagnostics'); ?>
+    </div><!-- .wrap -->
+
+    <script>
+    jQuery(document).ready(function($) {
+      // Quick test buttons
+      $('.cfseo-quick-test').on('click', function() {
+        var url = $(this).data('url');
+        $('#test_url').val(url);
+      });
+      
+      // Page selector dropdown
+      $('#CFSEO_page_selector').on('change', function() {
+        var selectedUrl = $(this).val();
+        if (selectedUrl) {
+          $('#test_url').val(selectedUrl);
+        }
+      });
+      
+      // Collapsible function groups
+      $('.cfseo-group-header').on('click', function() {
+        var group = $(this).data('group');
+        var content = $('#group-' + group);
+        
+        if (content.is(':visible')) {
+          content.slideUp();
+          $(this).removeClass('expanded');
+        } else {
+          content.slideDown();
+          $(this).addClass('expanded');
+        }
+      });
+      
+      // Indexing Validation - HTTP Test functionality
+      $('#CFSEO_run_http_test').on('click', function() {
+        const url = $('#CFSEO_test_url').val();
+        const $button = $(this);
+        const $results = $('#CFSEO_http_results');
+        const $tbody = $('#CFSEO_http_results_body');
+        
+        if (!url) {
+          alert('Please enter a URL to test');
+          return;
+        }
+        
+        $button.prop('disabled', true).text('Testing...');
+        $tbody.html('<tr><td colspan="3">Running validation...</td></tr>');
+        $results.show();
+        
+        $.ajax({
+          url: ajaxurl,
+          method: 'POST',
+          data: {
+            action: 'CFSEO_http_test',
+            url: url,
+            nonce: '<?php echo esc_js(wp_create_nonce('CFSEO_http_test')); ?>'
+          },
+          success: function(response) {
+            if (response.success) {
+              let html = '';
+              response.data.checks.forEach(function(check) {
+                const statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
+                const statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
+                html += '<tr>';
+                html += '<td><strong>' + check.label + '</strong></td>';
+                html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
+                html += '<td>' + check.details + '</td>';
+                html += '</tr>';
+              });
+              $tbody.html(html);
+            } else {
+              $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
+            }
+          },
+          error: function() {
+            $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
+          },
+          complete: function() {
+            $button.prop('disabled', false).text('Run Indexing Validation');
+          }
+        });
+      });
+    });
+    </script>
+
+    <?php CFSEO_Help_Modal::render_modals('site-diagnostics'); ?>
+    <?php
   }
 }

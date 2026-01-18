@@ -47,7 +47,7 @@ class CFSEO_IndexNow {
     add_action('template_redirect', function () use ($key) {
       if (get_query_var('CFSEO_indexnow_keyfile') != 1) return;
       header('Content-Type: text/plain; charset=utf-8');
-      echo $key;
+      echo esc_html($key);
       exit;
     });
   }

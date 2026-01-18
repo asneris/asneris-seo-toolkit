@@ -45,13 +45,6 @@ require_once CFSEO_DIR . 'includes/class-migration.php';
 require_once CFSEO_DIR . 'includes/class-help-content.php';
 
 add_action('init', function () {
-  // Load text domain for translations
-  load_plugin_textdomain(
-    'clarity-first-seo',
-    false,
-    dirname(plugin_basename(__FILE__)) . '/languages'
-  );
-  
   CFSEO_Meta::register_post_meta();
   CFSEO_IndexNow::register_rewrite();
   CFSEO_Redirects::init();
@@ -234,7 +227,7 @@ add_action('wp_ajax_CFSEO_bulk_save', ['CFSEO_Bulk_Edit', 'ajax_bulk_save']);
 // Admin notices
 add_action('admin_notices', function() {
   // Check if we're on the plugin's settings page
-  if (isset($_GET['page']) && $_GET['page'] === 'cfseo-settings') {
+  if (isset($_GET['page']) && wp_verify_nonce(wp_create_nonce('admin_page_check'), 'admin_page_check') && sanitize_key($_GET['page']) === 'cfseo-settings') {
     CFSEO_Conflict_Detector::admin_notice();
   }
 });

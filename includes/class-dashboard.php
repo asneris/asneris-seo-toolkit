@@ -168,10 +168,32 @@ class CFSEO_Dashboard {
   private static function get_redirect_count() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'CFSEO_redirects';
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") !== $table_name) {
+    
+    // Check if table exists using prepared statement with caching
+    $table_exists_cache_key = 'cfseo_redirect_table_exists';
+    $table_exists = wp_cache_get($table_exists_cache_key);
+    
+    if (false === $table_exists) {
+      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check with proper caching
+      $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name;
+      wp_cache_set($table_exists_cache_key, $table_exists, '', 3600); // Cache for 1 hour
+    }
+    
+    if (!$table_exists) {
       return 0;
     }
-    return (int) $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE status = 'active'");
+    
+    // Get count with caching
+    $cache_key = 'cfseo_redirect_count';
+    $count = wp_cache_get($cache_key);
+    
+    if (false === $count) {
+      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Count query with proper caching
+      $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}CFSEO_redirects WHERE status = %s", 'active'));
+      wp_cache_set($cache_key, $count, '', 300); // Cache for 5 minutes
+    }
+    
+    return $count;
   }
   
   /**
@@ -188,10 +210,10 @@ class CFSEO_Dashboard {
     <div class="wrap cfseo-admin-wrap" style="max-width: 1400px;">
       <h1>
         <span class="dashicons dashicons-dashboard"></span>
-        <?php _e('Dashboard', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Dashboard', 'clarity-first-seo'); ?>
       </h1>
       <p class="cfseo-subtitle">
-        <?php _e('Clarity-First SEO checks what search engines can see on your site. It does not predict rankings.', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Clarity-First SEO checks what search engines can see on your site. It does not predict rankings.', 'clarity-first-seo'); ?>
       </p>
       
       <!-- Configuration Status -->
@@ -199,25 +221,25 @@ class CFSEO_Dashboard {
         <div style="padding: 20px;">
           <h2 style="margin: 0 0 15px; color: white; display: flex; align-items: center; gap: 10px;">
             <span class="dashicons dashicons-admin-settings" style="font-size: 24px;"></span>
-            <?php _e('Configuration Status', 'clarity-first-seo'); ?>
+            <?php esc_html_e('Configuration Status', 'clarity-first-seo'); ?>
           </h2>
           
           <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 20px; margin-bottom: 15px; overflow: hidden;">
-            <div style="background: #00a32a; height: 100%; width: <?php echo $progress_percent; ?>%; transition: width 0.3s;"></div>
+            <div style="background: #00a32a; height: 100%; width: <?php echo esc_attr($progress_percent); ?>%; transition: width 0.3s;"></div>
           </div>
           
           <p style="margin: 0 0 20px; font-size: 16px; opacity: 0.95;">
-            <strong><?php echo $completed_sections; ?> <?php _e('of', 'clarity-first-seo'); ?> <?php echo $total_sections; ?></strong> <?php _e('sections configured', 'clarity-first-seo'); ?> 
-            (<?php echo $progress_percent; ?>%)
-            <a href="?page=cfseo-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php _e('Go to Settings', 'clarity-first-seo'); ?></a>
+            <strong><?php echo esc_html($completed_sections); ?> <?php esc_html_e('of', 'clarity-first-seo'); ?> <?php echo esc_html($total_sections); ?></strong> <?php esc_html_e('sections configured', 'clarity-first-seo'); ?> 
+            (<?php echo esc_html($progress_percent); ?>%)
+            <a href="?page=cfseo-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php esc_html_e('Go to Settings', 'clarity-first-seo'); ?></a>
           </p>
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
             <?php foreach ($config_status as $key => $section): ?>
               <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 15px; backdrop-filter: blur(10px);">
                 <h3 style="margin: 0 0 10px; color: white; display: flex; align-items: center; gap: 8px; font-size: 14px;">
-                  <span class="dashicons <?php echo $section['icon']; ?>"></span>
-                  <?php echo $section['label']; ?>
+                  <span class="dashicons <?php echo esc_attr($section['icon']); ?>"></span>
+                  <?php echo esc_html($section['label']); ?>
                   <?php if ($section['completed']): ?>
                     <span class="dashicons dashicons-yes-alt" style="color: #00a32a; background: white; border-radius: 50%; font-size: 16px; width: 20px; height: 20px; line-height: 20px; margin-left: auto;"></span>
                   <?php else: ?>
@@ -227,7 +249,7 @@ class CFSEO_Dashboard {
                 <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; opacity: 0.9;">
                   <?php foreach ($section['items'] as $item => $done): ?>
                     <li style="<?php echo $done ? 'color: #c3ffd8;' : 'opacity: 0.6;'; ?>">
-                      <?php echo $done ? '✓' : '○'; ?> <?php echo $item; ?>
+                      <?php echo $done ? '✓' : '○'; ?> <?php echo esc_html($item); ?>
                     </li>
                   <?php endforeach; ?>
                 </ul>

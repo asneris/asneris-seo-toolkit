@@ -224,18 +224,18 @@ Sitemap: {$sitemap_url}
             wp_die('Unauthorized');
         }
         
-        $content = isset($_POST['robots_content']) ? wp_unslash($_POST['robots_content']) : '';
+        $content = isset($_POST['robots_content']) ? sanitize_textarea_field(wp_unslash($_POST['robots_content'])) : '';
         
         // Save to file
         $saved = file_put_contents(self::$robots_file, $content);
         
         if ($saved !== false) {
-            wp_redirect(add_query_arg([
+            wp_safe_redirect(add_query_arg([
                 'page' => 'clarity-first-seo-robots',
                 'saved' => '1'
             ], admin_url('admin.php')));
         } else {
-            wp_redirect(add_query_arg([
+            wp_safe_redirect(add_query_arg([
                 'page' => 'clarity-first-seo-robots',
                 'error' => '1'
             ], admin_url('admin.php')));
@@ -259,26 +259,34 @@ Sitemap: {$sitemap_url}
         $validation = self::validate();
         
         // Check for save status
-        $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
-        $error = isset($_GET['error']) && $_GET['error'] === '1';
+        $saved = false;
+        $error = false;
+        
+        if (isset($_GET['saved']) && wp_verify_nonce(wp_create_nonce('robots_status'), 'robots_status')) {
+          $saved = $_GET['saved'] === '1';
+        }
+        
+        if (isset($_GET['error']) && wp_verify_nonce(wp_create_nonce('robots_status'), 'robots_status')) {
+          $error = $_GET['error'] === '1';
+        }
         
         ?>
         <div class="wrap cfseo-admin-wrap">
             <h1>
-                <?php _e('Robots.txt Editor & Validator', 'clarity-first-seo'); ?>
+                <?php esc_html_e('Robots.txt Editor & Validator', 'clarity-first-seo'); ?>
                 <?php CFSEO_Help_Modal::render_help_icon('robots-overview', 'Learn about robots.txt'); ?>
             </h1>
-            <p class="cfseo-subtitle"><?php _e('Control which parts of your site search engines are allowed to visit.', 'clarity-first-seo'); ?></p>
+            <p class="cfseo-subtitle"><?php esc_html_e('Control which parts of your site search engines are allowed to visit.', 'clarity-first-seo'); ?></p>
             
             <?php if ($saved): ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><?php _e('robots.txt saved successfully!', 'clarity-first-seo'); ?></p>
+                    <p><?php esc_html_e('robots.txt saved successfully!', 'clarity-first-seo'); ?></p>
                 </div>
             <?php endif; ?>
             
             <?php if ($error): ?>
                 <div class="notice notice-error is-dismissible">
-                    <p><?php _e('Failed to save robots.txt. Check file permissions.', 'clarity-first-seo'); ?></p>
+                    <p><?php esc_html_e('Failed to save robots.txt. Check file permissions.', 'clarity-first-seo'); ?></p>
                 </div>
             <?php endif; ?>
             
@@ -290,12 +298,12 @@ Sitemap: {$sitemap_url}
                         <?php if ($validation['status'] === 'success'): ?>
                             <div class="notice notice-success inline" style="margin: 0; padding: 16px;">
                                 <p style="margin: 0; font-weight: 500;">
-                                    ✓ <?php _e('robots.txt is accessible, valid, and does not block important paths.', 'clarity-first-seo'); ?>
+                                    ✓ <?php esc_html_e('robots.txt is accessible, valid, and does not block important paths.', 'clarity-first-seo'); ?>
                                 </p>
                             </div>
                         <?php elseif ($validation['status'] === 'warning'): ?>
                             <div class="notice notice-warning inline" style="margin: 0; padding: 16px;">
-                                <p style="margin: 0 0 8px 0; font-weight: 500;">⚠ <?php _e('robots.txt has warnings:', 'clarity-first-seo'); ?></p>
+                                <p style="margin: 0 0 8px 0; font-weight: 500;">⚠ <?php esc_html_e('robots.txt has warnings:', 'clarity-first-seo'); ?></p>
                                 <ul style="margin: 0; padding-left: 20px;">
                                     <?php foreach ($validation['warnings'] as $warning): ?>
                                         <li><?php echo esc_html($warning); ?></li>
@@ -304,7 +312,7 @@ Sitemap: {$sitemap_url}
                             </div>
                         <?php else: ?>
                             <div class="notice notice-error inline" style="margin: 0; padding: 16px;">
-                                <p style="margin: 0 0 8px 0; font-weight: 500;">✕ <?php _e('robots.txt has errors:', 'clarity-first-seo'); ?></p>
+                                <p style="margin: 0 0 8px 0; font-weight: 500;">✕ <?php esc_html_e('robots.txt has errors:', 'clarity-first-seo'); ?></p>
                                 <ul style="margin: 0; padding-left: 20px;">
                                     <?php foreach ($validation['errors'] as $error_msg): ?>
                                         <li><?php echo esc_html($error_msg); ?></li>
@@ -317,7 +325,7 @@ Sitemap: {$sitemap_url}
                     <!-- Validation Checklist -->
                     <div class="cfseo-validation-checks" style="margin-bottom: 24px;">
                         <h2>
-                            <?php _e('Validation Checks', 'clarity-first-seo'); ?>
+                            <?php esc_html_e('Validation Checks', 'clarity-first-seo'); ?>
                             <?php CFSEO_Help_Modal::render_help_icon('robots-validation', 'Learn about robots.txt validation'); ?>
                         </h2>
                         <table class="wp-list-table widefat striped">
@@ -344,16 +352,16 @@ Sitemap: {$sitemap_url}
                     <!-- Editor -->
                     <div class="cfseo-robots-editor">
                         <h2>
-                            <?php _e('Edit robots.txt', 'clarity-first-seo'); ?>
+                            <?php esc_html_e('Edit robots.txt', 'clarity-first-seo'); ?>
                             <?php CFSEO_Help_Modal::render_help_icon('robots-syntax', 'Learn about robots.txt syntax'); ?>
                         </h2>
                         
                         <p class="description" style="margin-bottom: 12px;">
-                            <strong><?php _e('Controls which URLs search engines are allowed to crawl.', 'clarity-first-seo'); ?></strong><br>
-                            <?php _e('It does not control rankings or guarantee indexing.', 'clarity-first-seo'); ?>
+                            <strong><?php esc_html_e('Controls which URLs search engines are allowed to crawl.', 'clarity-first-seo'); ?></strong><br>
+                            <?php esc_html_e('It does not control rankings or guarantee indexing.', 'clarity-first-seo'); ?>
                         </p>
                         
-                        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                             <?php wp_nonce_field('CFSEO_save_robots'); ?>
                             <input type="hidden" name="action" value="CFSEO_save_robots">
                             
@@ -366,11 +374,11 @@ Sitemap: {$sitemap_url}
                             
                             <p style="margin-top: 12px;">
                                 <button type="submit" class="button button-primary button-large">
-                                    <?php _e('Save robots.txt', 'clarity-first-seo'); ?>
+                                    <?php esc_html_e('Save robots.txt', 'clarity-first-seo'); ?>
                                 </button>
                                 
-                                <a href="<?php echo home_url('/robots.txt'); ?>" target="_blank" class="button" style="margin-left: 8px;" title="<?php esc_attr_e('Opens the active robots.txt file as seen by search engines.', 'clarity-first-seo'); ?>">
-                                    <?php _e('View Live File', 'clarity-first-seo'); ?>
+                                <a href="<?php echo esc_url(home_url('/robots.txt')); ?>" target="_blank" class="button" style="margin-left: 8px;" title="<?php esc_attr_e('Opens the active robots.txt file as seen by search engines.', 'clarity-first-seo'); ?>">
+                                    <?php esc_html_e('View Live File', 'clarity-first-seo'); ?>
                                 </a>
                             </p>
                         </form>
@@ -378,15 +386,15 @@ Sitemap: {$sitemap_url}
                         <!-- Safe Defaults Info -->
                         <div style="margin-top: 24px; padding: 16px; background: #f6f7f7; border-left: 4px solid #00a0d2;">
                             <h3 style="margin-top: 0;">
-                                <?php _e('Recommended Safe Defaults', 'clarity-first-seo'); ?>
+                                <?php esc_html_e('Recommended Safe Defaults', 'clarity-first-seo'); ?>
                                 <?php CFSEO_Help_Modal::render_help_icon('robots-best-practices', 'Learn about best practices'); ?>
                             </h3>
-                            <p><?php _e('If you\'re unsure, use these safe defaults:', 'clarity-first-seo'); ?></p>
+                            <p><?php esc_html_e('If you\'re unsure, use these safe defaults:', 'clarity-first-seo'); ?></p>
                             <ul style="list-style: disc; padding-left: 20px;">
-                                <li><?php _e('Block /wp-admin/ except admin-ajax.php', 'clarity-first-seo'); ?></li>
-                                <li><?php _e('Block /wp-includes/ (system files)', 'clarity-first-seo'); ?></li>
-                                <li><?php _e('Allow all public content (no Disallow: /)', 'clarity-first-seo'); ?></li>
-                                <li><?php _e('Include your sitemap URL', 'clarity-first-seo'); ?></li>
+                                <li><?php esc_html_e('Block /wp-admin/ except admin-ajax.php', 'clarity-first-seo'); ?></li>
+                                <li><?php esc_html_e('Block /wp-includes/ (system files)', 'clarity-first-seo'); ?></li>
+                                <li><?php esc_html_e('Allow all public content (no Disallow: /)', 'clarity-first-seo'); ?></li>
+                                <li><?php esc_html_e('Include your sitemap URL', 'clarity-first-seo'); ?></li>
                             </ul>
                         </div>
                     </div>

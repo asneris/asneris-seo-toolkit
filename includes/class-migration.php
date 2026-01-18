@@ -46,7 +46,8 @@ class CFSEO_Migration {
       $new_key = str_replace('_gscseo_', '_cfseo_', $old_key);
       
       // Copy old meta to new key (only if new key doesn't exist)
-      $wpdb->query($wpdb->prepare(
+      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Migration query runs once during plugin upgrade
+      $migration_result = $wpdb->query($wpdb->prepare(
         "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value)
          SELECT post_id, %s, meta_value
          FROM {$wpdb->postmeta}
@@ -58,6 +59,14 @@ class CFSEO_Migration {
         $old_key,
         $new_key
       ));
+      
+      // Clear cache after migration
+      wp_cache_flush();
+      
+      // Log migration progress
+      if ($migration_result !== false) {
+        wp_cache_delete('cfseo_migration_progress', 'cfseo');
+      }
     }
   }
   
