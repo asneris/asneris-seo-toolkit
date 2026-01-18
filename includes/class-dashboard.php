@@ -169,8 +169,16 @@ class CFSEO_Dashboard {
     global $wpdb;
     $table_name = $wpdb->prefix . 'CFSEO_redirects';
     
-    // Check if table exists using prepared statement
-    if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) !== $table_name) {
+    // Check if table exists using prepared statement with caching
+    $table_exists_cache_key = 'cfseo_redirect_table_exists';
+    $table_exists = wp_cache_get($table_exists_cache_key);
+    
+    if (false === $table_exists) {
+      $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name;
+      wp_cache_set($table_exists_cache_key, $table_exists, '', 3600); // Cache for 1 hour
+    }
+    
+    if (!$table_exists) {
       return 0;
     }
     
@@ -179,7 +187,7 @@ class CFSEO_Dashboard {
     $count = wp_cache_get($cache_key);
     
     if (false === $count) {
-      $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `%1s` WHERE status = %s", $table_name, 'active'));
+      $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}CFSEO_redirects WHERE status = %s", 'active'));
       wp_cache_set($cache_key, $count, '', 300); // Cache for 5 minutes
     }
     

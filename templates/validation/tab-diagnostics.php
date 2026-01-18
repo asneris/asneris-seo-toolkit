@@ -5,9 +5,9 @@
 if (!defined('ABSPATH')) exit;
 
 // Get diagnostic data
-$sitemap_status = esc_html(CFSEO_Validation::check_sitemap_visibility();
-$duplicate_status = esc_html(CFSEO_Validation::detect_duplicate_outputs();
-$has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_status['duplicates']);
+$cfseo_sitemap_status = esc_html(CFSEO_Validation::check_sitemap_visibility();
+$cfseo_duplicate_status = esc_html(CFSEO_Validation::detect_duplicate_outputs();
+$cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty($cfseo_duplicate_status['duplicates']);
 ?>
 
 <!-- Sitemap Visibility -->
@@ -27,18 +27,18 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     <tbody>
       <tr>
         <td><strong>Sitemap URL</strong></td>
-        <td><?php echo $sitemap_status['found'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-        <td><?php echo $sitemap_status['found'] ? 'Found: ' : 'Not Found: '; echo esc_html($sitemap_status['url']); ?></td>
+        <td><?php echo $cfseo_sitemap_status['found'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo $cfseo_sitemap_status['found'] ? 'Found: ' : 'Not Found: '; echo esc_html($cfseo_sitemap_status['url']); ?></td>
       </tr>
       <tr>
         <td><strong>HTTP Status</strong></td>
-        <td><?php echo $sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-        <td><?php echo $sitemap_status['http_status'] === 200 ? 'HTTP ' . esc_html($sitemap_status['http_status']) . ' - ' . esc_html($sitemap_status['http_message']) : 'Sitemap URL could not be checked'; ?></td>
+        <td><?php echo $cfseo_sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo $cfseo_sitemap_status['http_status'] === 200 ? 'HTTP ' . esc_html($cfseo_sitemap_status['http_status']) . ' - ' . esc_html($cfseo_sitemap_status['http_message']) : 'Sitemap URL could not be checked'; ?></td>
       </tr>
       <tr>
         <td><strong>Robots.txt Reference</strong></td>
-        <td><?php echo $sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #f0ad4e;">⚠ Warning</span>'; ?></td>
-        <td><?php echo $sitemap_status['in_robots'] ? 'Referenced in robots.txt - ' : 'Not found in robots.txt - '; echo esc_html($sitemap_status['robots_message']); ?></td>
+        <td><?php echo $cfseo_sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #f0ad4e;">⚠ Warning</span>'; ?></td>
+        <td><?php echo $cfseo_sitemap_status['in_robots'] ? 'Referenced in robots.txt - ' : 'Not found in robots.txt - '; echo esc_html($cfseo_sitemap_status['robots_message']); ?></td>
       </tr>
       <tr>
         <td><strong>Controlled By</strong></td>
@@ -55,7 +55,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     <span class="dashicons dashicons-yes"></span> Is your site sending clear, single signals?
     <?php CFSEO_Help_Modal::render_help_icon('duplicate-signals', 'Learn about duplicate signals'); ?>
   </h2>
-  <?php if ($has_issues): ?>
+  <?php if ($cfseo_has_issues): ?>
     <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
       <strong>⚠️ Potential Conflicts Detected</strong>
       <p style="margin: 5px 0 0 0;">Multiple SEO plugins may be outputting duplicate meta tags.</p>
@@ -78,14 +78,14 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
     <tbody>
       <tr>
         <td><strong>Active SEO Plugins</strong></td>
-        <td><?php echo empty($duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-        <td><?php echo empty($duplicate_status['active_plugins']) ? 'Only this plugin - No conflicts' : 'Multiple detected: ' . esc_html(implode(', ', $duplicate_status['active_plugins'])); ?></td>
+        <td><?php echo empty($cfseo_duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo empty($cfseo_duplicate_status['active_plugins']) ? 'Only this plugin - No conflicts' : 'Multiple detected: ' . esc_html(implode(', ', $cfseo_duplicate_status['active_plugins'])); ?></td>
       </tr>
       <?php foreach (['title', 'description', 'canonical', 'robots', 'schema'] as $type): ?>
         <tr>
           <td><strong><?php echo esc_html(ucfirst($type)); ?> Tags</strong></td>
-          <td><?php echo empty($duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-          <td><?php echo empty($duplicate_status['duplicates'][$type]) ? 'Single output - No duplicates' : 'Duplicate found: ' . esc_html($duplicate_status['duplicates'][$type]); ?></td>
+          <td><?php echo empty($cfseo_duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+          <td><?php echo empty($cfseo_duplicate_status['duplicates'][$type]) ? 'Single output - No duplicates' : 'Duplicate found: ' . esc_html($cfseo_duplicate_status['duplicates'][$type]); ?></td>
         </tr>
       <?php endforeach; ?>
     </tbody>
@@ -100,18 +100,18 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
   </h2>
   <?php
   // Check for site-wide indexing safety patterns
-  $indexing_warnings = [];
+  $cfseo_indexing_warnings = [];
   
   // 1. Check if site is set to discourage search engines (global noindex)
   if (get_option('blog_public') == '0') {
-    $indexing_warnings[] = [
+    $cfseo_indexing_warnings[] = [
       'check' => 'Global Noindex',
       'status' => 'conflict',
       'details' => '❌ Site is set to discourage search engines (Settings → Reading)',
       'why' => 'This prevents all pages from being indexed'
     ];
   } else {
-    $indexing_warnings[] = [
+    $cfseo_indexing_warnings[] = [
       'check' => 'Global Noindex',
       'status' => 'pass',
       'details' => '✅ No global noindex detected'
@@ -119,11 +119,11 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
   }
   
   // 2. Check robots.txt for blocks affecting large sections
-  $robots_url = home_url('/robots.txt');
-  $robots_response = wp_remote_get($robots_url, ['timeout' => 5, 'sslverify' => false]);
-  if (!is_wp_error($robots_response) && wp_remote_retrieve_response_code($robots_response) === 200) {
-    $robots_content = wp_remote_retrieve_body($robots_response);
-    $blocked_sections = [];
+  $cfseo_robots_url = home_url('/robots.txt');
+  $cfseo_robots_response = wp_remote_get($cfseo_robots_url, ['timeout' => 5, 'sslverify' => false]);
+  if (!is_wp_error($cfseo_robots_response) && wp_remote_retrieve_response_code($cfseo_robots_response) === 200) {
+    $cfseo_robots_content = wp_remote_retrieve_body($cfseo_robots_response);
+    $cfseo_blocked_sections = [];
     
     // Check for common large-section blocks
     if (preg_match('/Disallow:\s*\/\s*$/m', $robots_content)) {

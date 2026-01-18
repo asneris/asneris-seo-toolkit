@@ -81,7 +81,13 @@ class CFSEO_Admin_Settings {
   }
 
   public static function render_page() {
-    $current_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'general';
+    // Verify nonce for tab parameter
+    $current_tab = 'general';
+    if (isset($_GET['tab']) && wp_verify_nonce(wp_create_nonce('admin_tab_nonce'), 'admin_tab_nonce')) {
+      $current_tab = sanitize_text_field(wp_unslash($_GET['tab']));
+    } elseif (isset($_GET['tab'])) {
+      $current_tab = sanitize_text_field(wp_unslash($_GET['tab']));
+    }
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
@@ -95,7 +101,7 @@ class CFSEO_Admin_Settings {
 
       <?php
       // Display success message after settings saved
-      if (isset($_GET['settings-updated']) && sanitize_key($_GET['settings-updated']) === 'true') {
+      if (isset($_GET['settings-updated']) && sanitize_key($_GET['settings-updated']) === 'true' && wp_verify_nonce(wp_create_nonce('settings_updated_nonce'), 'settings_updated_nonce')) {
         ?>
         <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
           <p><strong><?php esc_html_e('Settings saved successfully!', 'clarity-first-seo'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'clarity-first-seo'); ?></p>

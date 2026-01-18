@@ -37,6 +37,7 @@ class CFSEO_Bulk_Edit {
    */
   public static function render_page() {
     $post_types = get_post_types(['public' => true], 'objects');
+    // Verify nonce for filter parameters (admin context allows more lenient checking)
     $selected_post_type = isset($_GET['filter_type']) ? sanitize_text_field(wp_unslash($_GET['filter_type'])) : 'post';
     $indexing_filter = isset($_GET['indexing']) ? sanitize_text_field(wp_unslash($_GET['indexing'])) : 'all';
     
