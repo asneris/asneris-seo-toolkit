@@ -104,7 +104,7 @@ class CFSEO_Templates {
     }
     
     // Fallback to content
-    $content = strip_tags($post->post_content);
+    $content = wp_strip_all_tags($post->post_content);
     $content = preg_replace('/\s+/', ' ', $content);
     return wp_trim_words($content, 30, '...');
   }

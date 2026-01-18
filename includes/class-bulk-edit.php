@@ -121,7 +121,7 @@ class CFSEO_Bulk_Edit {
       <!-- Bulk Actions -->
       <div class="cfseo-card" style="max-width: 100%; margin-top: 20px;">
         <h2>
-          <span class="dashicons dashicons-admin-generic"></span> <?php _e('Quick Bulk Actions', 'clarity-first-seo'); ?>
+          <span class="dashicons dashicons-admin-generic"></span> <?php esc_html_e('Quick Bulk Actions', 'clarity-first-seo'); ?>
           <?php CFSEO_Help_Modal::render_help_icon('quick-bulk-actions', 'Learn about quick bulk actions'); ?>
         </h2>
         <p style="color: #646970;"><?php esc_html_e('Changes are previewed in the table. Nothing is saved until you click \'Save All Changes\'.', 'clarity-first-seo'); ?></p>
@@ -173,19 +173,19 @@ class CFSEO_Bulk_Edit {
                 <td class="check-column col-checkbox">
                   <input type="checkbox" id="cfseo-select-all" title="<?php esc_attr_e('Select/deselect all posts', 'clarity-first-seo'); ?>">
                 </td>
-                <th class="col-title"><?php _e('Post/Page', 'clarity-first-seo'); ?></th>
+                <th class="col-title"><?php esc_html_e('Post/Page', 'clarity-first-seo'); ?></th>
                 <th class="col-seo-title">
-                  <?php _e('Custom Content Title', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Custom Content Title', 'clarity-first-seo'); ?>
                   <?php CFSEO_Help_Modal::render_help_icon('seo-title-field', 'Leave blank to use auto-generated values.'); ?>
-                  <br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'clarity-first-seo'); ?></small>
+                  <br><small style="font-weight:normal;color:#666;"><?php esc_html_e('(leave blank for auto)', 'clarity-first-seo'); ?></small>
                 </th>
                 <th class="col-description">
-                  <?php _e('Custom Content Description', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Custom Content Description', 'clarity-first-seo'); ?>
                   <?php CFSEO_Help_Modal::render_help_icon('meta-description-field', 'Leave blank to use auto-generated values.'); ?>
-                  <br><small style="font-weight:normal;color:#666;"><?php _e('(leave blank for auto)', 'clarity-first-seo'); ?></small>
+                  <br><small style="font-weight:normal;color:#666;"><?php esc_html_e('(leave blank for auto)', 'clarity-first-seo'); ?></small>
                 </th>
                 <th class="col-robots">
-                  <?php _e('Search Visibility', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Search Visibility', 'clarity-first-seo'); ?>
                   <?php CFSEO_Help_Modal::render_help_icon('indexing-status', 'Learn about search visibility'); ?>
                 </th>
                 <th class="col-actions"></th>
@@ -206,7 +206,7 @@ class CFSEO_Bulk_Edit {
                     <td class="col-title">
                       <strong><?php the_title(); ?></strong>
                       <div class="row-actions">
-                        <span><a href="<?php echo get_permalink(); ?>" target="_blank"><?php _e('View', 'clarity-first-seo'); ?></a></span>
+                        <span><a href="<?php echo esc_url(get_permalink()); ?>" target="_blank"><?php esc_html_e('View', 'clarity-first-seo'); ?></a></span>
                       </div>
                     </td>
                     <td class="col-seo-title">
@@ -214,24 +214,24 @@ class CFSEO_Bulk_Edit {
                         type="text" 
                         name="seo_title[<?php echo esc_attr($post_id); ?>]" 
                         value="<?php echo esc_attr($seo_title); ?>" 
-                        placeholder="<?php _e('Auto-generated from post title', 'clarity-first-seo'); ?>"
+                        placeholder="<?php esc_attr_e('Auto-generated from post title', 'clarity-first-seo'); ?>"
                       >
                     </td>
                     <td class="col-description">
                       <textarea 
                         name="seo_description[<?php echo esc_attr($post_id); ?>]" 
                         rows="2" 
-                        placeholder="<?php _e('Auto-generated from excerpt or content', 'clarity-first-seo'); ?>"
+                        placeholder="<?php esc_attr_e('Auto-generated from excerpt or content', 'clarity-first-seo'); ?>"
                       ><?php echo esc_textarea($seo_desc); ?></textarea>
                     </td>
                     <td class="col-robots">
                       <select name="robots_index[<?php echo esc_attr($post_id); ?>]">
-                        <option value="index" <?php selected($robots_index, 'index'); ?>><?php _e('Index', 'clarity-first-seo'); ?></option>
-                        <option value="noindex" <?php selected($robots_index, 'noindex'); ?>><?php _e('NoIndex', 'clarity-first-seo'); ?></option>
+                        <option value="index" <?php selected($robots_index, 'index'); ?>><?php esc_html_e('Index', 'clarity-first-seo'); ?></option>
+                        <option value="noindex" <?php selected($robots_index, 'noindex'); ?>><?php esc_html_e('NoIndex', 'clarity-first-seo'); ?></option>
                       </select>
                     </td>
                     <td class="col-actions">
-                      <a href="<?php echo get_edit_post_link($post_id); ?>" class="button button-small cfseo-edit-post-link" title="<?php esc_attr_e('Edit full post in WordPress editor', 'clarity-first-seo'); ?>">
+                      <a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" class="button button-small cfseo-edit-post-link" title="<?php esc_attr_e('Edit full post in WordPress editor', 'clarity-first-seo'); ?>">
                         <span class="dashicons dashicons-external" style="font-size:16px;width:16px;height:16px;"></span>
                       </a>
                     </td>
@@ -240,7 +240,7 @@ class CFSEO_Bulk_Edit {
               <?php else: ?>
                 <tr>
                   <td colspan="6" style="text-align: center; padding: 40px;">
-                    <?php _e('No posts found.', 'clarity-first-seo'); ?>
+                    <?php esc_html_e('No posts found.', 'clarity-first-seo'); ?>
                   </td>
                 </tr>
               <?php endif; ?>
@@ -251,7 +251,7 @@ class CFSEO_Bulk_Edit {
           <?php if ($posts_query->have_posts()): ?>
             <div style="margin-top: 20px;">
               <button type="submit" class="button button-primary button-large" title="<?php esc_attr_e('Applies all selected edits to the filtered posts.', 'clarity-first-seo'); ?>">
-                <?php _e('Save All Changes', 'clarity-first-seo'); ?>
+                <?php esc_html_e('Save All Changes', 'clarity-first-seo'); ?>
               </button>
               <span id="cfseo-bulk-status" style="margin-left: 15px;"></span>
             </div>
@@ -272,7 +272,7 @@ class CFSEO_Bulk_Edit {
         <div style="background:linear-gradient(135deg, #2271b1 0%, #1a5a8a 100%); padding:20px 24px; border-bottom:1px solid #e0e0e0;">
           <h2 style="margin:0; font-size:20px; color:#fff; font-weight:600; display:flex; align-items:center; gap:10px;">
             <span class="dashicons dashicons-chart-line" style="font-size:24px;"></span>
-            <?php _e('Clarity-First SEO', 'clarity-first-seo'); ?>
+            <?php esc_html_e('Clarity-First SEO', 'clarity-first-seo'); ?>
           </h2>
         </div>
         <div style="padding:24px;">
@@ -338,6 +338,7 @@ class CFSEO_Bulk_Edit {
     }
     
     wp_send_json_success([
+      /* translators: %d: number of posts updated */
       'message' => sprintf(esc_html__('%d posts updated successfully!', 'clarity-first-seo'), $updated),
       'updated' => $updated
     ]);

@@ -31,7 +31,7 @@ class CFSEO_Help {
     <div class="wrap cfseo-admin-wrap">
       <h1>
         <span class="dashicons dashicons-editor-help"></span>
-        <?php _e('Help & Documentation', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Help & Documentation', 'clarity-first-seo'); ?>
       </h1>
       
       <!-- What This Plugin Does -->

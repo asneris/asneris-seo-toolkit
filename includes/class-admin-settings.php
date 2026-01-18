@@ -184,7 +184,7 @@ class CFSEO_Admin_Settings {
           data: {
             action: 'CFSEO_http_test',
             url: url,
-            nonce: '<?php echo wp_create_nonce('CFSEO_http_test'); ?>'
+            nonce: '<?php echo esc_attr(wp_create_nonce('CFSEO_http_test')); ?>'
           },
           success: function(response) {
             if (response.success) {
@@ -231,7 +231,7 @@ class CFSEO_Admin_Settings {
               <?php CFSEO_Help_Modal::render_help_icon('site-name', 'Organization/Site Name Help'); ?>
             </th>
             <td>
-              <input type="text" id="org_name" class="large-text" name="<?php echo self::OPT; ?>[org_name]" value="<?php echo esc_attr(self::get('org_name', get_bloginfo('name'))); ?>">
+              <input type="text" id="org_name" class="large-text" name="<?php echo esc_attr(self::OPT); ?>[org_name]" value="<?php echo esc_attr(self::get('org_name', get_bloginfo('name'))); ?>">
               <p class="description">Used for schema markup and social meta tags.</p>
             </td>
           </tr>
@@ -242,7 +242,7 @@ class CFSEO_Admin_Settings {
             </th>
             <td>
               <div class="cfseo-media-upload">
-                <input type="url" id="org_logo" class="large-text cfseo-media-url" name="<?php echo self::OPT; ?>[org_logo]" value="<?php echo esc_url(self::get('org_logo')); ?>">
+                <input type="url" id="org_logo" class="large-text cfseo-media-url" name="<?php echo esc_attr(self::OPT); ?>[org_logo]" value="<?php echo esc_url(self::get('org_logo')); ?>">
                 <button type="button" class="button cfseo-upload-button" data-target="#org_logo">
                   <span class="dashicons dashicons-upload"></span> Upload Logo
                 </button>
@@ -272,7 +272,7 @@ class CFSEO_Admin_Settings {
               <label for="default_robots_index">Default Indexing</label>
             </th>
             <td>
-              <select id="default_robots_index" name="<?php echo self::OPT; ?>[default_robots_index]">
+              <select id="default_robots_index" name="<?php echo esc_attr(self::OPT); ?>[default_robots_index]">
                 <option value="index" <?php selected(self::get('default_robots_index', 'index'), 'index'); ?>>Index (allow search engines)</option>
                 <option value="noindex" <?php selected(self::get('default_robots_index', 'index'), 'noindex'); ?>>NoIndex (hide from search engines)</option>
               </select>
@@ -283,7 +283,7 @@ class CFSEO_Admin_Settings {
               <label for="default_robots_follow">Default Following</label>
             </th>
             <td>
-              <select id="default_robots_follow" name="<?php echo self::OPT; ?>[default_robots_follow]">
+              <select id="default_robots_follow" name="<?php echo esc_attr(self::OPT); ?>[default_robots_follow]">
                 <option value="follow" <?php selected(self::get('default_robots_follow', 'follow'), 'follow'); ?>>Follow (allow link following)</option>
                 <option value="nofollow" <?php selected(self::get('default_robots_follow', 'follow'), 'nofollow'); ?>>NoFollow (prevent link following)</option>
               </select>
@@ -309,7 +309,7 @@ class CFSEO_Admin_Settings {
               <label for="google_verification">Verification Code</label>
             </th>
             <td>
-              <input type="text" id="google_verification" class="large-text code" name="<?php echo self::OPT; ?>[google_verification]" value="<?php echo esc_attr(self::get('google_verification')); ?>" placeholder="abc123xyz456">
+              <input type="text" id="google_verification" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[google_verification]" value="<?php echo esc_attr(self::get('google_verification')); ?>" placeholder="abc123xyz456">
               <p class="description">
                 <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
                 <?php esc_html_e('If Google gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="google-site-verification" content="<strong style="color: #d63638;">abc123xyz456</strong>" /&gt;</code><br>
@@ -331,7 +331,7 @@ class CFSEO_Admin_Settings {
               <label for="bing_verification">Verification Code</label>
             </th>
             <td>
-              <input type="text" id="bing_verification" class="large-text code" name="<?php echo self::OPT; ?>[bing_verification]" value="<?php echo esc_attr(self::get('bing_verification')); ?>" placeholder="1234ABCD5678EFGH">
+              <input type="text" id="bing_verification" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[bing_verification]" value="<?php echo esc_attr(self::get('bing_verification')); ?>" placeholder="1234ABCD5678EFGH">
               <p class="description">
                 <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
                 <?php esc_html_e('If Bing gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="msvalidate.01" content="<strong style="color: #d63638;">1234ABCD5678EFGH</strong>" /&gt;</code><br>
@@ -353,7 +353,7 @@ class CFSEO_Admin_Settings {
               <label for="yandex_verification">Verification Code</label>
             </th>
             <td>
-              <input type="text" id="yandex_verification" class="large-text code" name="<?php echo self::OPT; ?>[yandex_verification]" value="<?php echo esc_attr(self::get('yandex_verification')); ?>" placeholder="1234567890abcdef">
+              <input type="text" id="yandex_verification" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[yandex_verification]" value="<?php echo esc_attr(self::get('yandex_verification')); ?>" placeholder="1234567890abcdef">
               <p class="description">
                 <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
                 <?php esc_html_e('If Yandex gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="yandex-verification" content="<strong style="color: #d63638;">1234567890abcdef</strong>" /&gt;</code><br>
@@ -430,7 +430,7 @@ class CFSEO_Admin_Settings {
             </th>
             <td>
               <label class="cfseo-toggle">
-                <input type="checkbox" id="indexnow_enabled" name="<?php echo self::OPT; ?>[indexnow_enabled]" value="1" <?php checked((int)self::get('indexnow_enabled', 0), 1); ?>>
+                <input type="checkbox" id="indexnow_enabled" name="<?php echo esc_attr(self::OPT); ?>[indexnow_enabled]" value="1" <?php checked((int)self::get('indexnow_enabled', 0), 1); ?>>
                 <span class="cfseo-toggle-slider"></span>
               </label>
               <p class="description">Automatically submit updated URLs to search engines.</p>
@@ -441,12 +441,12 @@ class CFSEO_Admin_Settings {
               <label for="indexnow_key">API Key</label>
             </th>
             <td>
-              <input type="text" id="indexnow_key" class="large-text code" name="<?php echo self::OPT; ?>[indexnow_key]" value="<?php echo $indexnow_key; ?>" placeholder="Auto-generated when enabled">
+              <input type="text" id="indexnow_key" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[indexnow_key]" value="<?php echo esc_attr($indexnow_key); ?>" placeholder="Auto-generated when enabled">
               <?php if ($key_url): ?>
                 <p class="description">
                   <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> 
-                  Key file URL: <code><?php echo $key_url; ?></code>
-                  <a href="<?php echo $key_url; ?>" target="_blank" class="button button-small">Test Key File</a>
+                  Key file URL: <code><?php echo esc_url($key_url); ?></code>
+                  <a href="<?php echo esc_url($key_url); ?>" target="_blank" class="button button-small">Test Key File</a>
                 </p>
               <?php else: ?>
                 <p class="description">Enable IndexNow and save to auto-generate a key.</p>
@@ -482,7 +482,7 @@ class CFSEO_Admin_Settings {
             </th>
             <td>
               <div class="cfseo-media-upload">
-                <input type="url" id="default_og_image" class="large-text cfseo-media-url" name="<?php echo self::OPT; ?>[default_og_image]" value="<?php echo esc_url(self::get('default_og_image')); ?>">
+                <input type="url" id="default_og_image" class="large-text cfseo-media-url" name="<?php echo esc_attr(self::OPT); ?>[default_og_image]" value="<?php echo esc_url(self::get('default_og_image')); ?>">
                 <button type="button" class="button cfseo-upload-button" data-target="#default_og_image">
                   <span class="dashicons dashicons-upload"></span> Upload Image
                 </button>
@@ -542,7 +542,7 @@ class CFSEO_Admin_Settings {
             <td>
               <div class="cfseo-input-prefix">
                 <span class="prefix">@</span>
-                <input type="text" id="twitter_username" class="regular-text" name="<?php echo self::OPT; ?>[twitter_username]" value="<?php echo esc_attr(self::get('twitter_username')); ?>" placeholder="username">
+                <input type="text" id="twitter_username" class="regular-text" name="<?php echo esc_attr(self::OPT); ?>[twitter_username]" value="<?php echo esc_attr(self::get('twitter_username')); ?>" placeholder="username">
               </div>
               <p class="description">Your Twitter/X username (without @).</p>
             </td>
@@ -552,7 +552,7 @@ class CFSEO_Admin_Settings {
               <label for="facebook_app_id">Facebook App ID</label>
             </th>
             <td>
-              <input type="text" id="facebook_app_id" class="regular-text" name="<?php echo self::OPT; ?>[facebook_app_id]" value="<?php echo esc_attr(self::get('facebook_app_id')); ?>">
+              <input type="text" id="facebook_app_id" class="regular-text" name="<?php echo esc_attr(self::OPT); ?>[facebook_app_id]" value="<?php echo esc_attr(self::get('facebook_app_id')); ?>">
               <p class="description">Optional: For Facebook Insights and Open Graph validation.</p>
             </td>
           </tr>
@@ -561,7 +561,7 @@ class CFSEO_Admin_Settings {
               <label for="theme_color">Theme Color</label>
             </th>
             <td>
-              <input type="text" id="theme_color" class="regular-text" name="<?php echo self::OPT; ?>[theme_color]" value="<?php echo esc_attr(self::get('theme_color')); ?>" placeholder="#2271b1">
+              <input type="text" id="theme_color" class="regular-text" name="<?php echo esc_attr(self::OPT); ?>[theme_color]" value="<?php echo esc_attr(self::get('theme_color')); ?>" placeholder="#2271b1">
               <p class="description">Hex color for Discord/Telegram embeds and mobile browser UI (e.g., #2271b1).</p>
             </td>
           </tr>
@@ -589,7 +589,7 @@ class CFSEO_Admin_Settings {
             </th>
             <td>
               <label class="cfseo-toggle">
-                <input type="checkbox" id="enable_breadcrumbs" name="<?php echo self::OPT; ?>[enable_breadcrumbs]" value="1" <?php checked((int)self::get('enable_breadcrumbs', 0), 1); ?>>
+                <input type="checkbox" id="enable_breadcrumbs" name="<?php echo esc_attr(self::OPT); ?>[enable_breadcrumbs]" value="1" <?php checked((int)self::get('enable_breadcrumbs', 0), 1); ?>>
                 <span class="cfseo-toggle-slider"></span>
               </label>
               <p class="description">Add breadcrumb schema to posts and pages.</p>
@@ -610,7 +610,7 @@ class CFSEO_Admin_Settings {
             </th>
             <td>
               <label class="cfseo-toggle">
-                <input type="checkbox" id="enable_local_business" name="<?php echo self::OPT; ?>[enable_local_business]" value="1" <?php checked((int)self::get('enable_local_business', 0), 1); ?>>
+                <input type="checkbox" id="enable_local_business" name="<?php echo esc_attr(self::OPT); ?>[enable_local_business]" value="1" <?php checked((int)self::get('enable_local_business', 0), 1); ?>>
                 <span class="cfseo-toggle-slider"></span>
               </label>
               <p class="description">Add local business schema for better local search visibility.</p>
@@ -630,7 +630,7 @@ class CFSEO_Admin_Settings {
               <label for="business_type">Business Type</label>
             </th>
             <td>
-              <select id="business_type" name="<?php echo self::OPT; ?>[business_type]">
+              <select id="business_type" name="<?php echo esc_attr(self::OPT); ?>[business_type]">
                 <option value="LocalBusiness" <?php selected(self::get('business_type', 'LocalBusiness'), 'LocalBusiness'); ?>>Local Business (General)</option>
                 
                 <optgroup label="Food & Dining">
@@ -738,7 +738,7 @@ class CFSEO_Admin_Settings {
               <label for="business_phone">Phone Number</label>
             </th>
             <td>
-              <input type="tel" id="business_phone" class="regular-text" name="<?php echo self::OPT; ?>[business_phone]" value="<?php echo esc_attr(self::get('business_phone')); ?>">
+              <input type="tel" id="business_phone" class="regular-text" name="<?php echo esc_attr(self::OPT); ?>[business_phone]" value="<?php echo esc_attr(self::get('business_phone')); ?>">
             </td>
           </tr>
           <tr class="cfseo-conditional" data-depends="enable_local_business">
@@ -746,7 +746,7 @@ class CFSEO_Admin_Settings {
               <label for="business_address">Address</label>
             </th>
             <td>
-              <textarea id="business_address" class="large-text" rows="3" name="<?php echo self::OPT; ?>[business_address]"><?php echo esc_textarea(self::get('business_address')); ?></textarea>
+              <textarea id="business_address" class="large-text" rows="3" name="<?php echo esc_attr(self::OPT); ?>[business_address]"><?php echo esc_textarea(self::get('business_address')); ?></textarea>
               <p class="description">Full business address for local SEO.</p>
             </td>
           </tr>
@@ -755,7 +755,7 @@ class CFSEO_Admin_Settings {
               <label for="business_hours">Opening Hours</label>
             </th>
             <td>
-              <textarea id="business_hours" class="large-text" rows="4" name="<?php echo self::OPT; ?>[business_hours]" placeholder="Monday-Friday: 9:00 AM - 5:00 PM&#10;Saturday: 10:00 AM - 2:00 PM&#10;Sunday: Closed"><?php echo esc_textarea(self::get('business_hours')); ?></textarea>
+              <textarea id="business_hours" class="large-text" rows="4" name="<?php echo esc_attr(self::OPT); ?>[business_hours]" placeholder="Monday-Friday: 9:00 AM - 5:00 PM&#10;Saturday: 10:00 AM - 2:00 PM&#10;Sunday: Closed"><?php echo esc_textarea(self::get('business_hours')); ?></textarea>
               <p class="description">Business operating hours. One day per line (e.g., "Monday: 9:00 AM - 5:00 PM").</p>
             </td>
           </tr>
@@ -764,7 +764,7 @@ class CFSEO_Admin_Settings {
               <label for="service_area">Service Area</label>
             </th>
             <td>
-              <textarea id="service_area" class="large-text" rows="2" name="<?php echo self::OPT; ?>[service_area]" placeholder="Singapore, Pasir Ris, Tampines"><?php echo esc_textarea(self::get('service_area')); ?></textarea>
+              <textarea id="service_area" class="large-text" rows="2" name="<?php echo esc_attr(self::OPT); ?>[service_area]" placeholder="Singapore, Pasir Ris, Tampines"><?php echo esc_textarea(self::get('service_area')); ?></textarea>
               <p class="description">Cities, regions, or areas you serve (comma-separated).</p>
             </td>
           </tr>
@@ -773,7 +773,7 @@ class CFSEO_Admin_Settings {
               <label for="price_range">Price Range</label>
             </th>
             <td>
-              <select id="price_range" name="<?php echo self::OPT; ?>[price_range]">
+              <select id="price_range" name="<?php echo esc_attr(self::OPT); ?>[price_range]">
                 <option value="" <?php selected(self::get('price_range'), ''); ?>>Not specified</option>
                 <option value="$" <?php selected(self::get('price_range'), '$'); ?>>$ (Budget-friendly)</option>
                 <option value="$$" <?php selected(self::get('price_range'), '$$'); ?>>$$ (Moderate)</option>
@@ -788,7 +788,7 @@ class CFSEO_Admin_Settings {
               <label for="payment_methods">Payment Methods</label>
             </th>
             <td>
-              <input type="text" id="payment_methods" class="large-text" name="<?php echo self::OPT; ?>[payment_methods]" value="<?php echo esc_attr(self::get('payment_methods')); ?>" placeholder="Cash, Credit Card, PayPal, Bank Transfer">
+              <input type="text" id="payment_methods" class="large-text" name="<?php echo esc_attr(self::OPT); ?>[payment_methods]" value="<?php echo esc_attr(self::get('payment_methods')); ?>" placeholder="Cash, Credit Card, PayPal, Bank Transfer">
               <p class="description">Accepted payment methods (comma-separated).</p>
             </td>
           </tr>
@@ -797,7 +797,7 @@ class CFSEO_Admin_Settings {
               <label for="languages_spoken">Languages Spoken</label>
             </th>
             <td>
-              <input type="text" id="languages_spoken" class="large-text" name="<?php echo self::OPT; ?>[languages_spoken]" value="<?php echo esc_attr(self::get('languages_spoken')); ?>" placeholder="English, Mandarin, Malay">
+              <input type="text" id="languages_spoken" class="large-text" name="<?php echo esc_attr(self::OPT); ?>[languages_spoken]" value="<?php echo esc_attr(self::get('languages_spoken')); ?>" placeholder="English, Mandarin, Malay">
               <p class="description">Languages your business supports (comma-separated).</p>
             </td>
           </tr>
@@ -841,7 +841,7 @@ class CFSEO_Admin_Settings {
               <label for="title_separator">Separator Character</label>
             </th>
             <td>
-              <input type="text" id="title_separator" name="<?php echo self::OPT; ?>[title_separator]" value="<?php echo esc_attr($separator); ?>" class="regular-text" maxlength="3">
+              <input type="text" id="title_separator" name="<?php echo esc_attr(self::OPT); ?>[title_separator]" value="<?php echo esc_attr($separator); ?>" class="regular-text" maxlength="3">
               <p class="description">Used in template variable <code>{separator}</code>. Common: | - · •</p>
             </td>
           </tr>
@@ -864,7 +864,7 @@ class CFSEO_Admin_Settings {
                 <input 
                   type="text" 
                   id="title_template_<?php echo esc_attr($post_type->name); ?>" 
-                  name="<?php echo self::OPT; ?>[title_templates][<?php echo esc_attr($post_type->name); ?>]" 
+                  name="<?php echo esc_attr(self::OPT); ?>[title_templates][<?php echo esc_attr($post_type->name); ?>]" 
                   value="<?php echo esc_attr($title_templates[$post_type->name] ?? ''); ?>" 
                   class="large-text"
                   placeholder="<?php echo esc_attr('{title} {separator} {site}'); ?>"
@@ -893,7 +893,7 @@ class CFSEO_Admin_Settings {
               <td>
                 <textarea 
                   id="description_template_<?php echo esc_attr($post_type->name); ?>" 
-                  name="<?php echo self::OPT; ?>[description_templates][<?php echo esc_attr($post_type->name); ?>]" 
+                  name="<?php echo esc_attr(self::OPT); ?>[description_templates][<?php echo esc_attr($post_type->name); ?>]" 
                   rows="3"
                   class="large-text"
                   placeholder="Auto-generated from excerpt or content"
@@ -963,8 +963,8 @@ class CFSEO_Admin_Settings {
 
       <div class="cfseo-info-box">
         <h3><span class="dashicons dashicons-info"></span> Plugin Information</h3>
-        <p><strong>Version:</strong> <?php echo CFSEO_VERSION; ?></p>
-        <p><strong>Plugin Path:</strong> <code><?php echo CFSEO_DIR; ?></code></p>
+        <p><strong>Version:</strong> <?php echo esc_html(CFSEO_VERSION); ?></p>
+        <p><strong>Plugin Path:</strong> <code><?php echo esc_html(CFSEO_DIR); ?></code></p>
       </div>
     </div>
     <?php

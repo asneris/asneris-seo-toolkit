@@ -24,17 +24,17 @@ if (!defined('ABSPATH')) exit;
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
       <div style="text-align: center; padding: 15px; background: #f6f7f7; border-radius: 4px;">
-        <div style="font-size: 32px;">✅</div>
+        <div style="font-size: 32px;">âœ…</div>
         <div style="font-weight: 600; margin-top: 5px;">Passed</div>
         <div style="color: #646970; font-size: 13px;">Clear signals</div>
       </div>
       <div style="text-align: center; padding: 15px; background: #fff3cd; border-radius: 4px;">
-        <div style="font-size: 32px;">⚠️</div>
+        <div style="font-size: 32px;">âš ï¸</div>
         <div style="font-weight: 600; margin-top: 5px;">Warnings</div>
         <div style="color: #646970; font-size: 13px;">Review recommended</div>
       </div>
       <div style="text-align: center; padding: 15px; background: #f8d7da; border-radius: 4px;">
-        <div style="font-size: 32px;">❌</div>
+        <div style="font-size: 32px;">âŒ</div>
         <div style="font-weight: 600; margin-top: 5px;">Conflicts</div>
         <div style="color: #646970; font-size: 13px;">Clarity risks detected</div>
       </div>
@@ -54,23 +54,23 @@ if (!defined('ABSPATH')) exit;
         $title_count = count($results['title']);
         if ($title_count === 1) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'Single title tag found';
           $why = 'Search engines use the title tag to understand page content and display it in search results.';
         } elseif ($title_count === 0) {
           $status = 'warning';
-          $icon = '⚠️';
+          $icon = 'âš ï¸';
           $message = 'No title tag found';
           $why = 'Without a title tag, search engines may generate one automatically from page content.';
         } else {
           $status = 'conflict';
-          $icon = '❌';
+          $icon = 'âŒ';
           $message = 'Multiple title tags detected (' . $title_count . ')';
           $why = 'Multiple title tags can confuse search engines about which one to display.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+        <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -97,23 +97,23 @@ if (!defined('ABSPATH')) exit;
         $desc_count = count($results['description']);
         if ($desc_count === 1) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'Single meta description found';
           $why = 'Search engines may use this description in search results (but are not required to).';
         } elseif ($desc_count === 0) {
           $status = 'warning';
-          $icon = '⚠️';
+          $icon = 'âš ï¸';
           $message = 'No meta description found';
           $why = 'Search engines will generate a snippet from page content instead.';
         } else {
           $status = 'conflict';
-          $icon = '❌';
+          $icon = 'âŒ';
           $message = 'Multiple meta descriptions detected (' . $desc_count . ')';
           $why = 'Search engines may ignore all descriptions when multiple are present.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -137,23 +137,23 @@ if (!defined('ABSPATH')) exit;
         $canon_count = count($results['canonical']);
         if ($canon_count === 1) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'Single canonical URL found';
           $why = 'This tells search engines which URL is the preferred version of this page.';
         } elseif ($canon_count === 0) {
           $status = 'warning';
-          $icon = '⚠️';
+          $icon = 'âš ï¸';
           $message = 'No canonical URL found';
           $why = 'Search engines will choose a canonical URL automatically.';
         } else {
           $status = 'conflict';
-          $icon = '❌';
+          $icon = 'âŒ';
           $message = 'Multiple canonical URLs detected (' . $canon_count . ')';
           $why = 'Conflicting canonical tags create ambiguity about the preferred URL.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -195,29 +195,29 @@ if (!defined('ABSPATH')) exit;
         
         if ($has_noindex) {
           $status = 'warning';
-          $icon = '⚠️';
+          $icon = 'âš ï¸';
           $message = 'Page is blocked from indexing (noindex detected)';
           $why = 'This page will not appear in search engine results.';
           $not_mean = 'This does NOT mean the page is broken or inaccessible to users.';
         } elseif ($robots_count === 0) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'No indexing blocks detected';
           $why = 'Search engines can index this page if they choose to.';
         } elseif ($robots_count === 1) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'Indexable (no noindex directive)';
           $why = 'Search engines are allowed to index this page.';
         } else {
           $status = 'conflict';
-          $icon = '❌';
+          $icon = 'âŒ';
           $message = 'Multiple robots meta tags detected (' . $robots_count . ')';
           $why = 'Conflicting robots directives create ambiguity about indexing intent.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -253,19 +253,19 @@ if (!defined('ABSPATH')) exit;
         $schema_count = count($results['schema']);
         if ($schema_count > 0) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = $schema_count . ' schema block(s) detected';
           $why = 'Schema helps search engines understand structured data on your page.';
           $not_mean = 'Schema presence does not guarantee rich results in search.';
         } else {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'No schema markup detected';
           $why = 'Schema is optional and not required for indexing.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -289,26 +289,26 @@ if (!defined('ABSPATH')) exit;
       <!-- Sitemap Visibility -->
       <div class="cfseo-validation-item">
         <?php
-        $sitemap_data = CFSEO_Validation::check_sitemap_visibility();
+        $sitemap_data = esc_html(CFSEO_Validation::check_sitemap_visibility();
         if ($sitemap_data['status'] === 'pass') {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'Sitemap is publicly accessible';
           $why = 'Search engines can discover and crawl URLs listed in your sitemap.';
         } elseif ($sitemap_data['status'] === 'warning') {
           $status = 'warning';
-          $icon = '⚠️';
+          $icon = 'âš ï¸';
           $message = 'Sitemap has issues';
           $why = 'Issues with sitemap accessibility may affect URL discovery.';
         } else {
           $status = 'conflict';
-          $icon = '❌';
+          $icon = 'âŒ';
           $message = 'Sitemap not accessible';
           $why = 'Search engines cannot access your sitemap to discover URLs.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -322,21 +322,21 @@ if (!defined('ABSPATH')) exit;
       <!-- Duplicate Output Detector -->
       <div class="cfseo-validation-item">
         <?php
-        $duplicate_data = CFSEO_Validation::detect_duplicate_outputs();
+        $duplicate_data = esc_html(CFSEO_Validation::detect_duplicate_outputs();
         if (empty($duplicate_data)) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'No duplicate SEO outputs detected';
           $why = 'Each SEO output (title, meta, canonical, schema, Open Graph) is generated by a single source.';
         } else {
           $status = 'conflict';
-          $icon = '❌';
+          $icon = 'âŒ';
           $message = 'Multiple plugins generating SEO outputs';
           $why = 'Multiple plugins creating the same type of output can cause conflicts and unpredictable results.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -364,7 +364,7 @@ if (!defined('ABSPATH')) exit;
         // Check if site is set to discourage search engines
         if (get_option('blog_public') == '0') {
           $indexing_safe = false;
-          $indexing_warnings[] = 'WordPress is set to discourage search engines (Settings → Reading)';
+          $indexing_warnings[] = 'WordPress is set to discourage search engines (Settings â†’ Reading)';
         }
         
         // Check robots meta
@@ -380,18 +380,18 @@ if (!defined('ABSPATH')) exit;
         
         if ($indexing_safe) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'No indexing safety issues detected';
           $why = 'Common patterns that block indexing were not found.';
         } else {
           $status = 'warning';
-          $icon = '⚠️';
+          $icon = 'âš ï¸';
           $message = 'Potential indexing blocks detected';
           $why = 'Your site or this page may have settings that prevent search engine indexing.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -444,23 +444,23 @@ if (!defined('ABSPATH')) exit;
         
         if ($canonical_consistent && empty($canonical_warnings)) {
           $status = 'pass';
-          $icon = '✅';
+          $icon = 'âœ…';
           $message = 'Canonical URL pattern is consistent';
           $why = 'Your canonical implementation follows expected patterns.';
         } elseif (!empty($canonical_warnings)) {
           $status = 'warning';
-          $icon = '⚠️';
+          $icon = 'âš ï¸';
           $message = 'Canonical URL patterns detected';
           $why = 'Review these patterns to ensure they match your intent.';
         } else {
           $status = 'conflict';
-          $icon = '❌';
+          $icon = 'âŒ';
           $message = 'Canonical URL conflicts detected';
           $why = 'Conflicting canonical URLs create ambiguity about the preferred page version.';
         }
         ?>
-        <div class="validation-status validation-<?php echo $status; ?>">
-          <div class="validation-icon"><?php echo $icon; ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
           <div class="validation-content">
             <h4><?php echo esc_html($message); ?></h4>
             <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
@@ -485,7 +485,7 @@ if (!defined('ABSPATH')) exit;
   
   <!-- Show Error -->
   <div class="notice notice-error">
-    <p><strong><?php _e('Error:', 'clarity-first-seo'); ?></strong> <?php echo esc_html($results['error']); ?></p>
+    <p><strong><?php esc_html_e('Error:', 'clarity-first-seo'); ?></strong> <?php echo esc_html($results['error']); ?></p>
   </div>
 
 <?php endif; ?>
@@ -535,3 +535,4 @@ if (!defined('ABSPATH')) exit;
   color: #a94442;
 }
 </style>
+

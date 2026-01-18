@@ -186,11 +186,11 @@ class CFSEO_Diagnostics_Page {
     <div class="wrap cfseo-admin-wrap has-sidebar">
       <h1>
         <span class="dashicons dashicons-analytics"></span>
-        <?php _e('Page Diagnostics', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Page Diagnostics', 'clarity-first-seo'); ?>
         <?php CFSEO_Help_Modal::render_help_icon('page-diagnostics-overview', 'Learn about page diagnostics'); ?>
       </h1>
       <p class="cfseo-subtitle">
-        <?php _e('Inspect what a single page exposes to search engines — read-only facts only.', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Inspect what a single page exposes to search engines — read-only facts only.', 'clarity-first-seo'); ?>
       </p>
       
       <div class="cfseo-settings-form">
@@ -322,7 +322,7 @@ class CFSEO_Diagnostics_Page {
             <?php if (!empty($results['canonical'])): ?>
               <?php foreach ($results['canonical'] as $i => $canon): ?>
                 <tr>
-                  <th>Canonical <?php echo $i + 1; ?> href</th>
+                  <th>Canonical <?php echo esc_html($i + 1); ?> href</th>
                   <td><code><?php echo esc_html($canon); ?></code></td>
                 </tr>
                 <?php if (isset($results['canonical_target_status'][$canon])): ?>
@@ -441,7 +441,7 @@ class CFSEO_Diagnostics_Page {
                 <strong>Count:</strong> <?php echo count($results['title_tags']); ?><br>
                 <?php if (!empty($results['title_tags'])): ?>
                   <?php foreach ($results['title_tags'] as $title): ?>
-                    <code><?php echo esc_html($title); ?></code> (<?php echo strlen($title); ?> characters)<br>
+                    <code><?php echo esc_html($title); ?></code> (<?php echo esc_html(strlen($title)); ?> characters)<br>
                   <?php endforeach; ?>
                 <?php else: ?>
                   <span style="color: #646970;">Not detected</span>
@@ -454,7 +454,7 @@ class CFSEO_Diagnostics_Page {
                 <strong>Count:</strong> <?php echo count($results['meta_description']); ?><br>
                 <?php if (!empty($results['meta_description'])): ?>
                   <?php foreach ($results['meta_description'] as $desc): ?>
-                    <code><?php echo esc_html($desc); ?></code> (<?php echo strlen($desc); ?> characters)<br>
+                    <code><?php echo esc_html($desc); ?></code> (<?php echo esc_html(strlen($desc)); ?> characters)<br>
                   <?php endforeach; ?>
                 <?php else: ?>
                   <span style="color: #646970;">Not detected</span>
@@ -524,7 +524,7 @@ class CFSEO_Diagnostics_Page {
               <tbody>
                 <?php foreach ($results['schema_blocks'] as $i => $schema): ?>
                   <tr>
-                    <td><?php echo $i + 1; ?></td>
+                    <td><?php echo esc_html($i + 1); ?></td>
                     <td><?php echo $schema['valid'] ? '✅ Yes' : '❌ No'; ?></td>
                     <td><code><?php echo esc_html($schema['type']); ?></code></td>
                   </tr>
@@ -535,7 +535,7 @@ class CFSEO_Diagnostics_Page {
             <details style="margin-top: 15px;">
               <summary style="cursor: pointer; color: #2271b1; font-weight: 600;">Show Raw JSON-LD Data</summary>
               <?php foreach ($results['schema_blocks'] as $i => $schema): ?>
-                <h4 style="margin: 15px 0 5px 0;">Block <?php echo $i + 1; ?></h4>
+                <h4 style="margin: 15px 0 5px 0;">Block <?php echo esc_html($i + 1); ?></h4>
                 <pre style="background: #f6f7f7; padding: 10px; border-left: 3px solid #2271b1; overflow-x: auto; overflow-wrap: break-word; white-space: pre-wrap; word-break: break-all; font-size: 12px; max-width: 100%;"><?php 
                   // Format JSON for better readability
                   $decoded = json_decode($schema['raw'], true);

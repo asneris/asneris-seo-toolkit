@@ -5,8 +5,8 @@
 if (!defined('ABSPATH')) exit;
 
 // Get diagnostic data
-$sitemap_status = CFSEO_Validation::check_sitemap_visibility();
-$duplicate_status = CFSEO_Validation::detect_duplicate_outputs();
+$sitemap_status = esc_html(CFSEO_Validation::check_sitemap_visibility();
+$duplicate_status = esc_html(CFSEO_Validation::detect_duplicate_outputs();
 $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_status['duplicates']);
 ?>
 
@@ -83,7 +83,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
       </tr>
       <?php foreach (['title', 'description', 'canonical', 'robots', 'schema'] as $type): ?>
         <tr>
-          <td><strong><?php echo ucfirst($type); ?> Tags</strong></td>
+          <td><strong><?php echo esc_html(ucfirst($type)); ?> Tags</strong></td>
           <td><?php echo empty($duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
           <td><?php echo empty($duplicate_status['duplicates'][$type]) ? 'Single output - No duplicates' : 'Duplicate found: ' . esc_html($duplicate_status['duplicates'][$type]); ?></td>
         </tr>
@@ -162,7 +162,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
   }
   
   // 3. Check sitemap URLs returning non-200
-  $sitemap_check = CFSEO_Validation::check_sitemap_visibility();
+  $sitemap_check = esc_html(CFSEO_Validation::check_sitemap_visibility();
   if ($sitemap_check['found'] && $sitemap_check['http_status'] !== 200) {
     $indexing_warnings[] = [
       'check' => 'Sitemap Accessibility',
@@ -403,7 +403,7 @@ $has_issues = !empty($duplicate_status['active_plugins']) || !empty($duplicate_s
   }
   
   // 4. Detect mixed protocol (http/https)
-  $site_protocol = parse_url(home_url('/'), PHP_URL_SCHEME);
+  $site_protocol = wp_parse_url(home_url('/'), PHP_URL_SCHEME);
   $mixed_protocol = $wpdb->get_var($wpdb->prepare("
     SELECT COUNT(*) 
     FROM {$wpdb->postmeta} pm
