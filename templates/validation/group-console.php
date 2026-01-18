@@ -5,11 +5,11 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$console_pass = 0;
-$console_total = 3;
-if (count($results['google_verification']) >= 1) $console_pass++;
-if (count($results['msvalidate']) >= 1) $console_pass++;
-if (count($results['yandex_verification']) >= 1) $console_pass++;
+$cfseo_console_pass = 0;
+$cfseo_console_total = 3;
+if (count($results['google_verification']) >= 1) $cfseo_console_pass++;
+if (count($results['msvalidate']) >= 1) $cfseo_console_pass++;
+if (count($results['yandex_verification']) >= 1) $cfseo_console_pass++;
 ?>
 <div class="cfseo-function-group">
   <div class="cfseo-group-header" data-group="console">
@@ -19,8 +19,8 @@ if (count($results['yandex_verification']) >= 1) $console_pass++;
       <span class="cfseo-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'clarity-first-seo'); ?></span>
     </div>
     <div class="cfseo-group-summary">
-      <?php echo esc_html(CFSEO_Validation::get_status_badge($console_pass, $console_total); ?>
-        <span><?php echo esc_html($console_pass); ?> / <?php echo esc_html($console_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
+      <?php echo esc_html(CFSEO_Validation::get_status_badge($cfseo_console_pass, $cfseo_console_total)); ?>
+        <span><?php echo esc_html($cfseo_console_pass); ?> / <?php echo esc_html($cfseo_console_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
       <span class="cfseo-toggle">▼</span>
     </div>
   </div>

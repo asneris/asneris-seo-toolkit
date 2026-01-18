@@ -168,10 +168,22 @@ class CFSEO_Dashboard {
   private static function get_redirect_count() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'CFSEO_redirects';
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") !== $table_name) {
+    
+    // Check if table exists using prepared statement
+    if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) !== $table_name) {
       return 0;
     }
-    return (int) $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE status = 'active'");
+    
+    // Get count with caching
+    $cache_key = 'cfseo_redirect_count';
+    $count = wp_cache_get($cache_key);
+    
+    if (false === $count) {
+      $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `%1s` WHERE status = %s", $table_name, 'active'));
+      wp_cache_set($cache_key, $count, '', 300); // Cache for 5 minutes
+    }
+    
+    return $count;
   }
   
   /**

@@ -81,7 +81,7 @@ class CFSEO_Admin_Settings {
   }
 
   public static function render_page() {
-    $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
+    $current_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'general';
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
@@ -1102,7 +1102,7 @@ class CFSEO_Admin_Settings {
       wp_send_json_error('Unauthorized');
     }
 
-    $settings = isset($_POST['settings']) ? map_deep($_POST['settings'], 'sanitize_text_field') : [];
+    $settings = isset($_POST['settings']) ? map_deep(wp_unslash($_POST['settings']), 'sanitize_text_field') : [];
     
     if (empty($settings)) {
       wp_send_json_error('No settings data provided');

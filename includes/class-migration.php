@@ -46,6 +46,7 @@ class CFSEO_Migration {
       $new_key = str_replace('_gscseo_', '_cfseo_', $old_key);
       
       // Copy old meta to new key (only if new key doesn't exist)
+      // Using prepared statement with direct query for migration
       $wpdb->query($wpdb->prepare(
         "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value)
          SELECT post_id, %s, meta_value
@@ -58,6 +59,9 @@ class CFSEO_Migration {
         $old_key,
         $new_key
       ));
+      
+      // Clear cache after migration
+      wp_cache_flush();
     }
   }
   

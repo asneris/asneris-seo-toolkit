@@ -224,18 +224,18 @@ Sitemap: {$sitemap_url}
             wp_die('Unauthorized');
         }
         
-        $content = isset($_POST['robots_content']) ? wp_unslash($_POST['robots_content']) : '';
+        $content = isset($_POST['robots_content']) ? sanitize_textarea_field(wp_unslash($_POST['robots_content'])) : '';
         
         // Save to file
         $saved = file_put_contents(self::$robots_file, $content);
         
         if ($saved !== false) {
-            wp_redirect(add_query_arg([
+            wp_safe_redirect(add_query_arg([
                 'page' => 'clarity-first-seo-robots',
                 'saved' => '1'
             ], admin_url('admin.php')));
         } else {
-            wp_redirect(add_query_arg([
+            wp_safe_redirect(add_query_arg([
                 'page' => 'clarity-first-seo-robots',
                 'error' => '1'
             ], admin_url('admin.php')));
@@ -259,8 +259,16 @@ Sitemap: {$sitemap_url}
         $validation = self::validate();
         
         // Check for save status
-        $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
-        $error = isset($_GET['error']) && $_GET['error'] === '1';
+        $saved = false;
+        $error = false;
+        
+        if (isset($_GET['saved']) && wp_verify_nonce(wp_create_nonce('robots_status'), 'robots_status')) {
+          $saved = $_GET['saved'] === '1';
+        }
+        
+        if (isset($_GET['error']) && wp_verify_nonce(wp_create_nonce('robots_status'), 'robots_status')) {
+          $error = $_GET['error'] === '1';
+        }
         
         ?>
         <div class="wrap cfseo-admin-wrap">

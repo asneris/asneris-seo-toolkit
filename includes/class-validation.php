@@ -51,7 +51,8 @@ class CFSEO_Validation {
       // Fallback: Try Docker gateway (usually 172.x.x.1)
       if (isset($_SERVER['SERVER_ADDR'])) {
         // Get gateway from container IP (e.g., 172.19.0.3 -> 172.19.0.1)
-        $parts = explode('.', $_SERVER['SERVER_ADDR']);
+        $server_addr = sanitize_text_field(wp_unslash($_SERVER['SERVER_ADDR']));
+        $parts = explode('.', $server_addr);
         if (count($parts) == 4) {
           $parts[3] = '1'; // Gateway is usually .1
           $gateway = implode('.', $parts);
@@ -493,7 +494,7 @@ class CFSEO_Validation {
     ];
     
     // Handle form submission
-    $test_url = isset($_POST['test_url']) ? esc_url_raw($_POST['test_url']) : '';
+    $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $run_test = isset($_POST['run_validation']) && check_admin_referer('CFSEO_validation', '_wpnonce', false);
     
     $data['test_url'] = $test_url;

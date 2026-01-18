@@ -51,30 +51,30 @@ if (!defined('ABSPATH')) exit;
       <!-- Title Validation -->
       <div class="cfseo-validation-item">
         <?php
-        $title_count = count($results['title']);
-        if ($title_count === 1) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'Single title tag found';
-          $why = 'Search engines use the title tag to understand page content and display it in search results.';
-        } elseif ($title_count === 0) {
-          $status = 'warning';
-          $icon = 'âš ï¸';
-          $message = 'No title tag found';
-          $why = 'Without a title tag, search engines may generate one automatically from page content.';
+        $cfseo_title_count = count($results['title']);
+        if ($cfseo_title_count === 1) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = 'âœ…';
+          $cfseo_message = 'Single title tag found';
+          $cfseo_why = 'Search engines use the title tag to understand page content and display it in search results.';
+        } elseif ($cfseo_title_count === 0) {
+          $cfseo_status = 'warning';
+          $cfseo_icon = 'âš ï¸';
+          $cfseo_message = 'No title tag found';
+          $cfseo_why = 'Without a title tag, search engines may generate one automatically from page content.';
         } else {
-          $status = 'conflict';
-          $icon = 'âŒ';
-          $message = 'Multiple title tags detected (' . $title_count . ')';
-          $why = 'Multiple title tags can confuse search engines about which one to display.';
+          $cfseo_status = 'conflict';
+          $cfseo_icon = 'âŒ';
+          $cfseo_message = 'Multiple title tags detected (' . $cfseo_title_count . ')';
+          $cfseo_why = 'Multiple title tags can confuse search engines about which one to display.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-        <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+        <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
-            <?php if ($status === 'conflict'): ?>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
+            <?php if ($cfseo_status === 'conflict'): ?>
               <p style="color: #646970; font-size: 13px;"><strong>What this does NOT mean:</strong> This does not guarantee indexing failure, but it creates ambiguity.</p>
             <?php endif; ?>
             <?php if (!empty($results['title'])): ?>
@@ -94,35 +94,35 @@ if (!defined('ABSPATH')) exit;
       <!-- Meta Description Validation -->
       <div class="cfseo-validation-item">
         <?php
-        $desc_count = count($results['description']);
-        if ($desc_count === 1) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'Single meta description found';
-          $why = 'Search engines may use this description in search results (but are not required to).';
-        } elseif ($desc_count === 0) {
-          $status = 'warning';
-          $icon = 'âš ï¸';
-          $message = 'No meta description found';
-          $why = 'Search engines will generate a snippet from page content instead.';
+        $cfseo_desc_count = count($results['description']);
+        if ($cfseo_desc_count === 1) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = 'âœ…';
+          $cfseo_message = 'Single meta description found';
+          $cfseo_why = 'Search engines may use this description in search results (but are not required to).';
+        } elseif ($cfseo_desc_count === 0) {
+          $cfseo_status = 'warning';
+          $cfseo_icon = 'âš ï¸';
+          $cfseo_message = 'No meta description found';
+          $cfseo_why = 'Search engines will generate a snippet from page content instead.';
         } else {
-          $status = 'conflict';
-          $icon = 'âŒ';
-          $message = 'Multiple meta descriptions detected (' . $desc_count . ')';
-          $why = 'Search engines may ignore all descriptions when multiple are present.';
+          $cfseo_status = 'conflict';
+          $cfseo_icon = 'âŒ';
+          $cfseo_message = 'Multiple meta descriptions detected (' . $cfseo_desc_count . ')';
+          $cfseo_why = 'Search engines may ignore all descriptions when multiple are present.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
             <?php if (!empty($results['description'])): ?>
               <details style="margin-top: 10px;">
                 <summary style="cursor: pointer; color: #2271b1;">Show detected values</summary>
                 <ul style="margin: 5px 0; padding-left: 20px;">
-                  <?php foreach ($results['description'] as $desc): ?>
-                    <li><code><?php echo esc_html($desc); ?></code></li>
+                  <?php foreach ($results['description'] as $cfseo_desc): ?>
+                    <li><code><?php echo esc_html($cfseo_desc); ?></code></li>
                   <?php endforeach; ?>
                 </ul>
               </details>
@@ -134,35 +134,35 @@ if (!defined('ABSPATH')) exit;
       <!-- Canonical Validation -->
       <div class="cfseo-validation-item">
         <?php
-        $canon_count = count($results['canonical']);
-        if ($canon_count === 1) {
-          $status = 'pass';
-          $icon = 'âœ…';
-          $message = 'Single canonical URL found';
-          $why = 'This tells search engines which URL is the preferred version of this page.';
-        } elseif ($canon_count === 0) {
-          $status = 'warning';
-          $icon = 'âš ï¸';
-          $message = 'No canonical URL found';
-          $why = 'Search engines will choose a canonical URL automatically.';
+        $cfseo_canon_count = count($results['canonical']);
+        if ($cfseo_canon_count === 1) {
+          $cfseo_status = 'pass';
+          $cfseo_icon = 'âœ…';
+          $cfseo_message = 'Single canonical URL found';
+          $cfseo_why = 'This tells search engines which URL is the preferred version of this page.';
+        } elseif ($cfseo_canon_count === 0) {
+          $cfseo_status = 'warning';
+          $cfseo_icon = 'âš ï¸';
+          $cfseo_message = 'No canonical URL found';
+          $cfseo_why = 'Search engines will choose a canonical URL automatically.';
         } else {
-          $status = 'conflict';
-          $icon = 'âŒ';
-          $message = 'Multiple canonical URLs detected (' . $canon_count . ')';
-          $why = 'Conflicting canonical tags create ambiguity about the preferred URL.';
+          $cfseo_status = 'conflict';
+          $cfseo_icon = 'âŒ';
+          $cfseo_message = 'Multiple canonical URLs detected (' . $cfseo_canon_count . ')';
+          $cfseo_why = 'Conflicting canonical tags create ambiguity about the preferred URL.';
         }
         ?>
-        <div class="validation-status validation-<?php echo esc_attr($status); ?>">
-          <div class="validation-icon"><?php echo wp_kses_post($icon); ?></div>
+        <div class="validation-status validation-<?php echo esc_attr($cfseo_status); ?>">
+          <div class="validation-icon"><?php echo wp_kses_post($cfseo_icon); ?></div>
           <div class="validation-content">
-            <h4><?php echo esc_html($message); ?></h4>
-            <p><strong>Why this matters:</strong> <?php echo esc_html($why); ?></p>
+            <h4><?php echo esc_html($cfseo_message); ?></h4>
+            <p><strong>Why this matters:</strong> <?php echo esc_html($cfseo_why); ?></p>
             <?php if (!empty($results['canonical'])): ?>
               <details style="margin-top: 10px;">
                 <summary style="cursor: pointer; color: #2271b1;">Show detected values</summary>
                 <ul style="margin: 5px 0; padding-left: 20px;">
-                  <?php foreach ($results['canonical'] as $canon): ?>
-                    <li><code><?php echo esc_html($canon); ?></code></li>
+                  <?php foreach ($results['canonical'] as $cfseo_canon): ?>
+                    <li><code><?php echo esc_html($cfseo_canon); ?></code></li>
                   <?php endforeach; ?>
                 </ul>
               </details>

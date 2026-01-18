@@ -7,11 +7,11 @@
  */
 if (!defined('ABSPATH')) exit;
 
-$discovery_pass = 0;
-$discovery_total = 3;
-if ($sitemap && $sitemap['status'] === 'exists') $discovery_pass++;
-if ($robots && $robots['status'] === 'exists') $discovery_pass++;
-if ($results['http_status'] === 200) $discovery_pass++;
+$cfseo_discovery_pass = 0;
+$cfseo_discovery_total = 3;
+if ($sitemap && $sitemap['status'] === 'exists') $cfseo_discovery_pass++;
+if ($robots && $robots['status'] === 'exists') $cfseo_discovery_pass++;
+if ($results['http_status'] === 200) $cfseo_discovery_pass++;
 ?>
 <div class="cfseo-function-group">
   <div class="cfseo-group-header" data-group="discovery">
@@ -21,8 +21,8 @@ if ($results['http_status'] === 200) $discovery_pass++;
       <span class="cfseo-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'clarity-first-seo'); ?></span>
     </div>
     <div class="cfseo-group-summary">
-      <?php echo esc_html(CFSEO_Validation::get_status_badge($discovery_pass, $discovery_total); ?>
-        <span><?php echo esc_html($discovery_pass); ?> / <?php echo esc_html($discovery_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
+      <?php echo esc_html(CFSEO_Validation::get_status_badge($cfseo_discovery_pass, $cfseo_discovery_total)); ?>
+        <span><?php echo esc_html($cfseo_discovery_pass); ?> / <?php echo esc_html($cfseo_discovery_total); ?> <?php esc_html_e('passed', 'clarity-first-seo'); ?></span>
       <span class="cfseo-toggle">▼</span>
     </div>
   </div>

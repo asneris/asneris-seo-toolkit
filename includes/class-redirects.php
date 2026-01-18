@@ -52,9 +52,10 @@ class CFSEO_Redirects {
    * Handle redirects
    */
   public static function handle_redirects() {
-    $request_uri = $_SERVER['REQUEST_URI'];
+    if (!isset($_SERVER['REQUEST_URI'])) return;
+    $request_uri = sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
     $request_path = wp_parse_url($request_uri, PHP_URL_PATH);
-    $query_string = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+    $query_string = isset($_SERVER['QUERY_STRING']) ? sanitize_text_field(wp_unslash($_SERVER['QUERY_STRING'])) : '';
     
     $redirects = self::get_redirects();
     
@@ -84,7 +85,7 @@ class CFSEO_Redirects {
             $to = home_url($to);
           }
           
-          wp_redirect($to, $code);
+          wp_safe_redirect($to, $code);
           exit;
         }
       } else {
@@ -96,7 +97,7 @@ class CFSEO_Redirects {
             $to = home_url($to);
           }
           
-          wp_redirect($to, $code);
+          wp_safe_redirect($to, $code);
           exit;
         }
       }
@@ -225,9 +226,9 @@ class CFSEO_Redirects {
   public static function render_page() {
     // Handle form submissions
     if (isset($_POST['CFSEO_add_redirect']) && check_admin_referer('CFSEO_redirect_add')) {
-      $from = sanitize_text_field($_POST['from']);
-      $to = sanitize_text_field($_POST['to']);
-      $code = (int)$_POST['code'];
+      $from = isset($_POST['from']) ? sanitize_text_field(wp_unslash($_POST['from'])) : '';
+      $to = isset($_POST['to']) ? sanitize_url(wp_unslash($_POST['to'])) : '';
+      $code = isset($_POST['code']) ? (int) $_POST['code'] : 301;
       
       // Strip domain from URLs to store only path + query
       $from = str_replace(home_url(), '', $from);
@@ -240,14 +241,16 @@ class CFSEO_Redirects {
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['index'])) {
-      check_admin_referer('CFSEO_redirect_delete_' . $_GET['index']);
-      self::delete_redirect((int)$_GET['index']);
+      $index = (int) sanitize_text_field(wp_unslash($_GET['index']));
+      check_admin_referer('CFSEO_redirect_delete_' . $index);
+      self::delete_redirect($index);
       echo '<div class="notice notice-success"><p>' . esc_html__('Redirect deleted!', 'clarity-first-seo') . '</p></div>';
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'toggle' && isset($_GET['index'])) {
-      check_admin_referer('CFSEO_redirect_toggle_' . $_GET['index']);
-      self::toggle_redirect((int)$_GET['index']);
+      $index = (int) sanitize_text_field(wp_unslash($_GET['index']));
+      check_admin_referer('CFSEO_redirect_toggle_' . $index);
+      self::toggle_redirect($index);
       echo '<div class="notice notice-success"><p>' . esc_html__('Redirect status updated!', 'clarity-first-seo') . '</p></div>';
     }
     

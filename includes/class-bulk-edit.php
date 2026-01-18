@@ -37,8 +37,8 @@ class CFSEO_Bulk_Edit {
    */
   public static function render_page() {
     $post_types = get_post_types(['public' => true], 'objects');
-    $selected_post_type = isset($_GET['filter_type']) ? sanitize_text_field($_GET['filter_type']) : 'post';
-    $indexing_filter = isset($_GET['indexing']) ? sanitize_text_field($_GET['indexing']) : 'all';
+    $selected_post_type = isset($_GET['filter_type']) ? sanitize_text_field(wp_unslash($_GET['filter_type'])) : 'post';
+    $indexing_filter = isset($_GET['indexing']) ? sanitize_text_field(wp_unslash($_GET['indexing'])) : 'all';
     
     // Query posts
     $args = [
@@ -313,9 +313,9 @@ class CFSEO_Bulk_Edit {
     }
     
     $post_ids = isset($_POST['post_ids']) ? array_map('intval', $_POST['post_ids']) : [];
-    $titles = isset($_POST['seo_title']) ? map_deep($_POST['seo_title'], 'sanitize_text_field') : [];
-    $descriptions = isset($_POST['seo_description']) ? map_deep($_POST['seo_description'], 'sanitize_textarea_field') : [];
-    $robots = isset($_POST['robots_index']) ? map_deep($_POST['robots_index'], 'sanitize_text_field') : [];
+    $titles = isset($_POST['seo_title']) ? map_deep(wp_unslash($_POST['seo_title']), 'sanitize_text_field') : [];
+    $descriptions = isset($_POST['seo_description']) ? map_deep(wp_unslash($_POST['seo_description']), 'sanitize_textarea_field') : [];
+    $robots = isset($_POST['robots_index']) ? map_deep(wp_unslash($_POST['robots_index']), 'sanitize_text_field') : [];
     
     $updated = 0;
     
