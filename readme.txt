@@ -13,7 +13,19 @@ Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI. Clear signa
 * Google site verification via meta tag
 * Bing Webmaster Tools verification meta tag (msvalidate.01)
 * IndexNow URL submission on publish, update, or delete (optional)
-* Minimal JSON-LD output (WebSite, Organization, Article)
+* SEO titles & meta descriptions with safe fallbacks
+* Canonical URL output
+* Robots meta defaults + per-content overrides
+* Social preview tags (Open Graph / Twitter)
+* JSON‑LD schema output (Organization, WebSite, WebPage, Article)
+* Site Diagnostics: site-wide checks for configuration issues
+* Page Diagnostics: inspect a single URL’s tags/headers/redirect chain
+* Robots.txt tools (view/manage rules safely)
+* Bulk Edit: update SEO fields & indexing for many posts/pages
+* Sitemap helper + conflict detection (duplicate SEO plugins)
+* Templates system for consistent titles/descriptions
+* Redirect management utilities
+* Built-in help & documentation pages
 
 == IndexNow Notes ==
 IndexNow requires a UTF-8 encoded key file named {key}.txt at the site root.
