@@ -10,18 +10,18 @@
 
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Dashboard {
+class ASNERISSEO_Dashboard {
   
   /**
    * Register dashboard page
    */
   public static function register_menu() {
     add_submenu_page(
-      'clarity-first-seo',
-      __('Dashboard', 'clarity-first-seo'),
-      __('Dashboard', 'clarity-first-seo'),
+      ASNERIS_MENU_SLUG,
+      __('Dashboard', 'asneris-seo-toolkit'),
+      __('Dashboard', 'asneris-seo-toolkit'),
       'manage_options',
-      'cfseo-dashboard',
+      ASNERIS_MENU_SLUG . '-dashboard',
       [__CLASS__, 'render_page']
     );
   }
@@ -30,15 +30,15 @@ class CFSEO_Dashboard {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== 'clarity-first-seo_page_cfseo-dashboard') return;
-    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
+    if ($hook !== ASNERIS_MENU_SLUG . '_page_' . ASNERIS_MENU_SLUG . '-dashboard') return;
+    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
   }
   
   /**
    * Get configuration status for all sections
    */
   private static function get_config_status() {
-    $settings = get_option('CFSEO_settings', []);
+    $settings = get_option('ASNERISSEO_settings', []);
     
     return [
       'general' => [
@@ -105,7 +105,7 @@ class CFSEO_Dashboard {
    */
   private static function get_validation_summary() {
     // Get saved validation results from database
-    $saved = get_option('cfseo_validation_summary', null);
+    $saved = get_option('ASNERISSEO_validation_summary', null);
     
     if ($saved === null) {
       // State 1: Never run
@@ -167,10 +167,10 @@ class CFSEO_Dashboard {
    */
   private static function get_redirect_count() {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'CFSEO_redirects';
+    $table_name = $wpdb->prefix . 'ASNERISSEO_redirects';
     
     // Check if table exists using prepared statement with caching
-    $table_exists_cache_key = 'cfseo_redirect_table_exists';
+    $table_exists_cache_key = 'ASNERISSEO_redirect_table_exists';
     $table_exists = wp_cache_get($table_exists_cache_key);
     
     if (false === $table_exists) {
@@ -184,12 +184,12 @@ class CFSEO_Dashboard {
     }
     
     // Get count with caching
-    $cache_key = 'cfseo_redirect_count';
+    $cache_key = 'ASNERISSEO_redirect_count';
     $count = wp_cache_get($cache_key);
     
     if (false === $count) {
       // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Count query with proper caching
-      $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}CFSEO_redirects WHERE status = %s", 'active'));
+      $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}ASNERISSEO_redirects WHERE status = %s", 'active'));
       wp_cache_set($cache_key, $count, '', 300); // Cache for 5 minutes
     }
     
@@ -207,21 +207,21 @@ class CFSEO_Dashboard {
     $completed_sections = count(array_filter($config_status, function($s) { return $s['completed']; }));
     $progress_percent = round(($completed_sections / $total_sections) * 100);
     ?>
-    <div class="wrap cfseo-admin-wrap" style="max-width: 1400px;">
+    <div class="wrap ASNERISSEO-admin-wrap" style="max-width: 1400px;">
       <h1>
         <span class="dashicons dashicons-dashboard"></span>
-        <?php esc_html_e('Dashboard', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Dashboard', 'asneris-seo-toolkit'); ?>
       </h1>
-      <p class="cfseo-subtitle">
-        <?php esc_html_e('Clarity-First SEO checks what search engines can see on your site. It does not predict rankings.', 'clarity-first-seo'); ?>
+      <p class="ASNERISSEO-subtitle">
+        <?php esc_html_e('Asneris SEO Toolkit checks what search engines can see on your site. It does not predict rankings.', 'asneris-seo-toolkit'); ?>
       </p>
       
       <!-- Configuration Status -->
-      <div class="cfseo-card" style="margin: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+      <div class="ASNERISSEO-card" style="margin: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
         <div style="padding: 20px;">
           <h2 style="margin: 0 0 15px; color: white; display: flex; align-items: center; gap: 10px;">
             <span class="dashicons dashicons-admin-settings" style="font-size: 24px;"></span>
-            <?php esc_html_e('Configuration Status', 'clarity-first-seo'); ?>
+            <?php esc_html_e('Configuration Status', 'asneris-seo-toolkit'); ?>
           </h2>
           
           <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 20px; margin-bottom: 15px; overflow: hidden;">
@@ -229,9 +229,9 @@ class CFSEO_Dashboard {
           </div>
           
           <p style="margin: 0 0 20px; font-size: 16px; opacity: 0.95;">
-            <strong><?php echo esc_html($completed_sections); ?> <?php esc_html_e('of', 'clarity-first-seo'); ?> <?php echo esc_html($total_sections); ?></strong> <?php esc_html_e('sections configured', 'clarity-first-seo'); ?> 
+            <strong><?php echo esc_html($completed_sections); ?> <?php esc_html_e('of', 'asneris-seo-toolkit'); ?> <?php echo esc_html($total_sections); ?></strong> <?php esc_html_e('sections configured', 'asneris-seo-toolkit'); ?> 
             (<?php echo esc_html($progress_percent); ?>%)
-            <a href="?page=cfseo-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php esc_html_e('Go to Settings', 'clarity-first-seo'); ?></a>
+            <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php esc_html_e('Go to Settings', 'asneris-seo-toolkit'); ?></a>
           </p>
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
@@ -263,7 +263,7 @@ class CFSEO_Dashboard {
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 30px;">
         
         <!-- Site Diagnostics -->
-        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div class="ASNERISSEO-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
             <span class="dashicons dashicons-analytics" style="color: #2271b1; font-size: 24px;"></span>
             Site Diagnostics
@@ -277,14 +277,14 @@ class CFSEO_Dashboard {
             <li>✓ Search engine verification</li>
             <li>✓ Plugin conflict detection</li>
           </ul>
-          <a href="?page=cfseo-validation" class="button button-primary button-large" style="width: 100%;">
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-validation'); ?>" class="button button-primary button-large" style="width: 100%;">
             <span class="dashicons dashicons-yes-alt" style="margin-top: 3px;"></span> 
             Run Site Diagnostics
           </a>
         </div>
         
         <!-- Page Diagnostics -->
-        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div class="ASNERISSEO-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
             <span class="dashicons dashicons-search" style="color: #2271b1; font-size: 24px;"></span>
             Page Diagnostics
@@ -298,7 +298,7 @@ class CFSEO_Dashboard {
             <li>✓ Open Graph & Twitter cards</li>
             <li>✓ Schema markup validation</li>
           </ul>
-          <a href="?page=cfseo-diagnostics" class="button button-primary button-large" style="width: 100%;">
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-diagnostics'); ?>" class="button button-primary button-large" style="width: 100%;">
             <span class="dashicons dashicons-visibility" style="margin-top: 3px;"></span> 
             Analyze a Page
           </a>
@@ -306,10 +306,10 @@ class CFSEO_Dashboard {
         
       </div>
       
-      <div class="cfseo-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
+      <div class="ASNERISSEO-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
         
         <!-- Quick Actions -->
-        <div class="cfseo-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div class="ASNERISSEO-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <h2><span class="dashicons dashicons-admin-tools"></span> Quick Actions</h2>
           <p style="color: #646970; margin-top: 5px;">Common SEO tasks you can do right now</p>
           
@@ -323,7 +323,7 @@ class CFSEO_Dashboard {
               <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
                 Update titles and descriptions for multiple posts at once
               </p>
-              <a href="?page=cfseo-bulk-edit" class="button">Edit Metadata</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-bulk-edit'); ?>" class="button">Edit Metadata</a>
             </div>
             
             <!-- Action 3 -->
@@ -335,7 +335,7 @@ class CFSEO_Dashboard {
               <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
                 Add your business details to appear in Google Maps and local search
               </p>
-              <a href="?page=cfseo-settings&tab=schema" class="button">Setup Local Business</a>
+              <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="button">Setup Local Business</a>
             </div>
             
             <!-- Action 4 -->
@@ -347,7 +347,7 @@ class CFSEO_Dashboard {
               <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
                 Guide visitors to correct pages when URLs change
               </p>
-              <a href="?page=cfseo-redirects" class="button">Manage Redirects</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-redirects'); ?>" class="button">Manage Redirects</a>
             </div>
             
             <!-- Action 5 -->
@@ -359,7 +359,7 @@ class CFSEO_Dashboard {
               <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
                 Control which pages search engines can visit and read
               </p>
-              <a href="?page=cfseo-robots" class="button">Edit Robots.txt</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-robots'); ?>" class="button">Edit Robots.txt</a>
             </div>
           </div>
         </div>
@@ -371,7 +371,7 @@ class CFSEO_Dashboard {
         <p>
           <strong>🧪 Beta Software</strong> – 
           This plugin is in active development. 
-          <a href="?page=cfseo-help">Learn what this plugin does and doesn't do</a>
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-help'); ?>">Learn what this plugin does and doesn't do</a>
         </p>
       </div>
       

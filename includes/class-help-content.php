@@ -6,7 +6,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Help_Content {
+class ASNERISSEO_Help_Content {
   
   private static $content_cache = null;
   
@@ -37,7 +37,7 @@ class CFSEO_Help_Content {
       return self::$content_cache;
     }
     
-    $json_file = CFSEO_DIR . 'help-content.json';
+    $json_file = ASNERISSEO_DIR . 'help-content.json';
     
     if (!file_exists($json_file)) {
       return [];
@@ -72,15 +72,15 @@ class CFSEO_Help_Content {
       return;
     }
     ?>
-    <aside class="cfseo-sidebar">
-      <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+    <aside class="ASNERISSEO-sidebar">
+      <button type="button" class="ASNERISSEO-sidebar-toggle" id="ASNERISSEO-sidebar-toggle">
         <span class="dashicons dashicons-editor-help"></span>
-        <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+        <span class="ASNERISSEO-sidebar-toggle-text">Help & Tips</span>
       </button>
       
-      <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+      <div class="ASNERISSEO-sidebar-content" id="ASNERISSEO-sidebar-content">
         <?php foreach ($content['cards'] as $card): ?>
-          <div class="cfseo-help-card">
+          <div class="ASNERISSEO-help-card">
             <h3>
               <span class="dashicons <?php echo esc_attr($card['icon']); ?>"></span>
               <?php echo esc_html($card['title']); ?>
@@ -102,9 +102,9 @@ class CFSEO_Help_Content {
     
     <script>
     (function() {
-      const toggle = document.getElementById('cfseo-sidebar-toggle');
-      const content = document.getElementById('cfseo-sidebar-content');
-      const storageKey = 'cfseo_sidebar_visible';
+      const toggle = document.getElementById('ASNERISSEO-sidebar-toggle');
+      const content = document.getElementById('ASNERISSEO-sidebar-content');
+      const storageKey = 'ASNERISSEO_sidebar_visible';
       
       // Restore sidebar state
       const isVisible = localStorage.getItem(storageKey) !== 'false';
@@ -129,17 +129,17 @@ class CFSEO_Help_Content {
    */
   private static function render_tabbed_sidebar($page_id, $tabs) {
     ?>
-    <aside class="cfseo-sidebar">
-      <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+    <aside class="ASNERISSEO-sidebar">
+      <button type="button" class="ASNERISSEO-sidebar-toggle" id="ASNERISSEO-sidebar-toggle">
         <span class="dashicons dashicons-editor-help"></span>
-        <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+        <span class="ASNERISSEO-sidebar-toggle-text">Help & Tips</span>
       </button>
       
-      <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+      <div class="ASNERISSEO-sidebar-content" id="ASNERISSEO-sidebar-content">
         <?php foreach ($tabs as $tab_key => $cards): ?>
-          <div class="cfseo-tab-help" data-tab="<?php echo esc_attr($tab_key); ?>" style="display: none;">
+          <div class="ASNERISSEO-tab-help" data-tab="<?php echo esc_attr($tab_key); ?>" style="display: none;">
             <?php foreach ($cards as $card): ?>
-              <div class="cfseo-help-card">
+              <div class="ASNERISSEO-help-card">
                 <h3>
                   <span class="dashicons <?php echo esc_attr($card['icon']); ?>"></span>
                   <?php echo esc_html($card['title']); ?>
@@ -163,11 +163,11 @@ class CFSEO_Help_Content {
     
     <script>
     (function() {
-      const toggle = document.getElementById('cfseo-sidebar-toggle');
-      const content = document.getElementById('cfseo-sidebar-content');
-      const storageKey = 'cfseo_sidebar_visible';
+      const toggle = document.getElementById('ASNERISSEO-sidebar-toggle');
+      const content = document.getElementById('ASNERISSEO-sidebar-content');
+      const storageKey = 'ASNERISSEO_sidebar_visible';
       const tabButtons = document.querySelectorAll('.nav-tab');
-      const tabHelp = document.querySelectorAll('.cfseo-tab-help');
+      const tabHelp = document.querySelectorAll('.ASNERISSEO-tab-help');
       
       // Restore sidebar state
       const isVisible = localStorage.getItem(storageKey) !== 'false';
@@ -192,7 +192,7 @@ class CFSEO_Help_Content {
         const tabHref = activeTab.getAttribute('href');
         if (!tabHref) return;
         
-        // Extract tab name from query parameter (e.g., ?page=cfseo-settings&tab=general)
+        // Extract tab name from query parameter (e.g., ?page=ASNERISSEO-settings&tab=general)
         const urlParams = new URLSearchParams(tabHref.split('?')[1] || '');
         const tabName = urlParams.get('tab') || 'general';
         
@@ -200,7 +200,7 @@ class CFSEO_Help_Content {
         tabHelp.forEach(help => help.style.display = 'none');
         
         // Show matching tab help
-        const matchingHelp = document.querySelector('.cfseo-tab-help[data-tab="' + tabName + '"]');
+        const matchingHelp = document.querySelector('.ASNERISSEO-tab-help[data-tab="' + tabName + '"]');
         if (matchingHelp) {
           matchingHelp.style.display = 'block';
         }

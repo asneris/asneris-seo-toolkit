@@ -1,12 +1,12 @@
 /**
- * GSC Clarity SEO - Admin JavaScript
+ * Asneris SEO Toolkit - Admin JavaScript
  * Handles media uploads, import/export, and dynamic UI interactions
  */
 
 (function($) {
     'use strict';
 
-    const CFSEO_Admin = {
+    const ASNERISSEO_Admin = {
         
         /**
          * Initialize all admin features
@@ -24,23 +24,15 @@
          * WordPress Media Uploader Integration
          */
         mediaUploader: function() {
-            let mediaUploader;
-
-            $(document).on('click', '.cfseo-upload-button', function(e) {
+            $(document).on('click', '.ASNERISSEO-upload-button', function(e) {
                 e.preventDefault();
                 
                 const button = $(this);
                 const targetInput = $(button.data('target'));
-                const previewContainer = button.siblings('.cfseo-image-preview');
+                const previewContainer = button.siblings('.ASNERISSEO-image-preview');
 
-                // If the media uploader exists, open it
-                if (mediaUploader) {
-                    mediaUploader.open();
-                    return;
-                }
-
-                // Create a new media uploader
-                mediaUploader = wp.media({
+                // Create a new media uploader for each button click
+                const mediaUploader = wp.media({
                     title: 'Select or Upload Image',
                     button: {
                         text: 'Use this image'
@@ -72,13 +64,13 @@
             });
 
             // Remove image functionality
-            $(document).on('click', '.cfseo-remove-image', function(e) {
+            $(document).on('click', '.ASNERISSEO-remove-image', function(e) {
                 e.preventDefault();
                 const button = $(this);
                 const targetInput = button.data('target');
                 
                 $(targetInput).val('');
-                button.closest('.cfseo-image-preview').empty();
+                button.closest('.ASNERISSEO-image-preview').empty();
             });
         },
 
@@ -116,14 +108,14 @@
             const self = this;
 
             // Export settings
-            $('#cfseo-export-settings').on('click', function(e) {
+            $('#ASNERISSEO-export-settings').on('click', function(e) {
                 e.preventDefault();
                 
                 $.ajax({
                     url: gscseoAdmin.ajaxUrl,
                     type: 'POST',
                     data: {
-                        action: 'CFSEO_export_settings',
+                        action: 'ASNERISSEO_export_settings',
                         nonce: gscseoAdmin.nonce
                     },
                     success: function(response) {
@@ -131,7 +123,7 @@
                             const dataStr = JSON.stringify(response.data, null, 2);
                             const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
                             
-                            const exportName = 'cfseo-settings-' + self.getFormattedDate() + '.json';
+                            const exportName = 'ASNERISSEO-settings-' + self.getFormattedDate() + '.json';
                             
                             const linkElement = document.createElement('a');
                             linkElement.setAttribute('href', dataUri);
@@ -150,12 +142,12 @@
             });
 
             // Import settings
-            $('#cfseo-import-settings').on('click', function(e) {
+            $('#ASNERISSEO-import-settings').on('click', function(e) {
                 e.preventDefault();
-                $('#cfseo-import-file').click();
+                $('#ASNERISSEO-import-file').click();
             });
 
-            $('#cfseo-import-file').on('change', function(e) {
+            $('#ASNERISSEO-import-file').on('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
 
@@ -177,7 +169,7 @@
                             url: gscseoAdmin.ajaxUrl,
                             type: 'POST',
                             data: {
-                                action: 'CFSEO_import_settings',
+                                action: 'ASNERISSEO_import_settings',
                                 nonce: gscseoAdmin.nonce,
                                 settings: settings
                             },
@@ -209,7 +201,7 @@
         resetSettings: function() {
             const self = this;
 
-            $('#cfseo-reset-settings').on('click', function(e) {
+            $('#ASNERISSEO-reset-settings').on('click', function(e) {
                 e.preventDefault();
                 
                 if (!confirm('Are you sure you want to reset all settings? This action cannot be undone.')) {
@@ -224,7 +216,7 @@
                     url: gscseoAdmin.ajaxUrl,
                     type: 'POST',
                     data: {
-                        action: 'CFSEO_reset_settings',
+                        action: 'ASNERISSEO_reset_settings',
                         nonce: gscseoAdmin.nonce
                     },
                     success: function(response) {
@@ -248,7 +240,7 @@
          * Form Validation
          */
         formValidation: function() {
-            $('.cfseo-settings-form').on('submit', function(e) {
+            $('.ASNERISSEO-settings-form').on('submit', function(e) {
                 let hasErrors = false;
 
                 // Validate URLs
@@ -256,7 +248,7 @@
                     const input = $(this);
                     const value = input.val().trim();
                     
-                    if (value && !CFSEO_Admin.isValidUrl(value)) {
+                    if (value && !ASNERISSEO_Admin.isValidUrl(value)) {
                         input.addClass('error');
                         hasErrors = true;
                     } else {
@@ -269,7 +261,7 @@
                     const input = $(this);
                     const value = input.val().trim();
                     
-                    if (value && !CFSEO_Admin.isValidPhone(value)) {
+                    if (value && !ASNERISSEO_Admin.isValidPhone(value)) {
                         input.addClass('error');
                         hasErrors = true;
                     } else {
@@ -279,7 +271,7 @@
 
                 if (hasErrors) {
                     e.preventDefault();
-                    CFSEO_Admin.showNotice('Please fix validation errors before saving.', 'error');
+                    ASNERISSEO_Admin.showNotice('Please fix validation errors before saving.', 'error');
                     return false;
                 }
             });
@@ -289,12 +281,12 @@
          * Image Preview on URL change
          */
         imagePreview: function() {
-            $(document).on('change', '.cfseo-media-url', function() {
+            $(document).on('change', '.ASNERISSEO-media-url', function() {
                 const input = $(this);
                 const url = input.val().trim();
-                const previewContainer = input.siblings('.cfseo-image-preview');
+                const previewContainer = input.siblings('.ASNERISSEO-image-preview');
                 
-                if (url && CFSEO_Admin.isValidUrl(url)) {
+                if (url && ASNERISSEO_Admin.isValidUrl(url)) {
                     previewContainer.html(
                         '<img src="' + url + '" style="max-width: 400px; margin-top: 10px;">'
                     );
@@ -311,7 +303,7 @@
             const noticeClass = type === 'error' ? 'notice-error' : 'notice-success';
             const notice = $('<div class="notice ' + noticeClass + ' is-dismissible"><p>' + message + '</p></div>');
             
-            $('.cfseo-admin-wrap').prepend(notice);
+            $('.ASNERISSEO-admin-wrap').prepend(notice);
             
             setTimeout(function() {
                 notice.fadeOut(function() {
@@ -345,7 +337,7 @@
 
     // Initialize on document ready
     $(document).ready(function() {
-        CFSEO_Admin.init();
+        ASNERISSEO_Admin.init();
     });
 
 })(jQuery);

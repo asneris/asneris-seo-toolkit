@@ -1,7 +1,7 @@
 {
-  "name": "beginner-friendly-seo",
-  "version": "0.2.0",
-  "description": "Beginner-friendly SEO plugin for WordPress with intuitive UI",
+  "name": "asneris-seo-toolkit",
+  "version": "0.1.0",
+  "description": "Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI",
   "main": "build/index.js",
   "scripts": {
     "build": "wp-scripts build src/index.js --output-path=build",
@@ -16,7 +16,7 @@
     "gutenberg",
     "plugin"
   ],
-  "author": "Clarity-First SEO",
+  "author": "Asneris",
   "license": "GPL-2.0-or-later",
   "devDependencies": {
     "@wordpress/scripts": "^26.0.0"

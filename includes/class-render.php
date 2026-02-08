@@ -1,21 +1,21 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Render {
+class ASNERISSEO_Render {
 
   public static function render_meta_tags() {
     // Site-wide verification tags
-    $google = CFSEO_Admin_Settings::get('google_verification');
+    $google = ASNERISSEO_Admin_Settings::get('google_verification');
     if ($google) {
       echo '<meta name="google-site-verification" content="' . esc_attr($google) . '">' . "\n";
     }
 
-    $bing = CFSEO_Admin_Settings::get('bing_verification');
+    $bing = ASNERISSEO_Admin_Settings::get('bing_verification');
     if ($bing) {
       echo '<meta name="msvalidate.01" content="' . esc_attr($bing) . '">' . "\n";
     }
 
-    $yandex = CFSEO_Admin_Settings::get('yandex_verification');
+    $yandex = ASNERISSEO_Admin_Settings::get('yandex_verification');
     if ($yandex) {
       echo '<meta name="yandex-verification" content="' . esc_attr($yandex) . '">' . "\n";
     }
@@ -29,35 +29,35 @@ class CFSEO_Render {
     if (!$post) return;
 
     // Get post meta
-    $seo_title = get_post_meta($id, '_CFSEO_title', true);
-    $desc = get_post_meta($id, '_CFSEO_description', true);
-    $canon = get_post_meta($id, '_CFSEO_canonical', true) ?: get_permalink($id);
-    $robots_index = get_post_meta($id, '_CFSEO_robots_index', true) ?: 'index';
-    $robots_follow = get_post_meta($id, '_CFSEO_robots_follow', true) ?: 'follow';
+    $seo_title = get_post_meta($id, '_ASNERISSEO_title', true);
+    $desc = get_post_meta($id, '_ASNERISSEO_description', true);
+    $canon = get_post_meta($id, '_ASNERISSEO_canonical', true) ?: get_permalink($id);
+    $robots_index = get_post_meta($id, '_ASNERISSEO_robots_index', true) ?: 'index';
+    $robots_follow = get_post_meta($id, '_ASNERISSEO_robots_follow', true) ?: 'follow';
     
     // Open Graph meta
-    $og_title = get_post_meta($id, '_CFSEO_og_title', true);
-    $og_description = get_post_meta($id, '_CFSEO_og_description', true);
-    $og_image = get_post_meta($id, '_CFSEO_og_image', true);
+    $og_title = get_post_meta($id, '_ASNERISSEO_og_title', true);
+    $og_description = get_post_meta($id, '_ASNERISSEO_og_description', true);
+    $og_image = get_post_meta($id, '_ASNERISSEO_og_image', true);
 
     // Fallback values with template support
     $final_title = $seo_title;
     if (empty($final_title)) {
       // Try template first, then fallback to post title
-      $template_title = CFSEO_Templates::generate_title($post);
+      $template_title = ASNERISSEO_Templates::generate_title($post);
       $final_title = !empty($template_title) ? $template_title : get_the_title($id);
     }
     
     $final_desc = $desc;
     if (empty($final_desc)) {
       // Try template first, then fallback to excerpt
-      $template_desc = CFSEO_Templates::generate_description($post);
+      $template_desc = ASNERISSEO_Templates::generate_description($post);
       $final_desc = !empty($template_desc) ? $template_desc : wp_trim_words(get_the_excerpt($id), 30);
     }
     
     $final_og_title = $og_title ?: $final_title;
     $final_og_desc = $og_description ?: $final_desc;
-    $final_og_image = $og_image ?: CFSEO_Admin_Settings::get('default_og_image');
+    $final_og_image = $og_image ?: ASNERISSEO_Admin_Settings::get('default_og_image');
     
     // If still no image, try featured image
     if (!$final_og_image && has_post_thumbnail($id)) {
@@ -130,7 +130,7 @@ class CFSEO_Render {
     }
 
     // Facebook App ID
-    $fb_app_id = CFSEO_Admin_Settings::get('facebook_app_id');
+    $fb_app_id = ASNERISSEO_Admin_Settings::get('facebook_app_id');
     if ($fb_app_id) {
       echo '<meta property="fb:app_id" content="' . esc_attr($fb_app_id) . '">' . "\n";
     }
@@ -144,14 +144,14 @@ class CFSEO_Render {
       echo '<meta name="twitter:image" content="' . esc_url($final_og_image) . '">' . "\n";
     }
     
-    $twitter_username = CFSEO_Admin_Settings::get('twitter_username');
+    $twitter_username = ASNERISSEO_Admin_Settings::get('twitter_username');
     if ($twitter_username) {
       $twitter_handle = (strpos($twitter_username, '@') === 0) ? $twitter_username : '@' . $twitter_username;
       echo '<meta name="twitter:site" content="' . esc_attr($twitter_handle) . '">' . "\n";
     }
     
     // Theme color for Discord, Telegram embeds, and mobile browsers
-    $theme_color = CFSEO_Admin_Settings::get('theme_color');
+    $theme_color = ASNERISSEO_Admin_Settings::get('theme_color');
     if ($theme_color) {
       echo '<meta name="theme-color" content="' . esc_attr($theme_color) . '">' . "\n";
     }

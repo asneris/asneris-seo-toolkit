@@ -1,11 +1,11 @@
-# Spanish translation for Clarity-First SEO
-# Copyright (C) 2026 Clarity-First SEO
+# Spanish translation for Asneris SEO Toolkit
+# Copyright (C) 2026 Asneris SEO Toolkit
 msgid ""
 msgstr ""
-"Project-Id-Version: Clarity-First SEO 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-13 21:30+0000\n"
-"PO-Revision-Date: 2026-01-13 21:30+0000\n"
+"Project-Id-Version: Asneris SEO Toolkit 0.1.0\n"
+"Report-Msgid-Bugs-To: https://asneris.com\n"
+"POT-Creation-Date: 2026-02-07 12:00+0000\n"
+"PO-Revision-Date: 2026-02-07 12:00+0000\n"
 "Last-Translator: Your Name <your@email.com>\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -14,10 +14,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "Clarity-First SEO"
-msgstr "SEO Claro y Directo"
+msgid "Asneris SEO Toolkit"
+msgstr "Kit de Herramientas SEO Asneris"
 
-msgid "Clear and simple SEO configuration for your WordPress site."
+msgid "Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI."
 msgstr "Configuración de SEO clara y simple para tu sitio WordPress."
 
 msgid "Settings saved successfully!"

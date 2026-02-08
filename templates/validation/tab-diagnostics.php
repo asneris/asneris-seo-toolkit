@@ -5,16 +5,16 @@
 if (!defined('ABSPATH')) exit;
 
 // Get diagnostic data
-$cfseo_sitemap_status = CFSEO_Validation::check_sitemap_visibility();
-$cfseo_duplicate_status = CFSEO_Validation::detect_duplicate_outputs();
-$cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty($cfseo_duplicate_status['duplicates']);
+$ASNERISSEO_sitemap_status = ASNERISSEO_Validation::check_sitemap_visibility();
+$ASNERISSEO_duplicate_status = ASNERISSEO_Validation::detect_duplicate_outputs();
+$ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) || !empty($ASNERISSEO_duplicate_status['duplicates']);
 ?>
 
 <!-- Sitemap Visibility -->
-<div class="cfseo-card">
+<div class="ASNERISSEO-card">
   <h2>
     <span class="dashicons dashicons-networking"></span> Can search engines easily find your pages?
-    <?php CFSEO_Help_Modal::render_help_icon('sitemap-discovery', 'Learn about sitemap discovery'); ?>
+    <?php ASNERISSEO_Help_Modal::render_help_icon('sitemap-discovery', 'Learn about sitemap discovery'); ?>
   </h2>
   <table class="widefat striped">
     <thead>
@@ -27,18 +27,18 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
     <tbody>
       <tr>
         <td><strong>Sitemap URL</strong></td>
-        <td><?php echo $cfseo_sitemap_status['found'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-        <td><?php echo $cfseo_sitemap_status['found'] ? 'Found: ' : 'Not Found: '; echo esc_html($cfseo_sitemap_status['url']); ?></td>
+        <td><?php echo $ASNERISSEO_sitemap_status['found'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo $ASNERISSEO_sitemap_status['found'] ? 'Found: ' : 'Not Found: '; echo esc_html($ASNERISSEO_sitemap_status['url']); ?></td>
       </tr>
       <tr>
         <td><strong>HTTP Status</strong></td>
-        <td><?php echo $cfseo_sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-        <td><?php echo $cfseo_sitemap_status['http_status'] === 200 ? 'HTTP ' . esc_html($cfseo_sitemap_status['http_status']) . ' - ' . esc_html($cfseo_sitemap_status['http_message']) : 'Sitemap URL could not be checked'; ?></td>
+        <td><?php echo $ASNERISSEO_sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo $ASNERISSEO_sitemap_status['http_status'] === 200 ? 'HTTP ' . esc_html($ASNERISSEO_sitemap_status['http_status']) . ' - ' . esc_html($ASNERISSEO_sitemap_status['http_message']) : 'Sitemap URL could not be checked'; ?></td>
       </tr>
       <tr>
         <td><strong>Robots.txt Reference</strong></td>
-        <td><?php echo $cfseo_sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #f0ad4e;">⚠ Warning</span>'; ?></td>
-        <td><?php echo $cfseo_sitemap_status['in_robots'] ? 'Referenced in robots.txt - ' : 'Not found in robots.txt - '; echo esc_html($cfseo_sitemap_status['robots_message']); ?></td>
+        <td><?php echo $ASNERISSEO_sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #f0ad4e;">⚠ Warning</span>'; ?></td>
+        <td><?php echo $ASNERISSEO_sitemap_status['in_robots'] ? 'Referenced in robots.txt - ' : 'Not found in robots.txt - '; echo esc_html($ASNERISSEO_sitemap_status['robots_message']); ?></td>
       </tr>
       <tr>
         <td><strong>Controlled By</strong></td>
@@ -50,12 +50,12 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
 </div>
 
 <!-- Duplicate Output Detector -->
-<div class="cfseo-card">
+<div class="ASNERISSEO-card">
   <h2>
     <span class="dashicons dashicons-yes"></span> Is your site sending clear, single signals?
-    <?php CFSEO_Help_Modal::render_help_icon('duplicate-signals', 'Learn about duplicate signals'); ?>
+    <?php ASNERISSEO_Help_Modal::render_help_icon('duplicate-signals', 'Learn about duplicate signals'); ?>
   </h2>
-  <?php if ($cfseo_has_issues): ?>
+  <?php if ($ASNERISSEO_has_issues): ?>
     <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
       <strong>⚠️ Potential Conflicts Detected</strong>
       <p style="margin: 5px 0 0 0;">Multiple SEO plugins may be outputting duplicate meta tags.</p>
@@ -78,14 +78,14 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
     <tbody>
       <tr>
         <td><strong>Active SEO Plugins</strong></td>
-        <td><?php echo empty($cfseo_duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-        <td><?php echo empty($cfseo_duplicate_status['active_plugins']) ? 'Only this plugin - No conflicts' : 'Multiple detected: ' . esc_html(implode(', ', $cfseo_duplicate_status['active_plugins'])); ?></td>
+        <td><?php echo empty($ASNERISSEO_duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo empty($ASNERISSEO_duplicate_status['active_plugins']) ? 'Only this plugin - No conflicts' : 'Multiple detected: ' . esc_html(implode(', ', $ASNERISSEO_duplicate_status['active_plugins'])); ?></td>
       </tr>
       <?php foreach (['title', 'description', 'canonical', 'robots', 'schema'] as $type): ?>
         <tr>
           <td><strong><?php echo esc_html(ucfirst($type)); ?> Tags</strong></td>
-          <td><?php echo empty($cfseo_duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-          <td><?php echo empty($cfseo_duplicate_status['duplicates'][$type]) ? 'Single output - No duplicates' : 'Duplicate found: ' . esc_html($cfseo_duplicate_status['duplicates'][$type]); ?></td>
+          <td><?php echo empty($ASNERISSEO_duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+          <td><?php echo empty($ASNERISSEO_duplicate_status['duplicates'][$type]) ? 'Single output - No duplicates' : 'Duplicate found: ' . esc_html($ASNERISSEO_duplicate_status['duplicates'][$type]); ?></td>
         </tr>
       <?php endforeach; ?>
     </tbody>
@@ -93,25 +93,25 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
 </div>
 
 <!-- Indexing Safety (Patterns) -->
-<div class="cfseo-card">
+<div class="ASNERISSEO-card">
   <h2>
     <span class="dashicons dashicons-shield"></span> Is anything blocking your site from search results?
-    <?php CFSEO_Help_Modal::render_help_icon('indexing-blocks', 'Learn about indexing blocks'); ?>
+    <?php ASNERISSEO_Help_Modal::render_help_icon('indexing-blocks', 'Learn about indexing blocks'); ?>
   </h2>
   <?php
   // Check for site-wide indexing safety patterns
-  $cfseo_indexing_warnings = [];
+  $ASNERISSEO_indexing_warnings = [];
   
   // 1. Check if site is set to discourage search engines (global noindex)
   if (get_option('blog_public') == '0') {
-    $cfseo_indexing_warnings[] = [
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Global Noindex',
       'status' => 'conflict',
       'details' => '❌ Site is set to discourage search engines (Settings → Reading)',
       'why' => 'This prevents all pages from being indexed'
     ];
   } else {
-    $cfseo_indexing_warnings[] = [
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Global Noindex',
       'status' => 'pass',
       'details' => '✅ No global noindex detected'
@@ -119,42 +119,42 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // 2. Check robots.txt for blocks affecting large sections
-  $cfseo_robots_url = home_url('/robots.txt');
-  $cfseo_robots_response = wp_remote_get($cfseo_robots_url, ['timeout' => 5, 'sslverify' => false]);
-  if (!is_wp_error($cfseo_robots_response) && wp_remote_retrieve_response_code($cfseo_robots_response) === 200) {
-    $cfseo_robots_content = wp_remote_retrieve_body($cfseo_robots_response);
-    $cfseo_blocked_sections = [];
+  $ASNERISSEO_robots_url = home_url('/robots.txt');
+  $ASNERISSEO_robots_response = wp_remote_get($ASNERISSEO_robots_url, ['timeout' => 5, 'sslverify' => false]);
+  if (!is_wp_error($ASNERISSEO_robots_response) && wp_remote_retrieve_response_code($ASNERISSEO_robots_response) === 200) {
+    $ASNERISSEO_robots_content = wp_remote_retrieve_body($ASNERISSEO_robots_response);
+    $ASNERISSEO_blocked_sections = [];
     
     // Check for common large-section blocks
-    if (preg_match('/Disallow:\s*\/\s*$/m', $robots_content)) {
-      $cfseo_blocked_sections[] = 'entire site';
+    if (preg_match('/Disallow:\s*\/\s*$/m', $ASNERISSEO_robots_content)) {
+      $ASNERISSEO_blocked_sections[] = 'entire site';
     }
-    if (stripos($robots_content, 'Disallow: /wp-content') !== false) {
-      $cfseo_blocked_sections[] = '/wp-content';
+    if (stripos($ASNERISSEO_robots_content, 'Disallow: /wp-content') !== false) {
+      $ASNERISSEO_blocked_sections[] = '/wp-content';
     }
-    if (stripos($robots_content, 'Disallow: /category') !== false) {
-      $cfseo_blocked_sections[] = '/category';
+    if (stripos($ASNERISSEO_robots_content, 'Disallow: /category') !== false) {
+      $ASNERISSEO_blocked_sections[] = '/category';
     }
-    if (stripos($robots_content, 'Disallow: /tag') !== false) {
-      $cfseo_blocked_sections[] = '/tag';
+    if (stripos($ASNERISSEO_robots_content, 'Disallow: /tag') !== false) {
+      $ASNERISSEO_blocked_sections[] = '/tag';
     }
     
-    if (!empty($cfseo_blocked_sections)) {
-      $cfseo_indexing_warnings[] = [
+    if (!empty($ASNERISSEO_blocked_sections)) {
+      $ASNERISSEO_indexing_warnings[] = [
         'check' => 'Robots.txt Large Blocks',
         'status' => 'warning',
-        'details' => '⚠️ Robots.txt blocks: ' . implode(', ', $cfseo_blocked_sections),
+        'details' => '⚠️ Robots.txt blocks: ' . implode(', ', $ASNERISSEO_blocked_sections),
         'why' => 'These rules may prevent crawling of large sections'
       ];
     } else {
-      $cfseo_indexing_warnings[] = [
+      $ASNERISSEO_indexing_warnings[] = [
         'check' => 'Robots.txt Large Blocks',
         'status' => 'pass',
         'details' => '✅ No large-section blocks in robots.txt'
       ];
     }
   } else {
-    $cfseo_indexing_warnings[] = [
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Robots.txt Large Blocks',
       'status' => 'pass',
       'details' => '✅ No robots.txt or accessible'
@@ -162,22 +162,22 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // 3. Check sitemap URLs returning non-200
-  $cfseo_sitemap_check = CFSEO_Validation::check_sitemap_visibility();
-  if ($cfseo_sitemap_check['found'] && $cfseo_sitemap_check['http_status'] !== 200) {
-    $cfseo_indexing_warnings[] = [
+  $ASNERISSEO_sitemap_check = ASNERISSEO_Validation::check_sitemap_visibility();
+  if ($ASNERISSEO_sitemap_check['found'] && $ASNERISSEO_sitemap_check['http_status'] !== 200) {
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Sitemap Accessibility',
       'status' => 'warning',
-      'details' => '⚠️ Sitemap returns HTTP ' . $cfseo_sitemap_check['http_status'],
+      'details' => '⚠️ Sitemap returns HTTP ' . $ASNERISSEO_sitemap_check['http_status'],
       'why' => 'Search engines cannot access your sitemap for URL discovery'
     ];
-  } else if ($cfseo_sitemap_check['found']) {
-    $cfseo_indexing_warnings[] = [
+  } else if ($ASNERISSEO_sitemap_check['found']) {
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Sitemap Accessibility',
       'status' => 'pass',
       'details' => '✅ Sitemap accessible (HTTP 200)'
     ];
   } else {
-    $cfseo_indexing_warnings[] = [
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Sitemap Accessibility',
       'status' => 'pass',
       'details' => '✅ No sitemap configured'
@@ -185,32 +185,32 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // 4. Check for redirect chains (sample homepage and a few posts)
-  $cfseo_test_urls = [home_url('/')];
-  $cfseo_recent_posts = get_posts(['numberposts' => 3, 'post_status' => 'publish']);
-  foreach ($cfseo_recent_posts as $post) {
-    $cfseo_test_urls[] = get_permalink($post->ID);
+  $ASNERISSEO_test_urls = [home_url('/')];
+  $ASNERISSEO_recent_posts = get_posts(['numberposts' => 3, 'post_status' => 'publish']);
+  foreach ($ASNERISSEO_recent_posts as $post) {
+    $ASNERISSEO_test_urls[] = get_permalink($post->ID);
   }
   
-  $cfseo_redirect_chains = 0;
-  foreach ($cfseo_test_urls as $cfseo_url) {
-    $cfseo_response = wp_remote_head($cfseo_url, ['timeout' => 5, 'redirection' => 0, 'sslverify' => false]);
-    if (!is_wp_error($cfseo_response)) {
-      $cfseo_code = wp_remote_retrieve_response_code($cfseo_response);
-      if (in_array($cfseo_code, [301, 302, 307, 308])) {
-        $cfseo_redirect_chains++;
+  $ASNERISSEO_redirect_chains = 0;
+  foreach ($ASNERISSEO_test_urls as $ASNERISSEO_url) {
+    $ASNERISSEO_response = wp_remote_head($ASNERISSEO_url, ['timeout' => 5, 'redirection' => 0, 'sslverify' => false]);
+    if (!is_wp_error($ASNERISSEO_response)) {
+      $ASNERISSEO_code = wp_remote_retrieve_response_code($ASNERISSEO_response);
+      if (in_array($ASNERISSEO_code, [301, 302, 307, 308])) {
+        $ASNERISSEO_redirect_chains++;
       }
     }
   }
   
-  if ($cfseo_redirect_chains > 0) {
-    $cfseo_indexing_warnings[] = [
+  if ($ASNERISSEO_redirect_chains > 0) {
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Redirect Chains',
       'status' => 'warning',
-      'details' => '⚠️ ' . $cfseo_redirect_chains . ' of ' . count($cfseo_test_urls) . ' sampled URLs redirect',
+      'details' => '⚠️ ' . $ASNERISSEO_redirect_chains . ' of ' . count($ASNERISSEO_test_urls) . ' sampled URLs redirect',
       'why' => 'Repeated redirects can delay or prevent indexing'
     ];
   } else {
-    $cfseo_indexing_warnings[] = [
+    $ASNERISSEO_indexing_warnings[] = [
       'check' => 'Redirect Chains',
       'status' => 'pass',
       'details' => '✅ No redirects detected in sample'
@@ -218,25 +218,25 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // Determine overall status
-  $cfseo_has_conflicts = false;
-  $cfseo_has_warnings = false;
-  foreach ($cfseo_indexing_warnings as $cfseo_item) {
-    if ($cfseo_item['status'] === 'conflict') {
-      $cfseo_has_conflicts = true;
+  $ASNERISSEO_has_conflicts = false;
+  $ASNERISSEO_has_warnings = false;
+  foreach ($ASNERISSEO_indexing_warnings as $ASNERISSEO_item) {
+    if ($ASNERISSEO_item['status'] === 'conflict') {
+      $ASNERISSEO_has_conflicts = true;
       break;
     }
-    if ($cfseo_item['status'] === 'warning') {
-      $cfseo_has_warnings = true;
+    if ($ASNERISSEO_item['status'] === 'warning') {
+      $ASNERISSEO_has_warnings = true;
     }
   }
   ?>
   
-  <?php if ($cfseo_has_conflicts): ?>
+  <?php if ($ASNERISSEO_has_conflicts): ?>
     <div style="background: #f8d7da; border-left: 4px solid #dc3232; padding: 12px; margin-bottom: 15px;">
       <strong>❌ Search engines are blocked from indexing your site</strong>
       <p style="margin: 5px 0 0 0;">Your site has settings that prevent search engine indexing.</p>
     </div>
-  <?php elseif ($cfseo_has_warnings): ?>
+  <?php elseif ($ASNERISSEO_has_warnings): ?>
     <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
       <strong>⚠️ Some URLs blocked by robots.txt</strong>
       <p style="margin: 5px 0 0 0;">Review these patterns to ensure they match your intent.</p>
@@ -257,24 +257,24 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
       </tr>
     </thead>
     <tbody>
-      <?php foreach ($cfseo_indexing_warnings as $cfseo_item): ?>
+      <?php foreach ($ASNERISSEO_indexing_warnings as $ASNERISSEO_item): ?>
         <tr>
-          <td><strong><?php echo esc_html($cfseo_item['check']); ?></strong></td>
+          <td><strong><?php echo esc_html($ASNERISSEO_item['check']); ?></strong></td>
           <td>
             <?php 
-            if ($cfseo_item['status'] === 'pass') {
+            if ($ASNERISSEO_item['status'] === 'pass') {
               echo '<span style="color: #46b450;">✓ Pass</span>';
-            } elseif ($cfseo_item['status'] === 'warning') {
+            } elseif ($ASNERISSEO_item['status'] === 'warning') {
               echo '<span style="color: #f0ad4e;">⚠ Warning</span>';
-            } elseif ($cfseo_item['status'] === 'conflict') {
+            } elseif ($ASNERISSEO_item['status'] === 'conflict') {
               echo '<span style="color: #dc3232;">✗ Issue</span>';
             }
             ?>
           </td>
           <td>
-            <?php echo esc_html($cfseo_item['details']); ?>
-            <?php if (isset($cfseo_item['why'])): ?>
-              <br><span style="color: #646970; font-size: 13px;"><?php echo esc_html($cfseo_item['why']); ?></span>
+            <?php echo esc_html($ASNERISSEO_item['details']); ?>
+            <?php if (isset($ASNERISSEO_item['why'])): ?>
+              <br><span style="color: #646970; font-size: 13px;"><?php echo esc_html($ASNERISSEO_item['why']); ?></span>
             <?php endif; ?>
           </td>
         </tr>
@@ -284,50 +284,50 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
 </div>
 
 <!-- Canonical Consistency (Patterns) -->
-<div class="cfseo-card">
+<div class="ASNERISSEO-card">
   <h2>
     <span class="dashicons dashicons-admin-links"></span> Do pages clearly identify their main URL?
-    <?php CFSEO_Help_Modal::render_help_icon('canonical-consistency', 'Learn about canonical URLs'); ?>
+    <?php ASNERISSEO_Help_Modal::render_help_icon('canonical-consistency', 'Learn about canonical URLs'); ?>
   </h2>
   <?php
   // Check canonical patterns across the site
   global $wpdb;
-  $cfseo_canonical_checks = [];
-  $cfseo_home_url_normalized = untrailingslashit(strtolower(home_url('/')));
+  $ASNERISSEO_canonical_checks = [];
+  $ASNERISSEO_home_url_normalized = untrailingslashit(strtolower(home_url('/')));
   
   // 1. Detect pages canonicalizing to homepage with caching
-  $cfseo_cache_key = 'cfseo_pages_to_home_' . md5($cfseo_home_url_normalized);
-  $cfseo_pages_to_home = wp_cache_get($cfseo_cache_key, 'cfseo_diagnostics');
+  $ASNERISSEO_cache_key = 'ASNERISSEO_pages_to_home_' . md5($ASNERISSEO_home_url_normalized);
+  $ASNERISSEO_pages_to_home = wp_cache_get($ASNERISSEO_cache_key, 'ASNERISSEO_diagnostics');
   
-  if (false === $cfseo_pages_to_home) {
+  if (false === $ASNERISSEO_pages_to_home) {
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching implemented with wp_cache_get/set above
-    $cfseo_pages_to_home = $wpdb->get_var($wpdb->prepare("
+    $ASNERISSEO_pages_to_home = $wpdb->get_var($wpdb->prepare("
       SELECT COUNT(*) 
       FROM {$wpdb->postmeta} pm
       INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-      WHERE pm.meta_key = '_CFSEO_canonical'
+      WHERE pm.meta_key = '_ASNERISSEO_canonical'
       AND LOWER(TRIM(TRAILING '/' FROM pm.meta_value)) = %s
       AND p.post_status = 'publish'
       AND p.ID != %d
-    ", $cfseo_home_url_normalized, get_option('page_on_front')));
-    wp_cache_set($cfseo_cache_key, $cfseo_pages_to_home, 'cfseo_diagnostics', 300);
+    ", $ASNERISSEO_home_url_normalized, get_option('page_on_front')));
+    wp_cache_set($ASNERISSEO_cache_key, $ASNERISSEO_pages_to_home, 'ASNERISSEO_diagnostics', 300);
   }
   
-  if ($cfseo_pages_to_home > 5) {
-    $cfseo_canonical_checks[] = [
+  if ($ASNERISSEO_pages_to_home > 5) {
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Pages Canonicalizing to Homepage',
       'status' => 'warning',
-      'details' => '⚠️ ' . $cfseo_pages_to_home . ' pages point their canonical to homepage',
+      'details' => '⚠️ ' . $ASNERISSEO_pages_to_home . ' pages point their canonical to homepage',
       'why' => 'This may indicate duplicate content or misconfiguration'
     ];
-  } else if ($cfseo_pages_to_home > 0) {
-    $cfseo_canonical_checks[] = [
+  } else if ($ASNERISSEO_pages_to_home > 0) {
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Pages Canonicalizing to Homepage',
       'status' => 'pass',
-      'details' => '✅ ' . $cfseo_pages_to_home . ' pages (within normal range)'
+      'details' => '✅ ' . $ASNERISSEO_pages_to_home . ' pages (within normal range)'
     ];
   } else {
-    $cfseo_canonical_checks[] = [
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Pages Canonicalizing to Homepage',
       'status' => 'pass',
       'details' => '✅ No pages canonicalize to homepage'
@@ -335,47 +335,47 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // 2. Detect canonical loops (pages canonicalizing to each other) with caching
-  $cfseo_canonical_cache_key = 'cfseo_canonical_urls_check';
-  $cfseo_canonical_urls = wp_cache_get($cfseo_canonical_cache_key, 'cfseo_diagnostics');
+  $ASNERISSEO_canonical_cache_key = 'ASNERISSEO_canonical_urls_check';
+  $ASNERISSEO_canonical_urls = wp_cache_get($ASNERISSEO_canonical_cache_key, 'ASNERISSEO_diagnostics');
   
-  if (false === $cfseo_canonical_urls) {
+  if (false === $ASNERISSEO_canonical_urls) {
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching implemented with wp_cache_get/set above
-    $cfseo_canonical_urls = $wpdb->get_results("
+    $ASNERISSEO_canonical_urls = $wpdb->get_results("
       SELECT p.ID, pm.meta_value as canonical_url, p.guid
       FROM {$wpdb->postmeta} pm
       INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-    WHERE pm.meta_key = '_CFSEO_canonical'
+    WHERE pm.meta_key = '_ASNERISSEO_canonical'
     AND pm.meta_value != ''
     AND p.post_status = 'publish'
     LIMIT 100
   ");
-    wp_cache_set($cfseo_canonical_cache_key, $cfseo_canonical_urls, 'cfseo_diagnostics', 300);
+    wp_cache_set($ASNERISSEO_canonical_cache_key, $ASNERISSEO_canonical_urls, 'ASNERISSEO_diagnostics', 300);
   }
   
-  $cfseo_loop_detected = false;
-  $cfseo_canonical_map = [];
-  foreach ($cfseo_canonical_urls as $cfseo_row) {
-    $cfseo_canonical_map[$cfseo_row->ID] = untrailingslashit(strtolower($cfseo_row->canonical_url));
+  $ASNERISSEO_loop_detected = false;
+  $ASNERISSEO_canonical_map = [];
+  foreach ($ASNERISSEO_canonical_urls as $ASNERISSEO_row) {
+    $ASNERISSEO_canonical_map[$ASNERISSEO_row->ID] = untrailingslashit(strtolower($ASNERISSEO_row->canonical_url));
   }
   
   // Simple loop detection (A->B->A pattern)
-  foreach ($cfseo_canonical_map as $post_id => $cfseo_canonical_url) {
-    $cfseo_reverse_match = array_search(untrailingslashit(strtolower(get_permalink($post_id))), $cfseo_canonical_map);
-    if ($cfseo_reverse_match && $cfseo_reverse_match != $post_id) {
-      $cfseo_loop_detected = true;
+  foreach ($ASNERISSEO_canonical_map as $post_id => $ASNERISSEO_canonical_url) {
+    $ASNERISSEO_reverse_match = array_search(untrailingslashit(strtolower(get_permalink($post_id))), $ASNERISSEO_canonical_map);
+    if ($ASNERISSEO_reverse_match && $ASNERISSEO_reverse_match != $post_id) {
+      $ASNERISSEO_loop_detected = true;
       break;
     }
   }
   
-  if ($cfseo_loop_detected) {
-    $cfseo_canonical_checks[] = [
+  if ($ASNERISSEO_loop_detected) {
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Canonical Loops',
       'status' => 'conflict',
       'details' => '❌ Canonical loop detected (pages pointing to each other)',
       'why' => 'This creates ambiguity about which page is canonical'
     ];
   } else {
-    $cfseo_canonical_checks[] = [
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Canonical Loops',
       'status' => 'pass',
       'details' => '✅ No canonical loops detected'
@@ -383,33 +383,33 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // 3. Detect canonicals pointing to redirected URLs (sample check)
-  $cfseo_redirected_canonicals = 0;
-  $cfseo_sampled_urls = array_slice($cfseo_canonical_urls, 0, 10);
-  foreach ($cfseo_sampled_urls as $cfseo_row) {
-    $cfseo_response = wp_remote_head($cfseo_row->canonical_url, ['timeout' => 3, 'redirection' => 0, 'sslverify' => false]);
-    if (!is_wp_error($cfseo_response)) {
-      $cfseo_code = wp_remote_retrieve_response_code($cfseo_response);
-      if (in_array($cfseo_code, [301, 302, 307, 308])) {
-        $cfseo_redirected_canonicals++;
+  $ASNERISSEO_redirected_canonicals = 0;
+  $ASNERISSEO_sampled_urls = array_slice($ASNERISSEO_canonical_urls, 0, 10);
+  foreach ($ASNERISSEO_sampled_urls as $ASNERISSEO_row) {
+    $ASNERISSEO_response = wp_remote_head($ASNERISSEO_row->canonical_url, ['timeout' => 3, 'redirection' => 0, 'sslverify' => false]);
+    if (!is_wp_error($ASNERISSEO_response)) {
+      $ASNERISSEO_code = wp_remote_retrieve_response_code($ASNERISSEO_response);
+      if (in_array($ASNERISSEO_code, [301, 302, 307, 308])) {
+        $ASNERISSEO_redirected_canonicals++;
       }
     }
   }
   
-  if ($cfseo_redirected_canonicals > 0) {
-    $cfseo_canonical_checks[] = [
+  if ($ASNERISSEO_redirected_canonicals > 0) {
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Canonicals to Redirected URLs',
       'status' => 'warning',
-      'details' => '⚠️ ' . $cfseo_redirected_canonicals . ' of ' . count($cfseo_sampled_urls) . ' sampled canonicals redirect',
+      'details' => '⚠️ ' . $ASNERISSEO_redirected_canonicals . ' of ' . count($ASNERISSEO_sampled_urls) . ' sampled canonicals redirect',
       'why' => 'Canonical URLs should point to the final destination'
     ];
-  } else if (!empty($cfseo_sampled_urls)) {
-    $cfseo_canonical_checks[] = [
+  } else if (!empty($ASNERISSEO_sampled_urls)) {
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Canonicals to Redirected URLs',
       'status' => 'pass',
       'details' => '✅ Sampled canonicals point to final URLs'
     ];
   } else {
-    $cfseo_canonical_checks[] = [
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Canonicals to Redirected URLs',
       'status' => 'pass',
       'details' => '✅ No custom canonicals to check'
@@ -417,26 +417,26 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // 4. Detect mixed protocol (http/https)
-  $cfseo_site_protocol = wp_parse_url(home_url('/'), PHP_URL_SCHEME);
+  $ASNERISSEO_site_protocol = wp_parse_url(home_url('/'), PHP_URL_SCHEME);
   // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count query, caching not needed
-  $cfseo_mixed_protocol = $wpdb->get_var($wpdb->prepare("
+  $ASNERISSEO_mixed_protocol = $wpdb->get_var($wpdb->prepare("
     SELECT COUNT(*) 
     FROM {$wpdb->postmeta} pm
     INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-    WHERE pm.meta_key = '_CFSEO_canonical'
+    WHERE pm.meta_key = '_ASNERISSEO_canonical'
     AND pm.meta_value LIKE %s
     AND p.post_status = 'publish'
-  ", ($cfseo_site_protocol === 'https' ? 'http://%' : 'https://%')));
+  ", ($ASNERISSEO_site_protocol === 'https' ? 'http://%' : 'https://%')));
   
-  if ($cfseo_mixed_protocol > 0) {
-    $cfseo_canonical_checks[] = [
+  if ($ASNERISSEO_mixed_protocol > 0) {
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Mixed Protocol (http/https)',
       'status' => 'warning',
-      'details' => '⚠️ ' . $cfseo_mixed_protocol . ' canonicals use different protocol than site',
+      'details' => '⚠️ ' . $ASNERISSEO_mixed_protocol . ' canonicals use different protocol than site',
       'why' => 'All canonicals should use consistent protocol (https recommended)'
     ];
   } else {
-    $cfseo_canonical_checks[] = [
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Mixed Protocol (http/https)',
       'status' => 'pass',
       'details' => '✅ Consistent protocol usage'
@@ -445,19 +445,19 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   
   // 5. Detect missing canonicals on many pages
   // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count query, caching not needed
-  $cfseo_total_posts = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ('post', 'page')");
+  $ASNERISSEO_total_posts = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ('post', 'page')");
   // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count query, caching not needed
-  $cfseo_posts_with_canonical = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_CFSEO_canonical' AND meta_value != ''");
+  $ASNERISSEO_posts_with_canonical = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_ASNERISSEO_canonical' AND meta_value != ''");
   
-  if ($cfseo_total_posts > 0 && $cfseo_posts_with_canonical > 0) {
-    $cfseo_percentage_with = round(($cfseo_posts_with_canonical / $cfseo_total_posts) * 100);
-    $cfseo_canonical_checks[] = [
+  if ($ASNERISSEO_total_posts > 0 && $ASNERISSEO_posts_with_canonical > 0) {
+    $ASNERISSEO_percentage_with = round(($ASNERISSEO_posts_with_canonical / $ASNERISSEO_total_posts) * 100);
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Custom Canonical Usage',
       'status' => 'pass',
-      'details' => '✅ ' . $cfseo_posts_with_canonical . ' of ' . $cfseo_total_posts . ' posts (' . $cfseo_percentage_with . '%) have custom canonicals'
+      'details' => '✅ ' . $ASNERISSEO_posts_with_canonical . ' of ' . $ASNERISSEO_total_posts . ' posts (' . $ASNERISSEO_percentage_with . '%) have custom canonicals'
     ];
   } else {
-    $cfseo_canonical_checks[] = [
+    $ASNERISSEO_canonical_checks[] = [
       'check' => 'Custom Canonical Usage',
       'status' => 'pass',
       'details' => '✅ Using default WordPress permalinks as canonicals'
@@ -465,25 +465,25 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
   }
   
   // Determine overall status
-  $cfseo_has_conflicts = false;
-  $cfseo_has_warnings = false;
-  foreach ($cfseo_canonical_checks as $cfseo_item) {
-    if ($cfseo_item['status'] === 'conflict') {
-      $cfseo_has_conflicts = true;
+  $ASNERISSEO_has_conflicts = false;
+  $ASNERISSEO_has_warnings = false;
+  foreach ($ASNERISSEO_canonical_checks as $ASNERISSEO_item) {
+    if ($ASNERISSEO_item['status'] === 'conflict') {
+      $ASNERISSEO_has_conflicts = true;
       break;
     }
-    if ($cfseo_item['status'] === 'warning') {
-      $cfseo_has_warnings = true;
+    if ($ASNERISSEO_item['status'] === 'warning') {
+      $ASNERISSEO_has_warnings = true;
     }
   }
   ?>
   
-  <?php if ($cfseo_has_conflicts): ?>
+  <?php if ($ASNERISSEO_has_conflicts): ?>
     <div style="background: #f8d7da; border-left: 4px solid #dc3232; padding: 12px; margin-bottom: 15px;">
       <strong>❌ Canonical loop detected</strong>
       <p style="margin: 5px 0 0 0;">Pages are pointing to each other creating circular references.</p>
     </div>
-  <?php elseif ($cfseo_has_warnings): ?>
+  <?php elseif ($ASNERISSEO_has_warnings): ?>
     <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px;">
       <strong>⚠️ Multiple pages canonicalize to homepage</strong>
       <p style="margin: 5px 0 0 0;">Review canonical patterns to ensure they match your intent.</p>
@@ -504,24 +504,24 @@ $cfseo_has_issues = !empty($cfseo_duplicate_status['active_plugins']) || !empty(
       </tr>
     </thead>
     <tbody>
-      <?php foreach ($cfseo_canonical_checks as $cfseo_item): ?>
+      <?php foreach ($ASNERISSEO_canonical_checks as $ASNERISSEO_item): ?>
         <tr>
-          <td><strong><?php echo esc_html($cfseo_item['check']); ?></strong></td>
+          <td><strong><?php echo esc_html($ASNERISSEO_item['check']); ?></strong></td>
           <td>
             <?php 
-            if ($cfseo_item['status'] === 'pass') {
+            if ($ASNERISSEO_item['status'] === 'pass') {
               echo '<span style="color: #46b450;">✓ Pass</span>';
-            } elseif ($cfseo_item['status'] === 'warning') {
+            } elseif ($ASNERISSEO_item['status'] === 'warning') {
               echo '<span style="color: #f0ad4e;">⚠ Warning</span>';
-            } elseif ($cfseo_item['status'] === 'conflict') {
+            } elseif ($ASNERISSEO_item['status'] === 'conflict') {
               echo '<span style="color: #dc3232;">✗ Issue</span>';
             }
             ?>
           </td>
           <td>
-            <?php echo esc_html($cfseo_item['details']); ?>
-            <?php if (isset($cfseo_item['why'])): ?>
-              <br><span style="color: #646970; font-size: 13px;"><?php echo esc_html($cfseo_item['why']); ?></span>
+            <?php echo esc_html($ASNERISSEO_item['details']); ?>
+            <?php if (isset($ASNERISSEO_item['why'])): ?>
+              <br><span style="color: #646970; font-size: 13px;"><?php echo esc_html($ASNERISSEO_item['why']); ?></span>
             <?php endif; ?>
           </td>
         </tr>

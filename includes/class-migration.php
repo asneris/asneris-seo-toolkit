@@ -1,14 +1,14 @@
 <?php
 /**
- * Migration Helper - Handles data migration from old naming (gscseo) to new naming (cfseo)
+ * Migration Helper - Handles data migration from old naming (gscseo) to new naming (ASNERISSEO)
  */
 
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Migration {
+class ASNERISSEO_Migration {
   
   const MIGRATION_VERSION = '1.0.0';
-  const MIGRATION_OPTION = 'cfseo_migration_version';
+  const MIGRATION_OPTION = 'ASNERISSEO_migration_version';
   
   /**
    * Run all migrations if needed
@@ -24,7 +24,7 @@ class CFSEO_Migration {
   }
   
   /**
-   * Migrate post meta from _gscseo_* to _cfseo_*
+   * Migrate post meta from _gscseo_* to _ASNERISSEO_*
    */
   private static function migrate_post_meta() {
     global $wpdb;
@@ -43,7 +43,7 @@ class CFSEO_Migration {
     ];
     
     foreach ($old_meta_keys as $old_key) {
-      $new_key = str_replace('_gscseo_', '_cfseo_', $old_key);
+      $new_key = str_replace('_gscseo_', '_ASNERISSEO_', $old_key);
       
       // Copy old meta to new key (only if new key doesn't exist)
       // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Migration query runs once during plugin upgrade
@@ -65,31 +65,31 @@ class CFSEO_Migration {
       
       // Log migration progress
       if ($migration_result !== false) {
-        wp_cache_delete('cfseo_migration_progress', 'cfseo');
+        wp_cache_delete('ASNERISSEO_migration_progress', 'ASNERISSEO');
       }
     }
   }
   
   /**
-   * Migrate WordPress options from gscseo_* to cfseo_*
+   * Migrate WordPress options from gscseo_* to ASNERISSEO_*
    */
   private static function migrate_options() {
     // Migrate main settings
     $old_settings = get_option('gscseo_settings', []);
-    if (!empty($old_settings) && !get_option('cfseo_settings')) {
-      update_option('cfseo_settings', $old_settings);
+    if (!empty($old_settings) && !get_option('ASNERISSEO_settings')) {
+      update_option('ASNERISSEO_settings', $old_settings);
     }
     
     // Migrate redirects
     $old_redirects = get_option('gscseo_redirects', []);
-    if (!empty($old_redirects) && !get_option('cfseo_redirects')) {
-      update_option('cfseo_redirects', $old_redirects);
+    if (!empty($old_redirects) && !get_option('ASNERISSEO_redirects')) {
+      update_option('ASNERISSEO_redirects', $old_redirects);
     }
     
     // Migrate indexnow submissions
     $old_indexnow = get_option('gscseo_indexnow_submissions', []);
-    if (!empty($old_indexnow) && !get_option('cfseo_indexnow_submissions')) {
-      update_option('cfseo_indexnow_submissions', $old_indexnow);
+    if (!empty($old_indexnow) && !get_option('ASNERISSEO_indexnow_submissions')) {
+      update_option('ASNERISSEO_indexnow_submissions', $old_indexnow);
     }
   }
   
@@ -98,12 +98,12 @@ class CFSEO_Migration {
    */
   public static function get_meta($post_id, $key, $default = '') {
     // Try new key first
-    $new_key = str_replace('_gscseo_', '_cfseo_', $key);
+    $new_key = str_replace('_gscseo_', '_ASNERISSEO_', $key);
     $value = get_post_meta($post_id, $new_key, true);
     
     // Fallback to old key
     if (empty($value)) {
-      $old_key = str_replace('_cfseo_', '_gscseo_', $key);
+      $old_key = str_replace('_ASNERISSEO_', '_gscseo_', $key);
       $value = get_post_meta($post_id, $old_key, true);
     }
     

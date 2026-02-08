@@ -1,7 +1,7 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Templates {
+class ASNERISSEO_Templates {
   
   /**
    * Parse template string with variables
@@ -51,7 +51,7 @@ class CFSEO_Templates {
    * @return string Template string
    */
   public static function get_title_template($post_type) {
-    $templates = CFSEO_Admin_Settings::get('title_templates', []);
+    $templates = ASNERISSEO_Admin_Settings::get('title_templates', []);
     return $templates[$post_type] ?? '';
   }
   
@@ -62,7 +62,7 @@ class CFSEO_Templates {
    * @return string Template string
    */
   public static function get_description_template($post_type) {
-    $templates = CFSEO_Admin_Settings::get('description_templates', []);
+    $templates = ASNERISSEO_Admin_Settings::get('description_templates', []);
     return $templates[$post_type] ?? '';
   }
   
@@ -119,7 +119,7 @@ class CFSEO_Templates {
     $context = [
       'title' => $post->post_title,
       'site' => get_bloginfo('name'),
-      'separator' => CFSEO_Admin_Settings::get('title_separator', '|'),
+      'separator' => ASNERISSEO_Admin_Settings::get('title_separator', '|'),
       'post_type' => get_post_type_object($post->post_type)->labels->singular_name ?? $post->post_type,
     ];
     
@@ -156,16 +156,16 @@ class CFSEO_Templates {
    */
   public static function get_available_variables() {
     return [
-      '{title}' => __('Post/Page title', 'clarity-first-seo'),
-      '{site}' => __('Site name', 'clarity-first-seo'),
-      '{separator}' => __('Title separator', 'clarity-first-seo'),
-      '{post_type}' => __('Post type label', 'clarity-first-seo'),
-      '{category}' => __('Primary category', 'clarity-first-seo'),
-      '{tag}' => __('First tag', 'clarity-first-seo'),
-      '{author}' => __('Author name', 'clarity-first-seo'),
-      '{date}' => __('Publication date', 'clarity-first-seo'),
-      '{year}' => __('Publication year', 'clarity-first-seo'),
-      '{month}' => __('Publication month', 'clarity-first-seo'),
+      '{title}' => __('Post/Page title', 'asneris-seo-toolkit'),
+      '{site}' => __('Site name', 'asneris-seo-toolkit'),
+      '{separator}' => __('Title separator', 'asneris-seo-toolkit'),
+      '{post_type}' => __('Post type label', 'asneris-seo-toolkit'),
+      '{category}' => __('Primary category', 'asneris-seo-toolkit'),
+      '{tag}' => __('First tag', 'asneris-seo-toolkit'),
+      '{author}' => __('Author name', 'asneris-seo-toolkit'),
+      '{date}' => __('Publication date', 'asneris-seo-toolkit'),
+      '{year}' => __('Publication year', 'asneris-seo-toolkit'),
+      '{month}' => __('Publication month', 'asneris-seo-toolkit'),
     ];
   }
 }

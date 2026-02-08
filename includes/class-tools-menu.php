@@ -8,17 +8,17 @@
 
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Tools_Menu {
+class ASNERISSEO_Tools_Menu {
   
   /**
    * Register top-level menu (just creates the parent, dashboard handled by settings)
    */
   public static function register_top_level_menu() {
     add_menu_page(
-      __('Clarity-First SEO', 'clarity-first-seo'),
-      __('Clarity-First SEO', 'clarity-first-seo'),
+      __('Asneris SEO Toolkit', 'asneris-seo-toolkit'),
+      __('Asneris SEO Toolkit', 'asneris-seo-toolkit'),
       'manage_options',
-      'clarity-first-seo',
+      ASNERIS_MENU_SLUG,
       '', // No callback - will be handled by first submenu (Dashboard/Settings)
       'dashicons-chart-line',
       26 // Position after Comments

@@ -1,6 +1,6 @@
-# Clarity First SEO (Beta)
+# Asneris SEO Toolkit (Beta)
 
-Clarity First SEO is a **facts-first** WordPress SEO plugin focused on **clear signals** (titles, descriptions, canonicals, robots, schema) and **readable diagnostics**. It's built for site owners and teams who want to **see what search engines can read**—without "magic" promises.
+Asneris is a **systematic** WordPress SEO toolkit focused on **clear signals** (titles, descriptions, canonicals, robots, schema) and **readable diagnostics**. It's built for site owners and teams who want to **see what search engines can read**—without "magic" promises.
 
 > **Beta note:** This is an early release. UI and behaviors may change between versions.
 
@@ -30,7 +30,7 @@ Clarity First SEO is a **facts-first** WordPress SEO plugin focused on **clear s
 
 ## External requests & privacy
 
-- **No tracking / telemetry** is sent to Clarity‑First SEO servers.
+- **No tracking / telemetry** is sent to Asneris servers.
 - **External network calls happen only when you enable or trigger them**, for example:
   - **IndexNow submissions** (to the IndexNow endpoint) when IndexNow is enabled.
   - Optional **user‑initiated** connectivity tests you run inside the plugin UI.
@@ -51,7 +51,7 @@ If you ship to the WordPress Plugin Directory, make sure your WP.org `readme.txt
 ## Project structure (repo)
 
 ```
-clarity-first-seo/
+asneris-seo-toolkit/
   assets/
     css/
     js/
@@ -60,10 +60,10 @@ clarity-first-seo/
   src/
     templates/
       validation/
-  build/                  # built editor assets (required for release)
-  clarity-first-seo.php   # main plugin file
-  readme.txt              # WP.org readme
-  README.md               # this file
+  build/                     # built editor assets (required for release)
+  asneris-seo-toolkit.php    # main plugin file
+  readme.txt                 # WP.org readme
+  README.md                  # this file
   LICENSE
 ```
 
@@ -71,8 +71,8 @@ clarity-first-seo/
 
 ## Local development
 
-1. Clone the repo into `wp-content/plugins/clarity-first-seo`
-2. Activate **Clarity First SEO** in WP Admin → Plugins
+1. Clone the repo into `wp-content/plugins/asneris-seo-toolkit`
+2. Activate **Asneris SEO Toolkit** in WP Admin → Plugins
 3. Build editor assets (if you ship Gutenberg integration):
    - `npm install`
    - `npm run build`
@@ -84,7 +84,7 @@ clarity-first-seo/
 
 - Bump versions consistently:
   - Plugin header `Version:`
-  - `CFSEO_VERSION` constant
+  - `ASNERISSEO_VERSION` constant
   - WP.org `readme.txt` **Stable tag**
 - Build and commit `/build` artifacts for release (if required)
 - Validate output on a clean site with only this plugin active

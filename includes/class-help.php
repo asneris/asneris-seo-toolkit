@@ -7,18 +7,18 @@
 
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Help {
+class ASNERISSEO_Help {
   
   /**
    * Register help page
    */
   public static function register_menu() {
     add_submenu_page(
-      'clarity-first-seo',
-      __('Help', 'clarity-first-seo'),
-      __('Help', 'clarity-first-seo'),
+      ASNERIS_MENU_SLUG,
+      __('Help', 'asneris-seo-toolkit'),
+      __('Help', 'asneris-seo-toolkit'),
       'manage_options',
-      'cfseo-help',
+      ASNERIS_MENU_SLUG . '-help',
       [__CLASS__, 'render_page']
     );
   }
@@ -28,16 +28,16 @@ class CFSEO_Help {
    */
   public static function render_page() {
     ?>
-    <div class="wrap cfseo-admin-wrap">
+    <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
         <span class="dashicons dashicons-editor-help"></span>
-        <?php esc_html_e('Help & Documentation', 'clarity-first-seo'); ?>
+        <?php esc_html_e('Help & Documentation', 'asneris-seo-toolkit'); ?>
       </h1>
       
       <!-- What This Plugin Does -->
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>What This Plugin Does</h2>
-        <p><strong>Clarity-First SEO validates what search engines can see. It does not predict rankings.</strong></p>
+        <p><strong>Asneris SEO Toolkit validates what search engines can see. It does not predict rankings.</strong></p>
         
         <ul style="line-height: 2;">
           <li>✅ Detects technical SEO signals on your pages</li>
@@ -50,7 +50,7 @@ class CFSEO_Help {
       </div>
       
       <!-- What This Plugin Does NOT Do -->
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2 style="color: #d63638;">What This Plugin Does NOT Do</h2>
         
         <ul style="line-height: 2;">
@@ -66,7 +66,7 @@ class CFSEO_Help {
       </div>
       
       <!-- Key Concepts -->
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>Key SEO Concepts</h2>
         
         <h3>What is a Title Tag?</h3>
@@ -95,7 +95,7 @@ class CFSEO_Help {
       </div>
       
       <!-- Understanding Validation Status -->
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>Understanding Validation Status</h2>
         
         <h3 style="color: #46b450;">✅ Pass</h3>
@@ -109,20 +109,19 @@ class CFSEO_Help {
       </div>
       
       <!-- Support & Feedback -->
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>Support & Feedback</h2>
         
         <p><strong>🧪 This is beta software.</strong> Features and behavior may change.</p>
         
         <p><strong>Need help or found a bug?</strong></p>
         <ul>
-          <li>📧 Email: clarity.first.seo@gmail.com</li>
-          <li>🐛 Report issues: <a href="https://github.com/clarity-first/clarity-first-seo-plugin/issues" target="_blank">GitHub Issues</a></li>
+          <li>🐛 Report issues: <a href="https://github.com/asneris/asneris-seo-toolkit/issues" target="_blank">GitHub Issues</a></li>
         </ul>
       </div>
       
       <!-- Philosophy -->
-      <div class="cfseo-card" style="background: #f6f7f7; border-left: 4px solid #2271b1;">
+      <div class="ASNERISSEO-card" style="background: #f6f7f7; border-left: 4px solid #2271b1;">
         <h2>Our Philosophy</h2>
         <p style="font-size: 16px; line-height: 1.8;">
           SEO is not about gaming algorithms or chasing scores. 
@@ -130,7 +129,7 @@ class CFSEO_Help {
           This plugin helps you validate that clarity—nothing more, nothing less.
         </p>
         <p style="font-size: 14px; color: #646970; margin-top: 15px;">
-          <em>"Clarity-First SEO validates what search engines can see. It does not predict rankings."</em>
+          <em>"Asneris SEO Toolkit validates what search engines can see. It does not predict rankings."</em>
         </p>
       </div>
       
