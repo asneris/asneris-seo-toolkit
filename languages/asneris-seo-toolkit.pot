@@ -1,0 +1,355 @@
+# Copyright (C) 2026 Asneris SEO Toolkit
+# This file is distributed under the same license as the Asneris SEO Toolkit package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Asneris SEO Toolkit 0.1.0\n"
+"Report-Msgid-Bugs-To: https://asneris.com\n"
+"POT-Creation-Date: 2026-02-07 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Manual\n"
+
+#. Plugin Name of the plugin
+msgid "Asneris SEO Toolkit"
+msgstr ""
+
+#. Plugin Description of the plugin
+msgid "Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI."
+msgstr ""
+
+#. Author of the plugin
+msgid "Asneris"
+msgstr ""
+
+#: asneris-seo-toolkit.php
+msgid "Asneris SEO Toolkit"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI."
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Your changes have been saved and are now active."
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Enter ONLY the code value:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "If Google gives you:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Enter only:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "in the field above"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "If Bing gives you:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "If Yandex gives you:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "What are Webmaster Tools?"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Webmaster Tools are free platforms provided by search engines where you can:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Monitor your site's search performance and rankings"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Submit sitemaps to help search engines discover your content"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Check indexing status and fix crawling issues"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "View search queries that bring visitors to your site"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Next Steps After Saving:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Click \"Save Settings\" below"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Visit the webmaster tool you're verifying and click their \"Verify\" button:"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Google Search Console"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Bing Webmaster Tools"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Yandex Webmaster"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Once verified, you can submit your sitemap (see General tab)"
+msgstr ""
+
+#: includes/class-tools-menu.php
+msgid "Clarity-First SEO"
+msgstr ""
+
+#: includes/class-validation.php
+msgid "Site Diagnostics"
+msgstr ""
+
+#: includes/class-validation.php
+msgid "Excellent"
+msgstr ""
+
+#: includes/class-validation.php
+msgid "Good"
+msgstr ""
+
+#: includes/class-validation.php
+msgid "Fair"
+msgstr ""
+
+#: includes/class-validation.php
+msgid "Needs Work"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Post/Page title"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Site name"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Title separator"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Post type label"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Primary category"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "First tag"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Author name"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Publication date"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Publication year"
+msgstr ""
+
+#: includes/class-templates.php
+msgid "Publication month"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Sitemap is accessible"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Sitemap may not be accessible. Check your permalink settings."
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "XML Sitemap"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "WordPress automatically generates an XML sitemap for your site."
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Sitemap URL:"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "View Sitemap"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Before Submitting Your Sitemap:"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Create a free account with Google Search Console and/or Bing Webmaster Tools"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Complete site verification first (use codes from the Verification tab)"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "After verification is confirmed, submit your sitemap URL through their tools"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Submit Your Sitemap Here:"
+msgstr ""
+
+#: includes/class-sitemap-helper.php
+msgid "Sitemaps section"
+msgstr ""
+
+#: includes/class-robots.php
+msgid "Robots.txt"
+msgstr ""
+
+#: includes/class-robots.php
+msgid "Robots.txt Editor & Validator"
+msgstr ""
+
+#: includes/class-robots.php
+msgid "Control which parts of your site search engines are allowed to visit."
+msgstr ""
+
+#: includes/class-robots.php
+msgid "robots.txt saved successfully!"
+msgstr ""
+
+#: includes/class-robots.php
+msgid "Failed to save robots.txt. Check file permissions."
+msgstr ""
+
+#: includes/class-help.php
+msgid "Help"
+msgstr ""
+
+#: includes/class-help.php
+msgid "Help & Documentation"
+msgstr ""
+
+#: includes/class-dashboard.php
+msgid "Dashboard"
+msgstr ""
+
+#: includes/class-dashboard.php
+msgid "Clarity-First SEO checks what search engines can see on your site. It does not predict rankings."
+msgstr ""
+
+#: includes/class-dashboard.php
+msgid "Configuration Status"
+msgstr ""
+
+#: includes/class-dashboard.php
+msgid "of"
+msgstr ""
+
+#: includes/class-dashboard.php
+msgid "sections configured"
+msgstr ""
+
+#: includes/class-dashboard.php
+msgid "Go to Settings"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Test Any Page"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Test Homepage"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Test Latest Post"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Test Latest Page"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Select Published Content"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "-- Select a page to test --"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Homepage"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Recent Posts & Pages (100)"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Or Enter Custom URL"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "https://yoursite.com/any-page/"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Enter any URL from your site to validate SEO implementation"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "Run Validation"
+msgstr ""
+
+#: templates/validation/url-selector.php
+msgid "This inspection does not modify the page."
+msgstr ""
+
+#: templates/validation/page-header.php
+msgid "Site Diagnostics"
+msgstr ""
+
+#: templates/validation/page-header.php
+msgid "Check site-wide SEO settings that affect how search engines find and index your pages."
+msgstr ""
+
+#: templates/validation/overall-score.php
+msgid "Overall SEO Score"
+msgstr ""
+
+#: templates/validation/overall-score.php
+msgid "Testing:"
+msgstr ""
+
+#: templates/validation/overall-score.php
+msgid "checks passed"
+msgstr ""
