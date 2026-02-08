@@ -25,11 +25,58 @@ class ASNERISSEO_Admin_Settings {
   public static function enqueue_admin_assets($hook) {
     // The actual hook uses the sanitized menu title, not the menu slug
     // Actual: asneris-seo-toolkit_page_asneris-seo-settings
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-settings') return;
     
     wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     wp_enqueue_script('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/js/admin-script.js', ['jquery'], ASNERISSEO_VERSION, true);
     wp_enqueue_media(); // For media uploader
+    wp_enqueue_script('jquery');
+    
+    $nonce = wp_create_nonce('ASNERISSEO_http_test');
+    $inline_js = <<<JAVASCRIPT
+jQuery(document).ready(function($){
+  $('#ASNERISSEO_run_http_test').on('click', function(){
+    var url = $('#ASNERISSEO_test_url').val();
+    var button = this;
+    var results = $('#ASNERISSEO_http_results');
+    var tbody = $('#ASNERISSEO_http_results_body');
+    if (!url) { alert('Please enter a URL to test'); return; }
+    $(button).prop('disabled', true).text('Testing...');
+    tbody.html('<tr><td colspan="3">Running validation...</td></tr>');
+    results.show();
+    $.ajax({
+      url: ajaxurl,
+      method: 'POST',
+      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '{$nonce}' },
+      success: function(response){
+        if (response.success) {
+          var html = '';
+          response.data.checks.forEach(function(check){
+            var statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
+            var statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
+            html += '<tr>';
+            html += '<td><strong>' + check.label + '</strong></td>';
+            html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
+            html += '<td>' + check.details + '</td>';
+            html += '</tr>';
+          });
+          tbody.html(html);
+        } else {
+          tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
+        }
+      },
+      error: function(){
+        tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
+      },
+      complete: function(){
+        $(button).prop('disabled', false).text('Run Indexing Validation');
+      }
+    });
+  });
+});
+JAVASCRIPT;
+    wp_add_inline_script('ASNERISSEO-admin', $inline_js);
     
     wp_localize_script('ASNERISSEO-admin', 'gscseoAdmin', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -169,58 +216,6 @@ class ASNERISSEO_Admin_Settings {
     
     <?php ASNERISSEO_Help_Modal::render_modals('settings'); ?>
     
-    <script>
-    jQuery(document).ready(function($) {
-      $('#ASNERISSEO_run_http_test').on('click', function() {
-        const url = $('#ASNERISSEO_test_url').val();
-        const $button = $(this);
-        const $results = $('#ASNERISSEO_http_results');
-        const $tbody = $('#ASNERISSEO_http_results_body');
-        
-        if (!url) {
-          alert('Please enter a URL to test');
-          return;
-        }
-        
-        $button.prop('disabled', true).text('Testing...');
-        $tbody.html('<tr><td colspan="3">Running validation...</td></tr>');
-        $results.show();
-        
-        $.ajax({
-          url: ajaxurl,
-          method: 'POST',
-          data: {
-            action: 'ASNERISSEO_http_test',
-            url: url,
-            nonce: '<?php echo esc_attr(wp_create_nonce('ASNERISSEO_http_test')); ?>'
-          },
-          success: function(response) {
-            if (response.success) {
-              let html = '';
-              response.data.checks.forEach(function(check) {
-                const statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
-                const statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
-                html += '<tr>';
-                html += '<td><strong>' + check.label + '</strong></td>';
-                html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
-                html += '<td>' + check.details + '</td>';
-                html += '</tr>';
-              });
-              $tbody.html(html);
-            } else {
-              $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
-            }
-          },
-          error: function() {
-            $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
-          },
-          complete: function() {
-            $button.prop('disabled', false).text('Run Indexing Validation');
-          }
-        });
-      });
-    });
-    </script>
     <?php
   }
 

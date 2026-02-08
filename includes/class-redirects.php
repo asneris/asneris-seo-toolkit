@@ -12,6 +12,30 @@ class ASNERISSEO_Redirects {
     add_action('template_redirect', [__CLASS__, 'handle_redirects'], 1);
     add_action('post_updated', [__CLASS__, 'track_slug_change'], 10, 3);
   }
+
+  /**
+   * Enqueue admin assets for redirects page
+   */
+  public static function enqueue_assets($hook) {
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-redirects') return;
+    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_script('jquery');
+    $inline_js = "(function(){\n" .
+      "  const descriptions = {\n" .
+      "    '301': '" . esc_js(__('Use 301 when the old page is permanently replaced by the new page.', 'asneris-seo-toolkit')) . "',\n" .
+      "    '302': '" . esc_js(__('Use 302 when the redirect is temporary and the original URL may return.', 'asneris-seo-toolkit')) . "',\n" .
+      "    '307': '" . esc_js(__('Use 307 for temporary redirects that preserve the HTTP method (POST stays POST).', 'asneris-seo-toolkit')) . "'\n" .
+      "  };\n" .
+      "  const select = document.getElementById('code');\n" .
+      "  const description = document.getElementById('redirect-type-description');\n" .
+      "  if (!select || !description) return;\n" .
+      "  select.addEventListener('change', function(){\n" .
+      "    description.textContent = descriptions[this.value] || '';\n" .
+      "  });\n" .
+      "})();";
+    wp_add_inline_script('jquery', $inline_js);
+  }
   
   /**
    * Track post slug changes and create automatic redirects
@@ -215,11 +239,6 @@ class ASNERISSEO_Redirects {
   /**
    * Enqueue admin styles
    */
-  public static function enqueue_assets($hook) {
-    if ($hook !== ASNERIS_MENU_SLUG . '_page_' . ASNERIS_MENU_SLUG . '-redirects') return;
-    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
-  }
-  
   /**
    * Render redirects management page
    */
@@ -316,21 +335,6 @@ class ASNERISSEO_Redirects {
                   <option value="307"><?php esc_html_e('307 Temporary (Preserve Method)', 'asneris-seo-toolkit'); ?></option>
                 </select>
                 <p class="description" id="redirect-type-description"><?php esc_html_e('Use 301 when the old page is permanently replaced by the new page.', 'asneris-seo-toolkit'); ?></p>
-                <script>
-                  (function() {
-                    const descriptions = {
-                      '301': '<?php echo esc_js(__('Use 301 when the old page is permanently replaced by the new page.', 'asneris-seo-toolkit')); ?>',
-                      '302': '<?php echo esc_js(__('Use 302 when the redirect is temporary and the original URL may return.', 'asneris-seo-toolkit')); ?>',
-                      '307': '<?php echo esc_js(__('Use 307 for temporary redirects that preserve the HTTP method (POST stays POST).', 'asneris-seo-toolkit')); ?>'
-                    };
-                    const select = document.getElementById('code');
-                    const description = document.getElementById('redirect-type-description');
-                    
-                    select.addEventListener('change', function() {
-                      description.textContent = descriptions[this.value];
-                    });
-                  })();
-                </script>
               </td>
             </tr>
           </table>

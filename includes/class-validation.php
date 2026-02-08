@@ -21,8 +21,104 @@ class ASNERISSEO_Validation {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== ASNERIS_MENU_SLUG . '_page_' . ASNERIS_MENU_SLUG . '-validation') return;
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-validation') return;
     wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    $inline_css = ".ASNERISSEO-validation-item{\n" .
+      "  margin-bottom:20px;\n" .
+      "  border-bottom:1px solid #dcdcde;\n" .
+      "  padding-bottom:20px;\n" .
+      "}\n" .
+      ".ASNERISSEO-validation-item:last-child{\n" .
+      "  border-bottom:none;\n" .
+      "}\n" .
+      ".validation-status{\n" .
+      "  display:flex;\n" .
+      "  gap:15px;\n" .
+      "  align-items:flex-start;\n" .
+      "}\n" .
+      ".validation-icon{\n" .
+      "  font-size:32px;\n" .
+      "  line-height:1;\n" .
+      "  flex-shrink:0;\n" .
+      "}\n" .
+      ".validation-content h4{\n" .
+      "  margin:0 0 8px 0;\n" .
+      "  font-size:16px;\n" .
+      "}\n" .
+      ".validation-content p{\n" .
+      "  margin:5px 0;\n" .
+      "  line-height:1.6;\n" .
+      "}\n" .
+      ".validation-pass .validation-content h4{\n" .
+      "  color:#1e1e1e;\n" .
+      "}\n" .
+      ".validation-warning .validation-content h4{\n" .
+      "  color:#8a6d3b;\n" .
+      "}\n" .
+      ".validation-conflict .validation-content h4{\n" .
+      "  color:#a94442;\n" .
+      "}\n";
+    wp_add_inline_style('ASNERISSEO-admin', $inline_css);
+    wp_enqueue_script('jquery');
+    $nonce = wp_create_nonce('ASNERISSEO_http_test');
+    $inline_js = <<<JAVASCRIPT
+jQuery(document).ready(function($){
+  $('.ASNERISSEO-quick-test').on('click', function(){
+    var url = $(this).data('url');
+    $('#test_url').val(url);
+  });
+  $('#ASNERISSEO_page_selector').on('change', function(){
+    var selectedUrl = $(this).val();
+    if (selectedUrl) { $('#test_url').val(selectedUrl); }
+  });
+  $('.ASNERISSEO-group-header').on('click', function(){
+    var group = $(this).data('group');
+    var content = $('#group-' + group);
+    if (content.is(':visible')) { content.slideUp(); $(this).removeClass('expanded'); }
+    else { content.slideDown(); $(this).addClass('expanded'); }
+  });
+  $('#ASNERISSEO_run_http_test').on('click', function(){
+    var url = $('#ASNERISSEO_test_url').val();
+    var button = this;
+    var results = $('#ASNERISSEO_http_results');
+    var tbody = $('#ASNERISSEO_http_results_body');
+    if (!url) { alert('Please enter a URL to test'); return; }
+    $(button).prop('disabled', true).text('Testing...');
+    tbody.html('<tr><td colspan="3">Running validation...</td></tr>');
+    results.show();
+    $.ajax({
+      url: ajaxurl,
+      method: 'POST',
+      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '{$nonce}' },
+      success: function(response){
+        if (response.success) {
+          var html = '';
+          response.data.checks.forEach(function(check){
+            var statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
+            var statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
+            html += '<tr>';
+            html += '<td><strong>' + check.label + '</strong></td>';
+            html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
+            html += '<td>' + check.details + '</td>';
+            html += '</tr>';
+          });
+          tbody.html(html);
+        } else {
+          tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
+        }
+      },
+      error: function(){
+        tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
+      },
+      complete: function(){
+        $(button).prop('disabled', false).text('Run Indexing Validation');
+      }
+    });
+  });
+});
+JAVASCRIPT;
+    wp_add_inline_script('jquery', $inline_js);
   }
   
 
@@ -790,88 +886,6 @@ class ASNERISSEO_Validation {
         
       <?php // ASNERISSEO_Help_Content::render_sidebar('site-diagnostics'); ?>
     </div><!-- .wrap -->
-
-    <script>
-    jQuery(document).ready(function($) {
-      // Quick test buttons
-      $('.ASNERISSEO-quick-test').on('click', function() {
-        var url = $(this).data('url');
-        $('#test_url').val(url);
-      });
-      
-      // Page selector dropdown
-      $('#ASNERISSEO_page_selector').on('change', function() {
-        var selectedUrl = $(this).val();
-        if (selectedUrl) {
-          $('#test_url').val(selectedUrl);
-        }
-      });
-      
-      // Collapsible function groups
-      $('.ASNERISSEO-group-header').on('click', function() {
-        var group = $(this).data('group');
-        var content = $('#group-' + group);
-        
-        if (content.is(':visible')) {
-          content.slideUp();
-          $(this).removeClass('expanded');
-        } else {
-          content.slideDown();
-          $(this).addClass('expanded');
-        }
-      });
-      
-      // Indexing Validation - HTTP Test functionality
-      $('#ASNERISSEO_run_http_test').on('click', function() {
-        const url = $('#ASNERISSEO_test_url').val();
-        const $button = $(this);
-        const $results = $('#ASNERISSEO_http_results');
-        const $tbody = $('#ASNERISSEO_http_results_body');
-        
-        if (!url) {
-          alert('Please enter a URL to test');
-          return;
-        }
-        
-        $button.prop('disabled', true).text('Testing...');
-        $tbody.html('<tr><td colspan="3">Running validation...</td></tr>');
-        $results.show();
-        
-        $.ajax({
-          url: ajaxurl,
-          method: 'POST',
-          data: {
-            action: 'ASNERISSEO_http_test',
-            url: url,
-            nonce: '<?php echo esc_js(wp_create_nonce('ASNERISSEO_http_test')); ?>'
-          },
-          success: function(response) {
-            if (response.success) {
-              let html = '';
-              response.data.checks.forEach(function(check) {
-                const statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
-                const statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
-                html += '<tr>';
-                html += '<td><strong>' + check.label + '</strong></td>';
-                html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
-                html += '<td>' + check.details + '</td>';
-                html += '</tr>';
-              });
-              $tbody.html(html);
-            } else {
-              $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
-            }
-          },
-          error: function() {
-            $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
-          },
-          complete: function() {
-            $button.prop('disabled', false).text('Run Indexing Validation');
-          }
-        });
-      });
-    });
-    </script>
 
     <?php ASNERISSEO_Help_Modal::render_modals('site-diagnostics'); ?>
     <?php

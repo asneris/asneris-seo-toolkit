@@ -58,6 +58,7 @@ add_action('init', function () {
   ASNERISSEO_IndexNow::register_rewrite();
   ASNERISSEO_Redirects::init();
   ASNERISSEO_Robots::init();
+  ASNERISSEO_Help_Modal::init();
   
   // Run migrations
   ASNERISSEO_Migration::run();

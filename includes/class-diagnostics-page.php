@@ -35,8 +35,22 @@ class ASNERISSEO_Diagnostics_Page {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== ASNERIS_MENU_SLUG . '_page_' . ASNERIS_MENU_SLUG . '-diagnostics') return;
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-diagnostics') return;
     wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_script('jquery');
+    
+    $inline_js = <<<'JAVASCRIPT'
+jQuery(function($){
+  $('#page_selector').on('change', function(){
+    var selectedUrl = $(this).val();
+    if (selectedUrl) {
+      $('#test_url').val(selectedUrl);
+    }
+  });
+});
+JAVASCRIPT;
+    wp_add_inline_script('jquery', $inline_js);
   }
   
   /**
@@ -183,7 +197,7 @@ class ASNERISSEO_Diagnostics_Page {
       $results = self::analyze_url($test_url);
     }
     ?>
-    <div class="wrap ASNERISSEO-admin-wrap has-sidebar">
+    <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
         <span class="dashicons dashicons-analytics"></span>
         <?php esc_html_e('Page Diagnostics', 'asneris-seo-toolkit'); ?>
@@ -192,9 +206,6 @@ class ASNERISSEO_Diagnostics_Page {
       <p class="ASNERISSEO-subtitle">
         <?php esc_html_e('Inspect your page\'s search footprint. We show you the simple facts: Is it live? (Connectivity), Is it the master version? (Canonical), and Is it ready to rank? (Indexing & Tags).', 'asneris-seo-toolkit'); ?>
       </p>
-      
-      <div class="ASNERISSEO-settings-form">
-        <div class="ASNERISSEO-tab-content">
       
       <!-- URL Input -->
       <div class="ASNERISSEO-card">
@@ -246,18 +257,6 @@ class ASNERISSEO_Diagnostics_Page {
           </div>
         </form>
         
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          const selector = document.getElementById('page_selector');
-          const urlInput = document.getElementById('test_url');
-          
-          selector.addEventListener('change', function() {
-            if (this.value) {
-              urlInput.value = this.value;
-            }
-          });
-        });
-        </script>
       </div>
       
       <?php if ($results && isset($results['error'])): ?>
@@ -783,11 +782,9 @@ class ASNERISSEO_Diagnostics_Page {
         
       <?php endif; ?>
       </div><!-- .ASNERISSEO-tab-content -->
-      </div><!-- .ASNERISSEO-settings-form -->
+      </div><!-- .ASNERISSEO-card -->
       
-      <?php // ASNERISSEO_Help_Content::render_sidebar('page-diagnostics'); ?>
-      
-    </div>
+    </div><!-- .wrap -->
     <?php ASNERISSEO_Help_Modal::render_modals('page-diagnostics'); ?>
     <?php
   }

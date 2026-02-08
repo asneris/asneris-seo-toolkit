@@ -30,7 +30,9 @@ class ASNERISSEO_Dashboard {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== ASNERIS_MENU_SLUG . '_page_' . ASNERIS_MENU_SLUG . '-dashboard') return;
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    // Dashboard uses the main menu slug directly
+    if ($hook !== 'toplevel_page_' . ASNERIS_MENU_SLUG) return;
     wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
   }
   

@@ -21,21 +21,44 @@ class ASNERISSEO_Bulk_Edit {
    * Enqueue bulk edit assets
    */
   public static function enqueue_assets($hook) {
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-bulk-edit') return;
+    
     // Use timestamp for cache busting during development
     $version = ASNERISSEO_VERSION . '.' . time();
     
     wp_enqueue_style('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/css/admin-style.css', [], $version);
     wp_enqueue_script('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/js/bulk-edit.js', ['jquery'], $version, true);
     
-    echo "<!-- BULK EDIT SCRIPT ENQUEUED -->\n";
+    $inline_css = '/* Bulk Edit table layout */
+.ASNERISSEO-bulk-table-wrapper{overflow-x:auto;margin:0 -20px;padding:0 20px;}
+#ASNERISSEO-bulk-edit-table{width:100%;table-layout:fixed;border-collapse:collapse;min-width:1200px;}
+#ASNERISSEO-bulk-edit-table th,#ASNERISSEO-bulk-edit-table td{padding:12px;vertical-align:middle;border-bottom:1px solid #e5e5e5;}
+#ASNERISSEO-bulk-edit-table thead th,#ASNERISSEO-bulk-edit-table thead td{background:#f9f9f9;font-weight:600;border-bottom:2px solid #ccc;position:sticky;top:32px;z-index:10;}
+#ASNERISSEO-bulk-edit-table .col-checkbox{width:40px;}
+#ASNERISSEO-bulk-edit-table .col-title{width:220px;}
+#ASNERISSEO-bulk-edit-table .col-seo-title{width:280px;}
+#ASNERISSEO-bulk-edit-table .col-description{width:320px;}
+#ASNERISSEO-bulk-edit-table .col-robots{width:140px;}
+#ASNERISSEO-bulk-edit-table .col-actions{width:60px;text-align:center;}
+#ASNERISSEO-bulk-edit-table input[type="text"],#ASNERISSEO-bulk-edit-table textarea,#ASNERISSEO-bulk-edit-table select{width:100%;box-sizing:border-box;padding:8px 10px;font-size:13px;line-height:1.4;border:1px solid #ddd;border-radius:4px;transition:border-color 0.2s;}
+#ASNERISSEO-bulk-edit-table input[type="text"]:focus,#ASNERISSEO-bulk-edit-table textarea:focus,#ASNERISSEO-bulk-edit-table select:focus{border-color:#2271b1;outline:none;box-shadow:0 0 0 1px #2271b1;}
+#ASNERISSEO-bulk-edit-table textarea{resize:vertical;min-height:60px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;}
+#ASNERISSEO-bulk-edit-table .col-title strong{display:block;margin-bottom:4px;color:#2271b1;font-size:14px;}
+#ASNERISSEO-bulk-edit-table .row-actions{margin-top:4px;font-size:12px;}
+#ASNERISSEO-bulk-edit-table tbody tr:hover{background:#f6f7f7;}
+#ASNERISSEO-bulk-edit-table input[type="checkbox"]{margin:0;cursor:pointer;}
+.ASNERISSEO-edit-post-link{padding:6px 10px !important;height:auto !important;min-height:32px;display:inline-flex;align-items:center;justify-content:center;}
+@media screen and (max-width:1400px){#ASNERISSEO-bulk-edit-table{min-width:1000px;}#ASNERISSEO-bulk-edit-table .col-description{width:260px;}}
+@keyframes ASNERISSEO-slideDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+#ASNERISSEO-confirm-modal-content{margin:20px;}
+@media screen and (max-width:640px){#ASNERISSEO-confirm-modal-content{min-width:auto;max-width:90%;margin:10px;}}';
+    wp_add_inline_style('ASNERISSEO-bulk-edit', $inline_css);
     
     wp_localize_script('ASNERISSEO-bulk-edit', 'gscseoBulkEdit', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_bulk_edit'),
-      'actualHook' => $hook, // Debug: see what the actual hook is
     ]);
-    
-    echo "<!-- BULK EDIT LOCALIZED -->\n";
   }
   
   /**
@@ -200,123 +223,6 @@ class ASNERISSEO_Bulk_Edit {
       
       <!-- Posts Table -->
       <div class="ASNERISSEO-card" style="max-width: 100%; margin-top: 20px;">
-        <style>
-          .ASNERISSEO-bulk-table-wrapper {
-            overflow-x: auto;
-            margin: 0 -20px;
-            padding: 0 20px;
-          }
-          
-          #ASNERISSEO-bulk-edit-table {
-            width: 100%;
-            table-layout: fixed;
-            border-collapse: collapse;
-            min-width: 1200px;
-          }
-          
-          #ASNERISSEO-bulk-edit-table th,
-          #ASNERISSEO-bulk-edit-table td {
-            padding: 12px;
-            vertical-align: middle;
-            border-bottom: 1px solid #e5e5e5;
-          }
-          
-          #ASNERISSEO-bulk-edit-table thead th,
-          #ASNERISSEO-bulk-edit-table thead td {
-            background: #f9f9f9;
-            font-weight: 600;
-            border-bottom: 2px solid #ccc;
-            position: sticky;
-            top: 32px;
-            z-index: 10;
-          }
-          
-          #ASNERISSEO-bulk-edit-table .col-checkbox { 
-            width: 40px; 
-          }
-          #ASNERISSEO-bulk-edit-table .col-title { 
-            width: 220px;
-          }
-          #ASNERISSEO-bulk-edit-table .col-seo-title { 
-            width: 280px;
-          }
-          #ASNERISSEO-bulk-edit-table .col-description { 
-            width: 320px;
-          }
-          #ASNERISSEO-bulk-edit-table .col-robots { 
-            width: 140px;
-          }
-          #ASNERISSEO-bulk-edit-table .col-actions { 
-            width: 60px;
-            text-align: center;
-          }
-          
-          #ASNERISSEO-bulk-edit-table input[type="text"],
-          #ASNERISSEO-bulk-edit-table textarea,
-          #ASNERISSEO-bulk-edit-table select {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 8px 10px;
-            font-size: 13px;
-            line-height: 1.4;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            transition: border-color 0.2s;
-          }
-          
-          #ASNERISSEO-bulk-edit-table input[type="text"]:focus,
-          #ASNERISSEO-bulk-edit-table textarea:focus,
-          #ASNERISSEO-bulk-edit-table select:focus {
-            border-color: #2271b1;
-            outline: none;
-            box-shadow: 0 0 0 1px #2271b1;
-          }
-          
-          #ASNERISSEO-bulk-edit-table textarea {
-            resize: vertical;
-            min-height: 60px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-          }
-          
-          #ASNERISSEO-bulk-edit-table .col-title strong {
-            display: block;
-            margin-bottom: 4px;
-            color: #2271b1;
-            font-size: 14px;
-          }
-          
-          #ASNERISSEO-bulk-edit-table .row-actions {
-            margin-top: 4px;
-            font-size: 12px;
-          }
-          
-          #ASNERISSEO-bulk-edit-table tbody tr:hover {
-            background: #f6f7f7;
-          }
-          
-          #ASNERISSEO-bulk-edit-table input[type="checkbox"] {
-            margin: 0;
-            cursor: pointer;
-          }
-          
-          .ASNERISSEO-edit-post-link {
-            padding: 6px 10px !important;
-            height: auto !important;
-            min-height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-          }
-          
-          @media screen and (max-width: 1400px) {
-            #ASNERISSEO-bulk-edit-table {
-              min-width: 1000px;
-            }
-            #ASNERISSEO-bulk-edit-table .col-description {
-              width: 260px;
-            }
-          }
-        </style>
         <div class="ASNERISSEO-bulk-table-wrapper">
           <form id="ASNERISSEO-bulk-edit-form" method="post" action="" onsubmit="return false;">
             <input type="hidden" name="page" value="<?php echo esc_attr(ASNERIS_MENU_SLUG . '-bulk-edit'); ?>">
@@ -439,31 +345,6 @@ class ASNERISSEO_Bulk_Edit {
         </div>
       </div>
     </div>
-    
-    <style>
-      @keyframes slideDown {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      
-      #ASNERISSEO-confirm-modal-content {
-        margin: 20px;
-      }
-      
-      @media screen and (max-width: 640px) {
-        #ASNERISSEO-confirm-modal-content {
-          min-width: auto;
-          max-width: 90%;
-          margin: 10px;
-        }
-      }
-    </style>
     
     <?php
   }

@@ -32,7 +32,8 @@ class ASNERISSEO_Robots {
     }
     
     public static function enqueue_assets($hook) {
-        if ($hook !== ASNERIS_MENU_SLUG . '_page_' . ASNERIS_MENU_SLUG . '-robots') {
+        // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+        if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-robots') {
             return;
         }
         
