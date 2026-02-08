@@ -40,16 +40,14 @@ class ASNERISSEO_Diagnostics_Page {
     wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     wp_enqueue_script('jquery');
     
-    $inline_js = <<<'JAVASCRIPT'
-jQuery(function($){
-  $('#page_selector').on('change', function(){
-    var selectedUrl = $(this).val();
-    if (selectedUrl) {
-      $('#test_url').val(selectedUrl);
-    }
-  });
-});
-JAVASCRIPT;
+    $inline_js = "jQuery(function(\$){\n" .
+      "  \$('#page_selector').on('change', function(){\n" .
+      "    var selectedUrl = \$(this).val();\n" .
+      "    if (selectedUrl) {\n" .
+      "      \$('#test_url').val(selectedUrl);\n" .
+      "    }\n" .
+      "  });\n" .
+      "});";
     wp_add_inline_script('jquery', $inline_js);
   }
   
