@@ -1,18 +1,18 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Validation {
+class ASNERISSEO_Validation {
   
   /**
    * Register validation page
    */
   public static function register_menu() {
     add_submenu_page(
-      'clarity-first-seo',
-      __('Site Diagnostics', 'clarity-first-seo'),
-      __('Site Diagnostics', 'clarity-first-seo'),
+      ASNERIS_MENU_SLUG,
+      __('Site Diagnostics', 'asneris-seo-toolkit'),
+      __('Site Diagnostics', 'asneris-seo-toolkit'),
       'manage_options',
-      'cfseo-validation',
+      ASNERIS_MENU_SLUG . '-validation',
       [__CLASS__, 'render_page']
     );
   }
@@ -21,68 +21,105 @@ class CFSEO_Validation {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== 'clarity-first-seo_page_cfseo-validation') return;
-    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-validation') return;
+    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    $inline_css = ".ASNERISSEO-validation-item{\n" .
+      "  margin-bottom:20px;\n" .
+      "  border-bottom:1px solid #dcdcde;\n" .
+      "  padding-bottom:20px;\n" .
+      "}\n" .
+      ".ASNERISSEO-validation-item:last-child{\n" .
+      "  border-bottom:none;\n" .
+      "}\n" .
+      ".validation-status{\n" .
+      "  display:flex;\n" .
+      "  gap:15px;\n" .
+      "  align-items:flex-start;\n" .
+      "}\n" .
+      ".validation-icon{\n" .
+      "  font-size:32px;\n" .
+      "  line-height:1;\n" .
+      "  flex-shrink:0;\n" .
+      "}\n" .
+      ".validation-content h4{\n" .
+      "  margin:0 0 8px 0;\n" .
+      "  font-size:16px;\n" .
+      "}\n" .
+      ".validation-content p{\n" .
+      "  margin:5px 0;\n" .
+      "  line-height:1.6;\n" .
+      "}\n" .
+      ".validation-pass .validation-content h4{\n" .
+      "  color:#1e1e1e;\n" .
+      "}\n" .
+      ".validation-warning .validation-content h4{\n" .
+      "  color:#8a6d3b;\n" .
+      "}\n" .
+      ".validation-conflict .validation-content h4{\n" .
+      "  color:#a94442;\n" .
+      "}\n";
+    wp_add_inline_style('ASNERISSEO-admin', $inline_css);
+    wp_enqueue_script('jquery');
+    $nonce = wp_create_nonce('ASNERISSEO_http_test');
+    $inline_js = "jQuery(document).ready(function(\$){\n" .
+      "  \$('.ASNERISSEO-quick-test').on('click', function(){\n" .
+      "    var url = \$(this).data('url');\n" .
+      "    \$('#test_url').val(url);\n" .
+      "  });\n" .
+      "  \$('#ASNERISSEO_page_selector').on('change', function(){\n" .
+      "    var selectedUrl = \$(this).val();\n" .
+      "    if (selectedUrl) { \$('#test_url').val(selectedUrl); }\n" .
+      "  });\n" .
+      "  \$('.ASNERISSEO-group-header').on('click', function(){\n" .
+      "    var group = \$(this).data('group');\n" .
+      "    var content = \$('#group-' + group);\n" .
+      "    if (content.is(':visible')) { content.slideUp(); \$(this).removeClass('expanded'); }\n" .
+      "    else { content.slideDown(); \$(this).addClass('expanded'); }\n" .
+      "  });\n" .
+      "  \$('#ASNERISSEO_run_http_test').on('click', function(){\n" .
+      "    var url = \$('#ASNERISSEO_test_url').val();\n" .
+      "    var button = this;\n" .
+      "    var results = \$('#ASNERISSEO_http_results');\n" .
+      "    var tbody = \$('#ASNERISSEO_http_results_body');\n" .
+      "    if (!url) { alert('Please enter a URL to test'); return; }\n" .
+      "    \$(button).prop('disabled', true).text('Testing...');\n" .
+      "    tbody.html('<tr><td colspan=\"3\">Running validation...</td></tr>');\n" .
+      "    results.show();\n" .
+      "    \$.ajax({\n" .
+      "      url: ajaxurl,\n" .
+      "      method: 'POST',\n" .
+      "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . $nonce . "' },\n" .
+      "      success: function(response){\n" .
+      "        if (response.success) {\n" .
+      "          var html = '';\n" .
+      "          response.data.checks.forEach(function(check){\n" .
+      "            var statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');\n" .
+      "            var statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');\n" .
+      "            html += '<tr>';\n" .
+      "            html += '<td><strong>' + check.label + '</strong></td>';\n" .
+      "            html += '<td><span style=\"color: ' + statusColor + ';\">' + statusIcon + ' ' + check.result + '</span></td>';\n" .
+      "            html += '<td>' + check.details + '</td>';\n" .
+      "            html += '</tr>';\n" .
+      "          });\n" .
+      "          tbody.html(html);\n" .
+      "        } else {\n" .
+      "          tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Error: ' + response.data + '</td></tr>');\n" .
+      "        }\n" .
+      "      },\n" .
+      "      error: function(){\n" .
+      "        tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Request failed. Please try again.</td></tr>');\n" .
+      "      },\n" .
+      "      complete: function(){\n" .
+      "        \$(button).prop('disabled', false).text('Run Indexing Validation');\n" .
+      "      }\n" .
+      "    });\n" .
+      "  });\n" .
+      "});";
+    wp_add_inline_script('jquery', $inline_js);
   }
   
-  /**
-   * Get fetchable URL (handles Docker/localhost environments)
-   */
-  private static function get_fetchable_url($url) {
-    $parsed = wp_parse_url($url);
-    
-    // Check if this is localhost:8080 (common Docker setup)
-    if (isset($parsed['host']) && in_array($parsed['host'], ['localhost', '127.0.0.1']) && 
-        isset($parsed['port']) && $parsed['port'] == 8080) {
-      
-      // Try using host.docker.internal (works in Docker Desktop)
-      $docker_host_url = str_replace(
-        ['http://localhost:8080', 'http://127.0.0.1:8080'],
-        'http://host.docker.internal:8080',
-        $url
-      );
-      
-      // Test if host.docker.internal is reachable
-      $test = @wp_remote_head($docker_host_url, ['timeout' => 2, 'sslverify' => false]);
-      if (!is_wp_error($test) && wp_remote_retrieve_response_code($test) > 0) {
-        return $docker_host_url;
-      }
-      
-      // Fallback: Try Docker gateway (usually 172.x.x.1)
-      if (isset($_SERVER['SERVER_ADDR'])) {
-        // Get gateway from container IP (e.g., 172.19.0.3 -> 172.19.0.1)
-        $server_addr = sanitize_text_field(wp_unslash($_SERVER['SERVER_ADDR']));
-        $parts = explode('.', $server_addr);
-        if (count($parts) == 4) {
-          $parts[3] = '1'; // Gateway is usually .1
-          $gateway = implode('.', $parts);
-          
-          $gateway_url = str_replace(
-            ['localhost:8080', '127.0.0.1:8080'],
-            $gateway . ':8080',
-            $url
-          );
-          
-          return $gateway_url;
-        }
-      }
-    }
-    
-    return $url;
-  }
 
-  /**
-   * Normalize URL for Docker/localhost environments (for sitemap/robots.txt)
-   */
-  private static function normalize_url($url) {
-    // In Docker environments, convert external localhost:8080 to internal localhost:80
-    // This allows WordPress inside the container to fetch its own pages
-    $url = preg_replace('#^https?://localhost:8080#i', 'http://localhost', $url);
-    $url = preg_replace('#^https?://127\.0\.0\.1:8080#i', 'http://127.0.0.1', $url);
-    $url = preg_replace('#^https?://0\.0\.0\.0:8080#i', 'http://localhost', $url);
-    
-    return $url;
-  }
   
   /**
    * Analyze a URL for SEO validation
@@ -92,9 +129,7 @@ class CFSEO_Validation {
     add_filter('http_request_host_is_external', '__return_true');
     add_filter('http_request_reject_unsafe_urls', '__return_false');
     
-    $normalized_url = self::get_fetchable_url($url);
-    
-    $response = wp_remote_get($normalized_url, [
+    $response = wp_remote_get($url, [
       'timeout' => 15,
       'sslverify' => false,
       'redirection' => 5,
@@ -207,11 +242,11 @@ class CFSEO_Validation {
    */
   public static function get_status_badge($count, $expected = 1) {
     if ($count === $expected) {
-      return '<span class="cfseo-status-badge status-pass"> Pass</span>';
+      return '<span class="ASNERISSEO-status-badge status-pass"> Pass</span>';
     } elseif ($count === 0) {
-      return '<span class="cfseo-status-badge status-warning"> Missing</span>';
+      return '<span class="ASNERISSEO-status-badge status-warning"> Missing</span>';
     } else {
-      return '<span class="cfseo-status-badge status-fail"> Multiple (' . $count . ')</span>';
+      return '<span class="ASNERISSEO-status-badge status-fail"> Multiple (' . $count . ')</span>';
     }
   }
   
@@ -232,7 +267,7 @@ class CFSEO_Validation {
    * Analyze sitemap accessibility
    */
   public static function analyze_sitemap() {
-    $sitemap_url = self::normalize_url(home_url('/wp-sitemap.xml'));
+    $sitemap_url = home_url('/wp-sitemap.xml');
     $response = wp_remote_get($sitemap_url, ['timeout' => 5]);
     
     $result = [
@@ -257,7 +292,7 @@ class CFSEO_Validation {
    * Analyze robots.txt file
    */
   public static function analyze_robots_txt() {
-    $robots_url = self::normalize_url(home_url('/robots.txt'));
+    $robots_url = home_url('/robots.txt');
     $response = wp_remote_get($robots_url, ['timeout' => 5]);
     
     $result = [
@@ -466,7 +501,7 @@ class CFSEO_Validation {
    * Get IndexNow status
    */
   public static function get_indexnow_status() {
-    $settings = get_option('CFSEO_settings', []);
+    $settings = get_option('ASNERISSEO_settings', []);
     $api_key = isset($settings['indexnow_key']) ? $settings['indexnow_key'] : '';
     
     return [
@@ -495,7 +530,7 @@ class CFSEO_Validation {
     
     // Handle form submission
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
-    $run_test = isset($_POST['run_validation']) && check_admin_referer('CFSEO_validation', '_wpnonce', false);
+    $run_test = isset($_POST['run_validation']) && check_admin_referer('ASNERISSEO_validation', '_wpnonce', false);
     
     $data['test_url'] = $test_url;
     
@@ -560,7 +595,7 @@ class CFSEO_Validation {
   
   /**
    * Calculate overall SEO score with weighted priorities
-   * Based on clarity-first principles: Critical > Recommended > Optimization
+   * Based on Asneris principles: Critical > Recommended > Optimization
    */
   private static function calculate_overall_score($results, $data) {
     $score = 0;
@@ -620,16 +655,16 @@ class CFSEO_Validation {
     // Determine color and status based on percentage
     if ($percentage >= 90) {
       $color = '#00a32a';
-      $status_text = __('Excellent', 'clarity-first-seo');
+      $status_text = __('Excellent', 'asneris-seo-toolkit');
     } elseif ($percentage >= 70) {
       $color = '#00a32a';
-      $status_text = __('Good', 'clarity-first-seo');
+      $status_text = __('Good', 'asneris-seo-toolkit');
     } elseif ($percentage >= 50) {
       $color = '#f0c33c';
-      $status_text = __('Fair', 'clarity-first-seo');
+      $status_text = __('Fair', 'asneris-seo-toolkit');
     } else {
       $color = '#d63638';
-      $status_text = __('Needs Work', 'clarity-first-seo');
+      $status_text = __('Needs Work', 'asneris-seo-toolkit');
     }
     
     return [
@@ -771,7 +806,7 @@ class CFSEO_Validation {
       'passed' => isset($data['score']) ? $data['score']['passed'] : 0,
     ];
     
-    update_option('cfseo_validation_summary', $summary);
+    update_option('ASNERISSEO_validation_summary', $summary);
   }
   
   /**
@@ -803,14 +838,14 @@ class CFSEO_Validation {
       'passed' => 0, // Site diagnostics doesn't have a "passed" count
     ];
     
-    update_option('cfseo_validation_summary', $summary);
+    update_option('ASNERISSEO_validation_summary', $summary);
   }
   
   /**
    * Get saved validation results
    */
   public static function get_saved_results() {
-    return get_option('cfseo_validation_summary', null);
+    return get_option('ASNERISSEO_validation_summary', null);
   }
   
   /**
@@ -827,16 +862,16 @@ class CFSEO_Validation {
     
     // Page content with inline header and footer
     ?>
-    <div class="wrap cfseo-admin-wrap">
+    <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
         <span class="dashicons dashicons-analytics"></span>
-        <?php esc_html_e('Site Diagnostics', 'clarity-first-seo'); ?>
-        <?php CFSEO_Help_Modal::render_help_icon('site-diagnostics-overview', 'Learn about Site Diagnostics'); ?>
+        <?php esc_html_e('Site Diagnostics', 'asneris-seo-toolkit'); ?>
+        <?php ASNERISSEO_Help_Modal::render_help_icon('site-diagnostics-overview', 'Learn about Site Diagnostics'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php esc_html_e('Check site-wide SEO settings that affect how search engines find and index your pages.', 'clarity-first-seo'); ?></p>
+      <p class="ASNERISSEO-subtitle"><?php esc_html_e('Scan your site\'s master settings. We check the global rules that tell search engines how to find, map, and show your entire website to the world.', 'asneris-seo-toolkit'); ?></p>
       
-      <div class="cfseo-settings-form">
-        <div class="cfseo-tab-content">
+      <div class="ASNERISSEO-settings-form">
+        <div class="ASNERISSEO-tab-content">
     <?php
     
     // Load main content template
@@ -844,95 +879,13 @@ class CFSEO_Validation {
     include $template_dir . 'tab-diagnostics.php';
     
     ?>
-        </div><!-- .cfseo-tab-content -->
-      </div><!-- .cfseo-settings-form -->
+        </div><!-- .ASNERISSEO-tab-content -->
+      </div><!-- .ASNERISSEO-settings-form -->
         
-      <?php // CFSEO_Help_Content::render_sidebar('site-diagnostics'); ?>
+      <?php // ASNERISSEO_Help_Content::render_sidebar('site-diagnostics'); ?>
     </div><!-- .wrap -->
 
-    <script>
-    jQuery(document).ready(function($) {
-      // Quick test buttons
-      $('.cfseo-quick-test').on('click', function() {
-        var url = $(this).data('url');
-        $('#test_url').val(url);
-      });
-      
-      // Page selector dropdown
-      $('#CFSEO_page_selector').on('change', function() {
-        var selectedUrl = $(this).val();
-        if (selectedUrl) {
-          $('#test_url').val(selectedUrl);
-        }
-      });
-      
-      // Collapsible function groups
-      $('.cfseo-group-header').on('click', function() {
-        var group = $(this).data('group');
-        var content = $('#group-' + group);
-        
-        if (content.is(':visible')) {
-          content.slideUp();
-          $(this).removeClass('expanded');
-        } else {
-          content.slideDown();
-          $(this).addClass('expanded');
-        }
-      });
-      
-      // Indexing Validation - HTTP Test functionality
-      $('#CFSEO_run_http_test').on('click', function() {
-        const url = $('#CFSEO_test_url').val();
-        const $button = $(this);
-        const $results = $('#CFSEO_http_results');
-        const $tbody = $('#CFSEO_http_results_body');
-        
-        if (!url) {
-          alert('Please enter a URL to test');
-          return;
-        }
-        
-        $button.prop('disabled', true).text('Testing...');
-        $tbody.html('<tr><td colspan="3">Running validation...</td></tr>');
-        $results.show();
-        
-        $.ajax({
-          url: ajaxurl,
-          method: 'POST',
-          data: {
-            action: 'CFSEO_http_test',
-            url: url,
-            nonce: '<?php echo esc_js(wp_create_nonce('CFSEO_http_test')); ?>'
-          },
-          success: function(response) {
-            if (response.success) {
-              let html = '';
-              response.data.checks.forEach(function(check) {
-                const statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
-                const statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
-                html += '<tr>';
-                html += '<td><strong>' + check.label + '</strong></td>';
-                html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
-                html += '<td>' + check.details + '</td>';
-                html += '</tr>';
-              });
-              $tbody.html(html);
-            } else {
-              $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
-            }
-          },
-          error: function() {
-            $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
-          },
-          complete: function() {
-            $button.prop('disabled', false).text('Run Indexing Validation');
-          }
-        });
-      });
-    });
-    </script>
-
-    <?php CFSEO_Help_Modal::render_modals('site-diagnostics'); ?>
+    <?php ASNERISSEO_Help_Modal::render_modals('site-diagnostics'); ?>
     <?php
   }
 }

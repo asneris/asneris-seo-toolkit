@@ -6,7 +6,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Help_Content {
+class ASNERISSEO_Help_Content {
   
   private static $content_cache = null;
   
@@ -14,6 +14,8 @@ class CFSEO_Help_Content {
    * Set to false to hide all "Review Guide" links
    */
   const SHOW_REVIEW_LINKS = false;
+
+  private static $assets_enqueued = false;
   
   /**
    * Get help content for a specific page
@@ -37,7 +39,7 @@ class CFSEO_Help_Content {
       return self::$content_cache;
     }
     
-    $json_file = CFSEO_DIR . 'help-content.json';
+    $json_file = ASNERISSEO_DIR . 'help-content.json';
     
     if (!file_exists($json_file)) {
       return [];
@@ -72,15 +74,15 @@ class CFSEO_Help_Content {
       return;
     }
     ?>
-    <aside class="cfseo-sidebar">
-      <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+    <aside class="ASNERISSEO-sidebar">
+      <button type="button" class="ASNERISSEO-sidebar-toggle" id="ASNERISSEO-sidebar-toggle">
         <span class="dashicons dashicons-editor-help"></span>
-        <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+        <span class="ASNERISSEO-sidebar-toggle-text">Help & Tips</span>
       </button>
       
-      <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+      <div class="ASNERISSEO-sidebar-content" id="ASNERISSEO-sidebar-content">
         <?php foreach ($content['cards'] as $card): ?>
-          <div class="cfseo-help-card">
+          <div class="ASNERISSEO-help-card">
             <h3>
               <span class="dashicons <?php echo esc_attr($card['icon']); ?>"></span>
               <?php echo esc_html($card['title']); ?>
@@ -100,27 +102,7 @@ class CFSEO_Help_Content {
       </div>
     </aside>
     
-    <script>
-    (function() {
-      const toggle = document.getElementById('cfseo-sidebar-toggle');
-      const content = document.getElementById('cfseo-sidebar-content');
-      const storageKey = 'cfseo_sidebar_visible';
-      
-      // Restore sidebar state
-      const isVisible = localStorage.getItem(storageKey) !== 'false';
-      if (!isVisible) {
-        content.style.display = 'none';
-        toggle.classList.add('collapsed');
-      }
-      
-      toggle.addEventListener('click', function() {
-        const visible = content.style.display !== 'none';
-        content.style.display = visible ? 'none' : 'block';
-        toggle.classList.toggle('collapsed');
-        localStorage.setItem(storageKey, !visible);
-      });
-    })();
-    </script>
+    <?php self::enqueue_assets(false); ?>
     <?php
   }
   
@@ -129,17 +111,17 @@ class CFSEO_Help_Content {
    */
   private static function render_tabbed_sidebar($page_id, $tabs) {
     ?>
-    <aside class="cfseo-sidebar">
-      <button type="button" class="cfseo-sidebar-toggle" id="cfseo-sidebar-toggle">
+    <aside class="ASNERISSEO-sidebar">
+      <button type="button" class="ASNERISSEO-sidebar-toggle" id="ASNERISSEO-sidebar-toggle">
         <span class="dashicons dashicons-editor-help"></span>
-        <span class="cfseo-sidebar-toggle-text">Help & Tips</span>
+        <span class="ASNERISSEO-sidebar-toggle-text">Help & Tips</span>
       </button>
       
-      <div class="cfseo-sidebar-content" id="cfseo-sidebar-content">
+      <div class="ASNERISSEO-sidebar-content" id="ASNERISSEO-sidebar-content">
         <?php foreach ($tabs as $tab_key => $cards): ?>
-          <div class="cfseo-tab-help" data-tab="<?php echo esc_attr($tab_key); ?>" style="display: none;">
+          <div class="ASNERISSEO-tab-help" data-tab="<?php echo esc_attr($tab_key); ?>" style="display: none;">
             <?php foreach ($cards as $card): ?>
-              <div class="cfseo-help-card">
+              <div class="ASNERISSEO-help-card">
                 <h3>
                   <span class="dashicons <?php echo esc_attr($card['icon']); ?>"></span>
                   <?php echo esc_html($card['title']); ?>
@@ -161,62 +143,70 @@ class CFSEO_Help_Content {
       </div>
     </aside>
     
-    <script>
-    (function() {
-      const toggle = document.getElementById('cfseo-sidebar-toggle');
-      const content = document.getElementById('cfseo-sidebar-content');
-      const storageKey = 'cfseo_sidebar_visible';
-      const tabButtons = document.querySelectorAll('.nav-tab');
-      const tabHelp = document.querySelectorAll('.cfseo-tab-help');
-      
-      // Restore sidebar state
-      const isVisible = localStorage.getItem(storageKey) !== 'false';
-      if (!isVisible) {
-        content.style.display = 'none';
-        toggle.classList.add('collapsed');
-      }
-      
-      // Toggle sidebar visibility
-      toggle.addEventListener('click', function() {
-        const visible = content.style.display !== 'none';
-        content.style.display = visible ? 'none' : 'block';
-        toggle.classList.toggle('collapsed');
-        localStorage.setItem(storageKey, !visible);
-      });
-      
-      // Show/hide help based on active tab
-      function updateHelpContent() {
-        const activeTab = document.querySelector('.nav-tab-active');
-        if (!activeTab) return;
-        
-        const tabHref = activeTab.getAttribute('href');
-        if (!tabHref) return;
-        
-        // Extract tab name from query parameter (e.g., ?page=cfseo-settings&tab=general)
-        const urlParams = new URLSearchParams(tabHref.split('?')[1] || '');
-        const tabName = urlParams.get('tab') || 'general';
-        
-        // Hide all tab help
-        tabHelp.forEach(help => help.style.display = 'none');
-        
-        // Show matching tab help
-        const matchingHelp = document.querySelector('.cfseo-tab-help[data-tab="' + tabName + '"]');
-        if (matchingHelp) {
-          matchingHelp.style.display = 'block';
-        }
-      }
-      
-      // Initial update
-      updateHelpContent();
-      
-      // Listen for tab clicks
-      tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-          setTimeout(updateHelpContent, 50);
-        });
-      });
-    })();
-    </script>
+    <?php self::enqueue_assets(true); ?>
     <?php
+  }
+
+  /**
+   * Enqueue sidebar scripts
+   */
+  private static function enqueue_assets($tabbed) {
+    if (!self::$assets_enqueued) {
+      wp_register_script('ASNERISSEO-help-content', '', [], ASNERISSEO_VERSION, true);
+      wp_enqueue_script('ASNERISSEO-help-content');
+      self::$assets_enqueued = true;
+    }
+
+    if ($tabbed) {
+      $inline_js = '(function(){\n'
+        . '  const toggle=document.getElementById("ASNERISSEO-sidebar-toggle");\n'
+        . '  const content=document.getElementById("ASNERISSEO-sidebar-content");\n'
+        . '  const storageKey="ASNERISSEO_sidebar_visible";\n'
+        . '  const tabButtons=document.querySelectorAll(".nav-tab");\n'
+        . '  const tabHelp=document.querySelectorAll(".ASNERISSEO-tab-help");\n'
+        . '  if (!toggle || !content) return;\n'
+        . '  const isVisible=localStorage.getItem(storageKey)!=="false";\n'
+        . '  if(!isVisible){content.style.display="none";toggle.classList.add("collapsed");}\n'
+        . '  toggle.addEventListener("click",function(){\n'
+        . '    const visible=content.style.display!=="none";\n'
+        . '    content.style.display=visible?"none":"block";\n'
+        . '    toggle.classList.toggle("collapsed");\n'
+        . '    localStorage.setItem(storageKey,!visible);\n'
+        . '  });\n'
+        . '  function updateHelpContent(){\n'
+        . '    const activeTab=document.querySelector(".nav-tab-active");\n'
+        . '    if(!activeTab) return;\n'
+        . '    const tabHref=activeTab.getAttribute("href");\n'
+        . '    if(!tabHref) return;\n'
+        . '    const urlParams=new URLSearchParams(tabHref.split("?")[1]||"");\n'
+        . '    const tabName=urlParams.get("tab")||"general";\n'
+        . '    tabHelp.forEach(function(help){help.style.display="none";});\n'
+        . '    const matchingHelp=document.querySelector(".ASNERISSEO-tab-help[data-tab=\""+tabName+"\"]");\n'
+        . '    if(matchingHelp){matchingHelp.style.display="block";}\n'
+        . '  }\n'
+        . '  updateHelpContent();\n'
+        . '  tabButtons.forEach(function(button){\n'
+        . '    button.addEventListener("click",function(){setTimeout(updateHelpContent,50);});\n'
+        . '  });\n'
+        . '})();';
+      wp_add_inline_script('ASNERISSEO-help-content', $inline_js);
+      return;
+    }
+
+    $inline_js = '(function(){\n'
+      . '  const toggle=document.getElementById("ASNERISSEO-sidebar-toggle");\n'
+      . '  const content=document.getElementById("ASNERISSEO-sidebar-content");\n'
+      . '  const storageKey="ASNERISSEO_sidebar_visible";\n'
+      . '  if (!toggle || !content) return;\n'
+      . '  const isVisible=localStorage.getItem(storageKey)!=="false";\n'
+      . '  if(!isVisible){content.style.display="none";toggle.classList.add("collapsed");}\n'
+      . '  toggle.addEventListener("click",function(){\n'
+      . '    const visible=content.style.display!=="none";\n'
+      . '    content.style.display=visible?"none":"block";\n'
+      . '    toggle.classList.toggle("collapsed");\n'
+      . '    localStorage.setItem(storageKey,!visible);\n'
+      . '  });\n'
+      . '})();';
+    wp_add_inline_script('ASNERISSEO-help-content', $inline_js);
   }
 }

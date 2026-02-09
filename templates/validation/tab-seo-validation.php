@@ -31,7 +31,7 @@ if (!defined('ABSPATH')) exit;
   
   <!-- Show Error -->
   <div class="notice notice-error">
-    <p><strong><?php esc_html_e('Error:', 'clarity-first-seo'); ?></strong> <?php echo esc_html($results['error']); ?></p>
+    <p><strong><?php esc_html_e('Error:', 'asneris-seo-toolkit'); ?></strong> <?php echo esc_html($results['error']); ?></p>
   </div>
 
 <?php endif; ?>

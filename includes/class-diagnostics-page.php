@@ -15,18 +15,18 @@
 
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Diagnostics_Page {
+class ASNERISSEO_Diagnostics_Page {
   
   /**
    * Register diagnostics page
    */
   public static function register_menu() {
     add_submenu_page(
-      'clarity-first-seo',
-      __('Page Diagnostics', 'clarity-first-seo'),
-      __('Page Diagnostics', 'clarity-first-seo'),
+      ASNERIS_MENU_SLUG,
+      __('Page Diagnostics', 'asneris-seo-toolkit'),
+      __('Page Diagnostics', 'asneris-seo-toolkit'),
       'manage_options',
-      'cfseo-diagnostics',
+      ASNERIS_MENU_SLUG . '-diagnostics',
       [__CLASS__, 'render_page']
     );
   }
@@ -35,8 +35,20 @@ class CFSEO_Diagnostics_Page {
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
-    if ($hook !== 'clarity-first-seo_page_cfseo-diagnostics') return;
-    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-diagnostics') return;
+    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_script('jquery');
+    
+    $inline_js = "jQuery(function(\$){\n" .
+      "  \$('#page_selector').on('change', function(){\n" .
+      "    var selectedUrl = \$(this).val();\n" .
+      "    if (selectedUrl) {\n" .
+      "      \$('#test_url').val(selectedUrl);\n" .
+      "    }\n" .
+      "  });\n" .
+      "});";
+    wp_add_inline_script('jquery', $inline_js);
   }
   
   /**
@@ -179,97 +191,70 @@ class CFSEO_Diagnostics_Page {
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $results = null;
     
-    if (!empty($test_url) && isset($_POST['run_diagnostics']) && check_admin_referer('CFSEO_diagnostics', '_wpnonce', false)) {
+    if (!empty($test_url) && isset($_POST['run_diagnostics']) && check_admin_referer('ASNERISSEO_diagnostics', '_wpnonce', false)) {
       $results = self::analyze_url($test_url);
     }
     ?>
-    <div class="wrap cfseo-admin-wrap has-sidebar">
+    <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
         <span class="dashicons dashicons-analytics"></span>
-        <?php esc_html_e('Page Diagnostics', 'clarity-first-seo'); ?>
-        <?php CFSEO_Help_Modal::render_help_icon('page-diagnostics-overview', 'Learn about page diagnostics'); ?>
+        <?php esc_html_e('Page Diagnostics', 'asneris-seo-toolkit'); ?>
+        <?php ASNERISSEO_Help_Modal::render_help_icon('page-diagnostics-overview', 'Learn about page diagnostics'); ?>
       </h1>
-      <p class="cfseo-subtitle">
-        <?php esc_html_e('Inspect what a single page exposes to search engines — read-only facts only.', 'clarity-first-seo'); ?>
+      <p class="ASNERISSEO-subtitle">
+        <?php esc_html_e('Inspect your page\'s search footprint. We show you the simple facts: Is it live? (Connectivity), Is it the master version? (Canonical), and Is it ready to rank? (Indexing & Tags).', 'asneris-seo-toolkit'); ?>
       </p>
       
-      <div class="cfseo-settings-form">
-        <div class="cfseo-tab-content">
-      
       <!-- URL Input -->
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-search"></span> Analyze Any URL
-          <?php CFSEO_Help_Modal::render_help_icon('page-fetch-status', 'Learn about page fetch and HTTP status'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('page-fetch-status', 'Learn about page fetch and HTTP status'); ?>
         </h2>
-        <p style="color: #646970;">Fetch & inspect a single page</p>
         
-        <form method="post" action="" id="cfseo-diagnostics-form">
-          <?php wp_nonce_field('CFSEO_diagnostics'); ?>
+        <form method="post" action="" id="ASNERISSEO-diagnostics-form" style="margin-top: 15px;">
+          <?php wp_nonce_field('ASNERISSEO_diagnostics'); ?>
           
-          <table class="form-table">
-            <tr>
-              <th scope="row"><label for="page_selector">Select Page</label></th>
-              <td>
-                <select id="page_selector" class="large-text" style="max-width: 600px;">
-                  <option value="">-- Select a page or enter custom URL below --</option>
-                  <optgroup label="Pages">
-                    <?php
-                    $pages = get_pages(['sort_column' => 'post_title', 'number' => 100]);
-                    foreach ($pages as $page) {
-                      $page_url = get_permalink($page->ID);
-                      echo '<option value="' . esc_attr($page_url) . '">' . esc_html($page->post_title) . '</option>';
-                    }
-                    ?>
-                  </optgroup>
-                  <optgroup label="Posts (Latest 50)">
-                    <?php
-                    $posts = get_posts(['numberposts' => 50, 'post_status' => 'publish']);
-                    foreach ($posts as $post) {
-                      $post_url = get_permalink($post->ID);
-                      echo '<option value="' . esc_attr($post_url) . '">' . esc_html($post->post_title) . '</option>';
-                    }
-                    ?>
-                  </optgroup>
-                  <optgroup label="Special Pages">
-                    <option value="<?php echo esc_attr(home_url('/')); ?>">Homepage</option>
-                    <?php
-                    if (get_option('page_for_posts')) {
-                      echo '<option value="' . esc_attr(get_permalink(get_option('page_for_posts'))) . '">Blog Page</option>';
-                    }
-                    ?>
-                  </optgroup>
-                </select>
-                <p class="description">Select a page from the list or enter a custom URL below</p>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row"><label for="test_url">Or Custom URL</label></th>
-              <td>
-                <input type="url" id="test_url" name="test_url" class="large-text" 
-                       value="<?php echo esc_attr($test_url ?: home_url('/')); ?>" 
-                       placeholder="<?php echo esc_attr(home_url('/')); ?>" required>
-                <button type="submit" name="run_diagnostics" class="button button-primary">
-                  Run Diagnostics
-                </button>
-                <p class="description">Or enter any URL from your site manually</p>
-              </td>
-            </tr>
-          </table>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <select id="page_selector" style="flex: 1; max-width: 400px; height: 32px;">
+              <option value="">-- Select a page/post --</option>
+              <optgroup label="Pages">
+                <?php
+                $pages = get_pages(['sort_column' => 'post_title', 'number' => 100]);
+                foreach ($pages as $page) {
+                  $page_url = get_permalink($page->ID);
+                  echo '<option value="' . esc_attr($page_url) . '">' . esc_html($page->post_title) . '</option>';
+                }
+                ?>
+              </optgroup>
+              <optgroup label="Posts (Latest 50)">
+                <?php
+                $posts = get_posts(['numberposts' => 50, 'post_status' => 'publish']);
+                foreach ($posts as $post) {
+                  $post_url = get_permalink($post->ID);
+                  echo '<option value="' . esc_attr($post_url) . '">' . esc_html($post->post_title) . '</option>';
+                }
+                ?>
+              </optgroup>
+              <optgroup label="Special Pages">
+                <option value="<?php echo esc_attr(home_url('/')); ?>">Homepage</option>
+                <?php
+                if (get_option('page_for_posts')) {
+                  echo '<option value="' . esc_attr(get_permalink(get_option('page_for_posts'))) . '">Blog Page</option>';
+                }
+                ?>
+              </optgroup>
+            </select>
+            <span style="color: #646970;">or</span>
+            <input type="url" id="test_url" name="test_url" style="flex: 1; max-width: 400px; height: 32px;" 
+                   value="<?php echo esc_attr($test_url ?: home_url('/')); ?>" 
+                   placeholder="Enter custom URL" required>
+            <button type="submit" name="run_diagnostics" class="button button-primary" style="height: 32px; padding: 0 15px;">
+              Run Diagnostics
+            </button>
+          </div>
         </form>
         
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          const selector = document.getElementById('page_selector');
-          const urlInput = document.getElementById('test_url');
-          
-          selector.addEventListener('change', function() {
-            if (this.value) {
-              urlInput.value = this.value;
-            }
-          });
-        });
-        </script>
       </div>
       
       <?php if ($results && isset($results['error'])): ?>
@@ -281,144 +266,289 @@ class CFSEO_Diagnostics_Page {
       <?php if ($results && !isset($results['error'])): ?>
         
         <!-- Fetch Results -->
-        <div class="cfseo-card">
+        <div class="ASNERISSEO-card">
           <h2>
-            Fetch Results
-            <?php CFSEO_Help_Modal::render_help_icon('page-fetch-status', 'Learn about HTTP status codes'); ?>
+            <span class="dashicons dashicons-cloud"></span> Page Connection Check
+            <?php ASNERISSEO_Help_Modal::render_help_icon('page-fetch-status', 'Learn about HTTP status codes'); ?>
           </h2>
-          <table class="widefat">
+          <table class="widefat striped">
+            <thead>
+              <tr>
+                <th style="width: 200px;">Check</th>
+                <th style="width: 100px;">Status</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
             <tr>
-              <th style="width: 200px;">Tested URL</th>
+              <td><strong>HTTP Status</strong></td>
+              <td>
+                <?php 
+                $code = $results['http_status'];
+                if ($code == 200) {
+                  echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                } elseif ($code >= 300 && $code < 400) {
+                  echo '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>';
+                } else {
+                  echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                }
+                ?>
+              </td>
+              <td>
+                <strong style="font-size: 16px;"><?php echo esc_html($code); ?></strong>
+                <?php 
+                if ($code == 200) echo ' - Page accessible';
+                elseif ($code >= 300 && $code < 400) echo ' - Redirect detected';
+                elseif ($code >= 400 && $code < 500) echo ' - Client error';
+                elseif ($code >= 500) echo ' - Server error';
+                ?>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>URL Redirect</strong></td>
+              <td>
+                <?php if ($results['tested_url'] !== $results['final_url']): ?>
+                  <span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>
+                <?php else: ?>
+                  <span style="color: #46b450; font-weight: 600;">✓ Pass</span>
+                <?php endif; ?>
+              </td>
+              <td>
+                <?php if ($results['tested_url'] !== $results['final_url']): ?>
+                  Redirects to: <code><?php echo esc_html($results['final_url']); ?></code>
+                <?php else: ?>
+                  No redirect - Direct access
+                <?php endif; ?>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Tested URL</strong></td>
+              <td>-</td>
               <td><code><?php echo esc_html($results['tested_url']); ?></code></td>
             </tr>
             <tr>
-              <th>Final URL</th>
-              <td><code><?php echo esc_html($results['final_url']); ?></code></td>
-            </tr>
-            <tr>
-              <th>Fetch Status</th>
-              <td><strong><?php echo esc_html($results['http_status']); ?></strong></td>
-            </tr>
-            <tr>
-              <th>Timestamp</th>
+              <td><strong>Fetch Time</strong></td>
+              <td>-</td>
               <td><?php echo esc_html($results['fetch_timestamp']); ?></td>
             </tr>
+            </tbody>
           </table>
         </div>
         
         <!-- Canonical Details -->
-        <div class="cfseo-card">
+        <div class="ASNERISSEO-card">
           <h2>
             <span class="dashicons dashicons-admin-links"></span> Canonical Details
-            <?php CFSEO_Help_Modal::render_help_icon('canonical-url', 'Learn about canonical URLs'); ?>
+            <?php ASNERISSEO_Help_Modal::render_help_icon('canonical-url', 'Learn about canonical URLs'); ?>
           </h2>
-          <p style="color: #646970;">Canonical tags and target status for this URL</p>
           
           <table class="widefat striped">
+            <thead>
+              <tr>
+                <th style="width: 200px;">Check</th>
+                <th style="width: 100px;">Status</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
             <tr>
-              <th style="width: 200px;">Canonical Count</th>
-              <td><strong><?php echo count($results['canonical']); ?></strong></td>
+              <td><strong>Canonical Tag</strong></td>
+              <td>
+                <?php 
+                $canon_count = count($results['canonical']);
+                if ($canon_count == 1) {
+                  echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                } elseif ($canon_count > 1) {
+                  echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                } else {
+                  echo '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>';
+                }
+                ?>
+              </td>
+              <td>
+                <?php if ($canon_count == 1): ?>
+                  Single canonical tag detected (correct)
+                <?php elseif ($canon_count > 1): ?>
+                  <strong>Multiple canonicals detected: <?php echo esc_html($canon_count); ?></strong> (should be only 1)
+                <?php else: ?>
+                  No canonical tag found
+                <?php endif; ?>
+              </td>
             </tr>
             <?php if (!empty($results['canonical'])): ?>
               <?php foreach ($results['canonical'] as $i => $canon): ?>
                 <tr>
-                  <th>Canonical <?php echo esc_html($i + 1); ?> href</th>
+                  <td><strong>Canonical URL</strong></td>
+                  <td>-</td>
                   <td><code><?php echo esc_html($canon); ?></code></td>
                 </tr>
                 <?php if (isset($results['canonical_target_status'][$canon])): ?>
                   <tr>
-                    <th>Target HTTP Status</th>
+                    <td><strong>Target Status</strong></td>
                     <td>
-                      <strong><?php echo esc_html($results['canonical_target_status'][$canon]['status']); ?></strong>
+                      <?php 
+                      $target_status = $results['canonical_target_status'][$canon]['status'];
+                      if ($target_status == 200) {
+                        echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                      } else {
+                        echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                      }
+                      ?>
+                    </td>
+                    <td>
+                      HTTP <?php echo esc_html($target_status); ?>
                       <?php if ($results['canonical_target_status'][$canon]['redirects']): ?>
-                        <span style="color: #f0ad4e;"> (redirects detected)</span>
+                        <span style="color: #f0ad4e;"> - Redirects detected</span>
                       <?php endif; ?>
                     </td>
                   </tr>
                 <?php endif; ?>
                 <tr>
-                  <th>Same as Input URL?</th>
+                  <td><strong>Self-Referencing</strong></td>
                   <td>
                     <?php 
                     $input_normalized = untrailingslashit(strtolower($results['tested_url']));
                     $canon_normalized = untrailingslashit(strtolower($canon));
-                    echo $input_normalized === $canon_normalized ? '✅ Yes (self-referencing)' : '⚠️ No (points to different URL)'; 
+                    echo $input_normalized === $canon_normalized 
+                      ? '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>' 
+                      : '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>'; 
                     ?>
+                  </td>
+                  <td>
+                    <?php echo $input_normalized === $canon_normalized ? 'Yes - Points to itself (recommended)' : 'No - Points to different URL'; ?>
                   </td>
                 </tr>
               <?php endforeach; ?>
-            <?php else: ?>
-              <tr>
-                <th>Status</th>
-                <td style="color: #646970;">No canonical tag found</td>
-              </tr>
             <?php endif; ?>
+            </tbody>
           </table>
         </div>
         
         <!-- Indexing Signals -->
-        <div class="cfseo-card">
+        <div class="ASNERISSEO-card">
           <h2>
             <span class="dashicons dashicons-admin-site-alt3"></span> Indexing Signals
-            <?php CFSEO_Help_Modal::render_help_icon('indexing-rules', 'Learn about indexing rules'); ?>
+            <?php ASNERISSEO_Help_Modal::render_help_icon('indexing-rules', 'Learn about indexing rules'); ?>
           </h2>
-          <p style="color: #646970;">Signals that may affect indexing for this URL</p>
           
           <table class="widefat striped">
             <thead>
               <tr>
-                <th style="width: 250px;">Signal</th>
-                <th>Detected Value</th>
+                <th style="width: 250px;">Check</th>
+                <th style="width: 100px;">Status</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td><strong>HTTP Status Code</strong></td>
                 <td>
-                  <span style="font-size: 18px; font-weight: 600;"><?php echo esc_html($results['http_status']); ?></span>
-                  <p style="color: #646970; margin: 5px 0 0 0; font-size: 13px;">
-                    <?php 
-                    $code = $results['http_status'];
-                    if ($code == 200) echo 'Success response';
-                    elseif ($code >= 300 && $code < 400) echo 'Redirect response';
-                    elseif ($code >= 400 && $code < 500) echo 'Client error';
-                    elseif ($code >= 500) echo 'Server error';
-                    ?>
-                  </p>
+                  <?php 
+                  $code = $results['http_status'];
+                  if ($code == 200) {
+                    echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                  } elseif ($code >= 300 && $code < 400) {
+                    echo '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>';
+                  } else {
+                    echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                  }
+                  ?>
+                </td>
+                <td>
+                  <span style="font-size: 16px; font-weight: 600;"><?php echo esc_html($code); ?></span> - 
+                  <?php 
+                  if ($code == 200) echo 'Indexable (Success)';
+                  elseif ($code >= 300 && $code < 400) echo 'Redirect (May affect indexing)';
+                  elseif ($code >= 400 && $code < 500) echo 'Not indexable (Client error)';
+                  elseif ($code >= 500) echo 'Not indexable (Server error)';
+                  ?>
                 </td>
               </tr>
               <tr>
                 <td><strong>X-Robots-Tag Header</strong></td>
                 <td>
                   <?php if (!empty($results['x_robots_tag'])): ?>
+                    <?php 
+                    $xrob = strtolower($results['x_robots_tag']);
+                    if (strpos($xrob, 'noindex') !== false) {
+                      echo '<span style="color: #d63638; font-weight: 600;">✗ Blocked</span>';
+                    } else {
+                      echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                    }
+                    ?>
+                  <?php else: ?>
+                    <span style="color: #46b450; font-weight: 600;">✓ Pass</span>
+                  <?php endif; ?>
+                </td>
+                <td>
+                  <?php if (!empty($results['x_robots_tag'])): ?>
                     <code><?php echo esc_html($results['x_robots_tag']); ?></code>
                   <?php else: ?>
-                    <span style="color: #646970;">Not present</span>
+                    Not present - No restrictions
                   <?php endif; ?>
                 </td>
               </tr>
               <tr>
-                <td><strong>Meta Robots</strong></td>
+                <td><strong>Meta Robots Tag</strong></td>
                 <td>
                   <?php if (!empty($results['robots_meta'])): ?>
-                    <?php foreach ($results['robots_meta'] as $robots): ?>
-                      <code><?php echo esc_html($robots); ?></code><br>
-                    <?php endforeach; ?>
-                    <p style="color: #646970; margin: 5px 0 0 0; font-size: 13px;">
-                      Count: <?php echo count($results['robots_meta']); ?>
-                    </p>
+                    <?php 
+                    $has_noindex = false;
+                    foreach ($results['robots_meta'] as $robots) {
+                      if (strpos(strtolower($robots), 'noindex') !== false) {
+                        $has_noindex = true;
+                        break;
+                      }
+                    }
+                    $tag_count = count($results['robots_meta']);
+                    if ($has_noindex) {
+                      echo '<span style="color: #d63638; font-weight: 600;">✗ Blocked</span>';
+                    } elseif ($tag_count > 1) {
+                      echo '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>';
+                    } else {
+                      echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                    }
+                    ?>
                   <?php else: ?>
-                    <span style="color: #646970;">Not present</span>
+                    <span style="color: #46b450; font-weight: 600;">✓ Pass</span>
                   <?php endif; ?>
                 </td>
-              </tr>
-              <tr>
-                <td><strong>Redirect Detected</strong></td>
                 <td>
-                  <?php if ($results['tested_url'] !== $results['final_url']): ?>
-                    Yes → <code><?php echo esc_html($results['final_url']); ?></code>
+                  <?php if (!empty($results['robots_meta'])): ?>
+                    <?php 
+                    $has_noindex = false;
+                    foreach ($results['robots_meta'] as $robots) {
+                      if (strpos(strtolower($robots), 'noindex') !== false) {
+                        $has_noindex = true;
+                        echo '<div style="background: #fef8f8; border-left: 3px solid #d63638; padding: 10px; margin: 5px 0;">';
+                        echo '<strong style="color: #d63638;">⚠ Page is set to "noindex" - Search engines will NOT index this page</strong><br>';
+                        echo '<span style="color: #646970; font-size: 13px; margin-top: 5px; display: block;">To allow indexing: </span>';
+                        echo '<a href="' . esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')) . '" class="button button-small" style="margin-top: 5px;">Go to Bulk Edit</a>';
+                        echo '</div>';
+                        break;
+                      }
+                    }
+                    if (!$has_noindex) {
+                      echo 'No blocking directives - Page can be indexed';
+                    }
+                    ?>
+                    <?php if (count($results['robots_meta']) > 1): ?>
+                      <br><div style="background: #fff8e5; border-left: 3px solid #f0ad4e; padding: 10px; margin: 5px 0;">
+                        <strong style="color: #f0ad4e;">Multiple meta robots tags detected (<?php echo esc_html(count($results['robots_meta'])); ?>)</strong><br>
+                        <span style="color: #646970; font-size: 13px; margin-bottom: 8px; display: block;">Only one tag should exist. Here are the tags found:</span>
+                        <?php foreach ($results['robots_meta'] as $index => $robots): ?>
+                          <div style="margin: 5px 0; padding: 5px; background: white; border-radius: 3px;">
+                            <strong>Tag #<?php echo esc_html($index + 1); ?>:</strong> <code><?php echo esc_html($robots); ?></code>
+                          </div>
+                        <?php endforeach; ?>
+                        <span style="color: #646970; font-size: 13px; margin-top: 8px; display: block;">
+                          Check for conflicts with other plugins or your theme.
+                        </span>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-validation')); ?>" class="button button-small" style="margin-top: 5px;">Check Site Diagnostics</a>
+                      </div>
+                    <?php endif; ?>
                   <?php else: ?>
-                    <span style="color: #646970;">No redirect</span>
+                    Not present - No restrictions
                   <?php endif; ?>
                 </td>
               </tr>
@@ -427,48 +557,144 @@ class CFSEO_Diagnostics_Page {
         </div>
         
         <!-- Meta Tags (Title & Description) -->
-        <div class="cfseo-card">
+        <div class="ASNERISSEO-card">
           <h2>
             <span class="dashicons dashicons-editor-textmode"></span> Meta Tags
-            <?php CFSEO_Help_Modal::render_help_icon('meta-tags', 'Learn about meta tags'); ?>
+            <?php ASNERISSEO_Help_Modal::render_help_icon('meta-tags', 'Learn about meta tags'); ?>
           </h2>
-          <p style="color: #646970;">Title tags and meta descriptions for this URL</p>
           
           <table class="widefat striped">
+            <thead>
+              <tr>
+                <th style="width: 200px;">Check</th>
+                <th style="width: 100px;">Status</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
             <tr>
-              <th style="width: 200px;">Title Tags</th>
+              <td><strong>Title Tag</strong></td>
               <td>
-                <strong>Count:</strong> <?php echo count($results['title_tags']); ?><br>
-                <?php if (!empty($results['title_tags'])): ?>
+                <?php 
+                $title_count = count($results['title_tags']);
+                if ($title_count == 1) {
+                  $title_length = strlen($results['title_tags'][0]);
+                  if ($title_length >= 30 && $title_length <= 60) {
+                    echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                  } elseif ($title_length > 0) {
+                    echo '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>';
+                  } else {
+                    echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                  }
+                } elseif ($title_count > 1) {
+                  echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                } else {
+                  echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                }
+                ?>
+              </td>
+              <td>
+                <?php if ($title_count == 1): ?>
+                  <?php 
+                  $title = $results['title_tags'][0];
+                  $title_length = strlen($title);
+                  ?>
+                  <code><?php echo esc_html($title); ?></code><br>
+                  <span style="color: <?php echo esc_attr(($title_length >= 30 && $title_length <= 60) ? '#46b450' : '#f0ad4e'); ?>; font-size: 12px;">
+                    <?php echo esc_html($title_length); ?> characters
+                    <?php if ($title_length < 30): ?>
+                      (too short, recommended: 30-60)
+                    <?php elseif ($title_length > 60): ?>
+                      (too long, recommended: 30-60)
+                    <?php else: ?>
+                      (optimal length)
+                    <?php endif; ?>
+                  </span>
+                  <?php if ($title_length < 30 || $title_length > 60): ?>
+                    <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Title in Bulk Edit</a>
+                  <?php endif; ?>
+                <?php elseif ($title_count > 1): ?>
+                  <strong style="color: #d63638;">Multiple title tags detected: <?php echo esc_html($title_count); ?></strong> (should be only 1)<br>
                   <?php foreach ($results['title_tags'] as $title): ?>
-                    <code><?php echo esc_html($title); ?></code> (<?php echo esc_html(strlen($title)); ?> characters)<br>
+                    <code><?php echo esc_html($title); ?></code> (<?php echo esc_html(strlen($title)); ?> chars)<br>
                   <?php endforeach; ?>
+                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-validation')); ?>" class="button button-small" style="margin-top: 5px;">Check Site Diagnostics</a>
                 <?php else: ?>
-                  <span style="color: #646970;">Not detected</span>
+                  <strong style="color: #d63638;">No title tag found</strong><br>
+                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Title in Bulk Edit</a>
                 <?php endif; ?>
               </td>
             </tr>
             <tr>
-              <th>Meta Description</th>
+              <td><strong>Meta Description</strong></td>
               <td>
-                <strong>Count:</strong> <?php echo count($results['meta_description']); ?><br>
-                <?php if (!empty($results['meta_description'])): ?>
+                <?php 
+                $desc_count = count($results['meta_description']);
+                if ($desc_count == 1) {
+                  $desc_length = strlen($results['meta_description'][0]);
+                  if ($desc_length >= 120 && $desc_length <= 160) {
+                    echo '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>';
+                  } elseif ($desc_length > 0) {
+                    echo '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>';
+                  } else {
+                    echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                  }
+                } elseif ($desc_count > 1) {
+                  echo '<span style="color: #d63638; font-weight: 600;">✗ Fail</span>';
+                } else {
+                  echo '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>';
+                }
+                ?>
+              </td>
+              <td>
+                <?php if ($desc_count == 1): ?>
+                  <?php 
+                  $desc = $results['meta_description'][0];
+                  $desc_length = strlen($desc);
+                  ?>
+                  <code><?php echo esc_html($desc); ?></code><br>
+                  <span style="color: <?php echo esc_attr(($desc_length >= 120 && $desc_length <= 160) ? '#46b450' : '#f0ad4e'); ?>; font-size: 12px;">
+                    <?php echo esc_html($desc_length); ?> characters
+                    <?php if ($desc_length < 120): ?>
+                      (too short, recommended: 120-160)
+                    <?php elseif ($desc_length > 160): ?>
+                      (too long, recommended: 120-160)
+                    <?php else: ?>
+                      (optimal length)
+                    <?php endif; ?>
+                  </span>
+                  <?php if ($desc_length < 120 || $desc_length > 160): ?>
+                    <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Description in Bulk Edit</a>
+                  <?php endif; ?>
+                <?php elseif ($desc_count > 1): ?>
+                  <strong style="color: #d63638;">Multiple meta descriptions detected: <?php echo esc_html($desc_count); ?></strong> (should be only 1)<br>
                   <?php foreach ($results['meta_description'] as $desc): ?>
-                    <code><?php echo esc_html($desc); ?></code> (<?php echo esc_html(strlen($desc)); ?> characters)<br>
+                    <code><?php echo esc_html($desc); ?></code> (<?php echo esc_html(strlen($desc)); ?> chars)<br>
                   <?php endforeach; ?>
+                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-validation')); ?>" class="button button-small" style="margin-top: 5px;">Check Site Diagnostics</a>
                 <?php else: ?>
-                  <span style="color: #646970;">Not detected</span>
+                  <strong style="color: #f0ad4e;">No meta description found</strong> - Search engines will generate one<br>
+                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Description in Bulk Edit</a>
                 <?php endif; ?>
               </td>
             </tr>
+            </tbody>
           </table>
         </div>
         
+        <!-- Visual Separator for Non-SEO Sections -->
+        <div style="margin: 40px 0 30px; padding: 20px; border-top: 3px solid #2271b1; border-bottom: 3px solid #2271b1; background-color: #f0f6fc;">
+          <p style="text-align: center; color: #135e96; font-size: 14px; margin: 0; font-weight: 500;">
+            <span class="dashicons dashicons-info" style="font-size: 18px; vertical-align: middle; color: #2271b1;"></span>
+            <strong>Social Media Preview Section</strong> — These elements enhance social sharing but do not directly impact search engine rankings
+          </p>
+        </div>
+        
         <!-- Social Media Preview Tags -->
-        <div class="cfseo-card">
+        <div class="ASNERISSEO-card">
           <h2>
             <span class="dashicons dashicons-share"></span> Social Media Preview
-            <?php CFSEO_Help_Modal::render_help_icon('social-preview', 'Learn about social preview tags'); ?>
+            <?php ASNERISSEO_Help_Modal::render_help_icon('social-preview', 'Learn about social preview tags'); ?>
           </h2>
           <p style="color: #646970;">Open Graph and Twitter Card tags for social sharing</p>
           
@@ -510,10 +736,10 @@ class CFSEO_Diagnostics_Page {
         </div>
         
         <!-- Structured Data (Schema) -->
-        <div class="cfseo-card">
+        <div class="ASNERISSEO-card">
           <h2>
             <span class="dashicons dashicons-editor-code"></span> Structured Data (Schema)
-            <?php CFSEO_Help_Modal::render_help_icon('structured-data', 'Learn about structured data'); ?>
+            <?php ASNERISSEO_Help_Modal::render_help_icon('structured-data', 'Learn about structured data'); ?>
           </h2>
           <p style="color: #646970;">JSON-LD structured data blocks for this URL</p>
           
@@ -553,13 +779,11 @@ class CFSEO_Diagnostics_Page {
         </div>
         
       <?php endif; ?>
-      </div><!-- .cfseo-tab-content -->
-      </div><!-- .cfseo-settings-form -->
+      </div><!-- .ASNERISSEO-tab-content -->
+      </div><!-- .ASNERISSEO-card -->
       
-      <?php // CFSEO_Help_Content::render_sidebar('page-diagnostics'); ?>
-      
-    </div>
-    <?php CFSEO_Help_Modal::render_modals('page-diagnostics'); ?>
+    </div><!-- .wrap -->
+    <?php ASNERISSEO_Help_Modal::render_modals('page-diagnostics'); ?>
     <?php
   }
 }

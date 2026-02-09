@@ -1,10 +1,10 @@
-# Copyright (C) 2026 Clarity-First SEO
-# This file is distributed under the same license as the Clarity-First SEO package.
+# Copyright (C) 2026 Asneris SEO Toolkit
+# This file is distributed under the same license as the Asneris SEO Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Clarity-First SEO 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-13 21:30+0000\n"
+"Project-Id-Version: Asneris SEO Toolkit 0.1.0\n"
+"Report-Msgid-Bugs-To: https://asneris.com\n"
+"POT-Creation-Date: 2026-02-07 12:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,23 +15,23 @@ msgstr ""
 "X-Generator: Manual\n"
 
 #. Plugin Name of the plugin
-msgid "Clarity-First SEO"
+msgid "Asneris SEO Toolkit"
 msgstr ""
 
 #. Plugin Description of the plugin
-msgid "Clear and simple SEO configuration for your WordPress site."
+msgid "Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI."
 msgstr ""
 
 #. Author of the plugin
-msgid "Your Name"
+msgid "Asneris"
 msgstr ""
 
-#: clarity-first-seo.php
-msgid "Clarity-First SEO"
+#: asneris-seo-toolkit.php
+msgid "Asneris SEO Toolkit"
 msgstr ""
 
 #: includes/class-admin-settings.php
-msgid "Clear and simple SEO configuration for your WordPress site."
+msgid "Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI."
 msgstr ""
 
 #: includes/class-admin-settings.php

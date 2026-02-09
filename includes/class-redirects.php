@@ -1,9 +1,9 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Redirects {
+class ASNERISSEO_Redirects {
   
-  const OPTION_KEY = 'CFSEO_redirects';
+  const OPTION_KEY = 'ASNERISSEO_redirects';
   
   /**
    * Initialize redirects hooks
@@ -11,6 +11,30 @@ class CFSEO_Redirects {
   public static function init() {
     add_action('template_redirect', [__CLASS__, 'handle_redirects'], 1);
     add_action('post_updated', [__CLASS__, 'track_slug_change'], 10, 3);
+  }
+
+  /**
+   * Enqueue admin assets for redirects page
+   */
+  public static function enqueue_assets($hook) {
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-redirects') return;
+    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_script('jquery');
+    $inline_js = "(function(){\n" .
+      "  const descriptions = {\n" .
+      "    '301': '" . esc_js(__('Use 301 when the old page is permanently replaced by the new page.', 'asneris-seo-toolkit')) . "',\n" .
+      "    '302': '" . esc_js(__('Use 302 when the redirect is temporary and the original URL may return.', 'asneris-seo-toolkit')) . "',\n" .
+      "    '307': '" . esc_js(__('Use 307 for temporary redirects that preserve the HTTP method (POST stays POST).', 'asneris-seo-toolkit')) . "'\n" .
+      "  };\n" .
+      "  const select = document.getElementById('code');\n" .
+      "  const description = document.getElementById('redirect-type-description');\n" .
+      "  if (!select || !description) return;\n" .
+      "  select.addEventListener('change', function(){\n" .
+      "    description.textContent = descriptions[this.value] || '';\n" .
+      "  });\n" .
+      "})();";
+    wp_add_inline_script('jquery', $inline_js);
   }
   
   /**
@@ -203,11 +227,11 @@ class CFSEO_Redirects {
    */
   public static function register_menu() {
     add_submenu_page(
-      'clarity-first-seo',
-      __('Redirect', 'clarity-first-seo'),
-      __('Redirect', 'clarity-first-seo'),
+      ASNERIS_MENU_SLUG,
+      __('Redirect', 'asneris-seo-toolkit'),
+      __('Redirect', 'asneris-seo-toolkit'),
       'manage_options',
-      'cfseo-redirects',
+      ASNERIS_MENU_SLUG . '-redirects',
       [__CLASS__, 'render_page']
     );
   }
@@ -215,17 +239,12 @@ class CFSEO_Redirects {
   /**
    * Enqueue admin styles
    */
-  public static function enqueue_assets($hook) {
-    if ($hook !== 'clarity-first-seo_page_cfseo-redirects') return;
-    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
-  }
-  
   /**
    * Render redirects management page
    */
   public static function render_page() {
     // Handle form submissions
-    if (isset($_POST['CFSEO_add_redirect']) && check_admin_referer('CFSEO_redirect_add')) {
+    if (isset($_POST['ASNERISSEO_add_redirect']) && check_admin_referer('ASNERISSEO_redirect_add')) {
       $from = isset($_POST['from']) ? sanitize_text_field(wp_unslash($_POST['from'])) : '';
       $to = isset($_POST['to']) ? sanitize_url(wp_unslash($_POST['to'])) : '';
       $code = isset($_POST['code']) ? (int) $_POST['code'] : 301;
@@ -236,106 +255,91 @@ class CFSEO_Redirects {
       
       if (!empty($from) && !empty($to)) {
         self::add_redirect($from, $to, $code, 'manual');
-        echo '<div class="notice notice-success"><p>' . esc_html__('Redirect added successfully!', 'clarity-first-seo') . '</p></div>';
+        echo '<div class="notice notice-success"><p>' . esc_html__('Redirect added successfully!', 'asneris-seo-toolkit') . '</p></div>';
       }
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['index'])) {
       $index = (int) sanitize_text_field(wp_unslash($_GET['index']));
-      check_admin_referer('CFSEO_redirect_delete_' . $index);
+      check_admin_referer('ASNERISSEO_redirect_delete_' . $index);
       self::delete_redirect($index);
-      echo '<div class="notice notice-success"><p>' . esc_html__('Redirect deleted!', 'clarity-first-seo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . esc_html__('Redirect deleted!', 'asneris-seo-toolkit') . '</p></div>';
     }
     
     if (isset($_GET['action']) && $_GET['action'] === 'toggle' && isset($_GET['index'])) {
       $index = (int) sanitize_text_field(wp_unslash($_GET['index']));
-      check_admin_referer('CFSEO_redirect_toggle_' . $index);
+      check_admin_referer('ASNERISSEO_redirect_toggle_' . $index);
       self::toggle_redirect($index);
-      echo '<div class="notice notice-success"><p>' . esc_html__('Redirect status updated!', 'clarity-first-seo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . esc_html__('Redirect status updated!', 'asneris-seo-toolkit') . '</p></div>';
     }
     
-    if (isset($_POST['CFSEO_clear_auto']) && check_admin_referer('CFSEO_clear_auto')) {
+    if (isset($_POST['ASNERISSEO_clear_auto']) && check_admin_referer('ASNERISSEO_clear_auto')) {
       self::clear_auto_redirects();
-      echo '<div class="notice notice-success"><p>' . esc_html__('Automatic redirects cleared!', 'clarity-first-seo') . '</p></div>';
+      echo '<div class="notice notice-success"><p>' . esc_html__('Automatic redirects cleared!', 'asneris-seo-toolkit') . '</p></div>';
     }
     
     $redirects = self::get_redirects();
     ?>
-    <div class="wrap cfseo-admin-wrap">
+    <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
         <span class="dashicons dashicons-controls-forward"></span>
-        <?php esc_html_e('SEO Redirects', 'clarity-first-seo'); ?>
-        <?php CFSEO_Help_Modal::render_help_icon('redirects-overview', 'Learn about redirects'); ?>
+        <?php esc_html_e('SEO Redirects', 'asneris-seo-toolkit'); ?>
+        <?php ASNERISSEO_Help_Modal::render_help_icon('redirects-overview', 'Learn about redirects'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php esc_html_e('Send visitors and search engines to the right page when a URL changes.', 'clarity-first-seo'); ?></p>
+      <p class="ASNERISSEO-subtitle"><?php esc_html_e('Send visitors and search engines to the right page when a URL changes.', 'asneris-seo-toolkit'); ?></p>
       
-      <div class="cfseo-settings-form">
-        <div class="cfseo-tab-content">
+      <div class="ASNERISSEO-settings-form">
+        <div class="ASNERISSEO-tab-content">
       
       <!-- Add New Redirect -->
-      <div class="cfseo-card">
-        <h2><span class="dashicons dashicons-plus-alt"></span> <?php esc_html_e('Add New Redirect', 'clarity-first-seo'); ?></h2>
+      <div class="ASNERISSEO-card">
+        <h2><span class="dashicons dashicons-plus-alt"></span> <?php esc_html_e('Add New Redirect', 'asneris-seo-toolkit'); ?></h2>
         <form method="post" action="">
-          <?php wp_nonce_field('CFSEO_redirect_add'); ?>
+          <?php wp_nonce_field('ASNERISSEO_redirect_add'); ?>
           <table class="form-table">
             <tr>
               <th scope="row">
                 <label for="from">
-                  <?php esc_html_e('From (Old URL)', 'clarity-first-seo'); ?>
-                  <?php CFSEO_Help_Modal::render_help_icon('from-url'); ?>
+                  <?php esc_html_e('From (Old URL)', 'asneris-seo-toolkit'); ?>
+                  <?php ASNERISSEO_Help_Modal::render_help_icon('from-url'); ?>
                 </label>
               </th>
               <td>
                 <input type="text" id="from" name="from" class="regular-text" placeholder="/?page_id=2 or /old-page/" required>
-                <p class="description"><?php esc_html_e('The old page address (path or query string). Examples: /old-page/ or /?page_id=2', 'clarity-first-seo'); ?></p>
+                <p class="description"><?php esc_html_e('The old page address (path or query string). Examples: /old-page/ or /?page_id=2', 'asneris-seo-toolkit'); ?></p>
               </td>
             </tr>
             <tr>
               <th scope="row">
                 <label for="to">
-                  <?php esc_html_e('To (New URL)', 'clarity-first-seo'); ?>
-                  <?php CFSEO_Help_Modal::render_help_icon('to-url'); ?>
+                  <?php esc_html_e('To (New URL)', 'asneris-seo-toolkit'); ?>
+                  <?php ASNERISSEO_Help_Modal::render_help_icon('to-url'); ?>
                 </label>
               </th>
               <td>
                 <input type="text" id="to" name="to" class="regular-text" placeholder="/?page_id=10 or /new-page/" required>
-                <p class="description"><?php esc_html_e('The destination page. Examples: /new-page/ or /?page_id=10 or https://example.com/page/', 'clarity-first-seo'); ?></p>
+                <p class="description"><?php esc_html_e('The destination page. Examples: /new-page/ or /?page_id=10 or https://example.com/page/', 'asneris-seo-toolkit'); ?></p>
               </td>
             </tr>
             <tr>
               <th scope="row">
                 <label for="code">
-                  <?php esc_html_e('Redirect Type', 'clarity-first-seo'); ?>
-                  <?php CFSEO_Help_Modal::render_help_icon('redirect-types'); ?>
+                  <?php esc_html_e('Redirect Type', 'asneris-seo-toolkit'); ?>
+                  <?php ASNERISSEO_Help_Modal::render_help_icon('redirect-types'); ?>
                 </label>
               </th>
               <td>
                 <select id="code" name="code">
-                  <option value="301"><?php esc_html_e('301 Permanent', 'clarity-first-seo'); ?></option>
-                  <option value="302"><?php esc_html_e('302 Temporary', 'clarity-first-seo'); ?></option>
-                  <option value="307"><?php esc_html_e('307 Temporary (Preserve Method)', 'clarity-first-seo'); ?></option>
+                  <option value="301"><?php esc_html_e('301 Permanent', 'asneris-seo-toolkit'); ?></option>
+                  <option value="302"><?php esc_html_e('302 Temporary', 'asneris-seo-toolkit'); ?></option>
+                  <option value="307"><?php esc_html_e('307 Temporary (Preserve Method)', 'asneris-seo-toolkit'); ?></option>
                 </select>
-                <p class="description" id="redirect-type-description"><?php esc_html_e('Use 301 when the old page is permanently replaced by the new page.', 'clarity-first-seo'); ?></p>
-                <script>
-                  (function() {
-                    const descriptions = {
-                      '301': '<?php echo esc_js(__('Use 301 when the old page is permanently replaced by the new page.', 'clarity-first-seo')); ?>',
-                      '302': '<?php echo esc_js(__('Use 302 when the redirect is temporary and the original URL may return.', 'clarity-first-seo')); ?>',
-                      '307': '<?php echo esc_js(__('Use 307 for temporary redirects that preserve the HTTP method (POST stays POST).', 'clarity-first-seo')); ?>'
-                    };
-                    const select = document.getElementById('code');
-                    const description = document.getElementById('redirect-type-description');
-                    
-                    select.addEventListener('change', function() {
-                      description.textContent = descriptions[this.value];
-                    });
-                  })();
-                </script>
+                <p class="description" id="redirect-type-description"><?php esc_html_e('Use 301 when the old page is permanently replaced by the new page.', 'asneris-seo-toolkit'); ?></p>
               </td>
             </tr>
           </table>
-          <button type="submit" name="CFSEO_add_redirect" class="button button-primary">
-            <?php esc_html_e('Add Redirect', 'clarity-first-seo'); ?>
+          <button type="submit" name="ASNERISSEO_add_redirect" class="button button-primary">
+            <?php esc_html_e('Add Redirect', 'asneris-seo-toolkit'); ?>
           </button>
         </form>
         
@@ -343,30 +347,30 @@ class CFSEO_Redirects {
         <div style="margin-top: 20px; padding: 12px; background: #f0f6fc; border-left: 4px solid #0073aa; border-radius: 4px;">
           <h4 style="margin-top: 0; margin-bottom: 8px; color: #0073aa;">
             <span class="dashicons dashicons-info" style="font-size: 16px; vertical-align: middle;"></span>
-            <?php esc_html_e('Important Notes', 'clarity-first-seo'); ?>
+            <?php esc_html_e('Important Notes', 'asneris-seo-toolkit'); ?>
           </h4>
           <p style="margin: 0; color: #646970; font-size: 13px;">
-            <strong><?php esc_html_e('Auto vs Manual:', 'clarity-first-seo'); ?></strong> <?php esc_html_e('Auto redirects are created automatically by the system (for example, when URLs change). Manual redirects are created explicitly on this page.', 'clarity-first-seo'); ?>
+            <strong><?php esc_html_e('Auto vs Manual:', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Auto redirects are created automatically by the system (for example, when URLs change). Manual redirects are created explicitly on this page.', 'asneris-seo-toolkit'); ?>
           </p>
         </div>
       </div>
       
       <!-- Redirects List -->
-      <div class="cfseo-card" style="max-width: 100%; margin-top: 20px;">
-        <h2><span class="dashicons dashicons-list-view"></span> <?php esc_html_e('Active Redirects', 'clarity-first-seo'); ?></h2>
+      <div class="ASNERISSEO-card" style="max-width: 100%; margin-top: 20px;">
+        <h2><span class="dashicons dashicons-list-view"></span> <?php esc_html_e('Active Redirects', 'asneris-seo-toolkit'); ?></h2>
         
         <?php if (empty($redirects)): ?>
-          <p style="color: #646970;"><?php esc_html_e('No redirects added yet.', 'clarity-first-seo'); ?><br><?php esc_html_e('Add one above when a page URL changes.', 'clarity-first-seo'); ?></p>
+          <p style="color: #646970;"><?php esc_html_e('No redirects added yet.', 'asneris-seo-toolkit'); ?><br><?php esc_html_e('Add one above when a page URL changes.', 'asneris-seo-toolkit'); ?></p>
         <?php else: ?>
           <table class="wp-list-table widefat fixed striped">
             <thead>
               <tr>
-                <th style="width: 10%;"><?php esc_html_e('Status', 'clarity-first-seo'); ?></th>
-                <th style="width: 30%;"><?php esc_html_e('From', 'clarity-first-seo'); ?></th>
-                <th style="width: 30%;"><?php esc_html_e('To', 'clarity-first-seo'); ?></th>
-                <th style="width: 10%;"><?php esc_html_e('Code', 'clarity-first-seo'); ?></th>
-                <th style="width: 10%;"><?php esc_html_e('Type', 'clarity-first-seo'); ?></th>
-                <th style="width: 10%;"><?php esc_html_e('Actions', 'clarity-first-seo'); ?></th>
+                <th style="width: 10%;"><?php esc_html_e('Status', 'asneris-seo-toolkit'); ?></th>
+                <th style="width: 30%;"><?php esc_html_e('From', 'asneris-seo-toolkit'); ?></th>
+                <th style="width: 30%;"><?php esc_html_e('To', 'asneris-seo-toolkit'); ?></th>
+                <th style="width: 10%;"><?php esc_html_e('Code', 'asneris-seo-toolkit'); ?></th>
+                <th style="width: 10%;"><?php esc_html_e('Type', 'asneris-seo-toolkit'); ?></th>
+                <th style="width: 10%;"><?php esc_html_e('Actions', 'asneris-seo-toolkit'); ?></th>
               </tr>
             </thead>
             <tbody>
@@ -374,9 +378,9 @@ class CFSEO_Redirects {
                 <tr>
                   <td>
                     <?php if ($redirect['enabled']): ?>
-                    <span style="color: #46b450;">● <?php esc_html_e('Active', 'clarity-first-seo'); ?></span>
+                    <span style="color: #46b450;">● <?php esc_html_e('Active', 'asneris-seo-toolkit'); ?></span>
                   <?php else: ?>
-                    <span style="color: #dba617;">● <?php esc_html_e('Disabled', 'clarity-first-seo'); ?></span>
+                    <span style="color: #dba617;">● <?php esc_html_e('Disabled', 'asneris-seo-toolkit'); ?></span>
                     <?php endif; ?>
                   </td>
                   <td><code><?php echo esc_html($redirect['from']); ?></code></td>
@@ -384,17 +388,17 @@ class CFSEO_Redirects {
                   <td><?php echo esc_html($redirect['code']); ?></td>
                   <td>
                     <?php if ($redirect['type'] === 'auto'): ?>
-                    <span class="dashicons dashicons-update" title="<?php esc_attr_e('Auto-generated', 'clarity-first-seo'); ?>"></span> <?php esc_html_e('Auto', 'clarity-first-seo'); ?>
+                    <span class="dashicons dashicons-update" title="<?php esc_attr_e('Auto-generated', 'asneris-seo-toolkit'); ?>"></span> <?php esc_html_e('Auto', 'asneris-seo-toolkit'); ?>
                   <?php else: ?>
-                    <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Manual', 'clarity-first-seo'); ?>"></span> <?php esc_html_e('Manual', 'clarity-first-seo'); ?>
+                    <span class="dashicons dashicons-admin-tools" title="<?php esc_attr_e('Manual', 'asneris-seo-toolkit'); ?>"></span> <?php esc_html_e('Manual', 'asneris-seo-toolkit'); ?>
                     <?php endif; ?>
                   </td>
                   <td>
-                    <a href="<?php echo esc_url(wp_nonce_url(admin_url('options-general.php?page=cfseo-redirects&action=toggle&index=' . $index), 'CFSEO_redirect_toggle_' . $index)); ?>" class="button button-small">
-                      <?php $redirect['enabled'] ? esc_html_e('Disable', 'clarity-first-seo') : esc_html_e('Enable', 'clarity-first-seo'); ?>
+                    <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-redirects&action=toggle&index=' . $index), 'ASNERISSEO_redirect_toggle_' . $index)); ?>" class="button button-small">
+                      <?php $redirect['enabled'] ? esc_html_e('Disable', 'asneris-seo-toolkit') : esc_html_e('Enable', 'asneris-seo-toolkit'); ?>
                     </a>
-                    <a href="<?php echo esc_url(wp_nonce_url(admin_url('options-general.php?page=cfseo-redirects&action=delete&index=' . $index), 'CFSEO_redirect_delete_' . $index)); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php esc_attr_e('Delete this redirect?', 'clarity-first-seo'); ?>');">
-                      <?php esc_html_e('Delete', 'clarity-first-seo'); ?>
+                    <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-redirects&action=delete&index=' . $index), 'ASNERISSEO_redirect_delete_' . $index)); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php esc_attr_e('Delete this redirect?', 'asneris-seo-toolkit'); ?>');">
+                      <?php esc_html_e('Delete', 'asneris-seo-toolkit'); ?>
                     </a>
                   </td>
                 </tr>
@@ -404,22 +408,22 @@ class CFSEO_Redirects {
           
           <div style="margin-top: 20px;">
             <form method="post" action="" style="display: inline;">
-              <?php wp_nonce_field('CFSEO_clear_auto'); ?>
-              <button type="submit" name="CFSEO_clear_auto" class="button" onclick="return confirm('<?php esc_attr_e('Clear all automatic redirects?', 'clarity-first-seo'); ?>');">
-                <?php esc_html_e('Clear All Auto Redirects', 'clarity-first-seo'); ?>
+              <?php wp_nonce_field('ASNERISSEO_clear_auto'); ?>
+              <button type="submit" name="ASNERISSEO_clear_auto" class="button" onclick="return confirm('<?php esc_attr_e('Clear all automatic redirects?', 'asneris-seo-toolkit'); ?>');">
+                <?php esc_html_e('Clear All Auto Redirects', 'asneris-seo-toolkit'); ?>
               </button>
             </form>
           </div>
         <?php endif; ?>
       </div>
       
-        </div><!-- .cfseo-tab-content -->
-      </div><!-- .cfseo-settings-form -->
+        </div><!-- .ASNERISSEO-tab-content -->
+      </div><!-- .ASNERISSEO-settings-form -->
         
-      <?php // CFSEO_Help_Content::render_sidebar('redirects'); ?>
+      <?php // ASNERISSEO_Help_Content::render_sidebar('redirects'); ?>
     </div>
     
-    <?php CFSEO_Help_Modal::render_modals('redirects'); ?>
+    <?php ASNERISSEO_Help_Modal::render_modals('redirects'); ?>
     <?php
   }
 }

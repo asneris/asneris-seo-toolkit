@@ -1,18 +1,18 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Meta {
+class ASNERISSEO_Meta {
   const KEYS = [
-    '_CFSEO_title' => 'string',
-    '_CFSEO_description' => 'string',
-    '_CFSEO_canonical' => 'string',
-    '_CFSEO_robots_index' => 'string',
-    '_CFSEO_robots_follow' => 'string',
-    '_CFSEO_og_title' => 'string',
-    '_CFSEO_og_description' => 'string',
-    '_CFSEO_og_image' => 'string',
-    '_CFSEO_schema_enabled' => 'boolean',
-    '_CFSEO_schema_type' => 'string',
+    '_ASNERISSEO_title' => 'string',
+    '_ASNERISSEO_description' => 'string',
+    '_ASNERISSEO_canonical' => 'string',
+    '_ASNERISSEO_robots_index' => 'string',
+    '_ASNERISSEO_robots_follow' => 'string',
+    '_ASNERISSEO_og_title' => 'string',
+    '_ASNERISSEO_og_description' => 'string',
+    '_ASNERISSEO_og_image' => 'string',
+    '_ASNERISSEO_schema_enabled' => 'boolean',
+    '_ASNERISSEO_schema_type' => 'string',
   ];
 
   public static function register_post_meta(): void {
@@ -31,17 +31,17 @@ class CFSEO_Meta {
   }
 
   public static function default_for($key) {
-    if ($key === '_CFSEO_robots_index') return 'index';
-    if ($key === '_CFSEO_robots_follow') return 'follow';
-    if ($key === '_CFSEO_schema_enabled') return true;
+    if ($key === '_ASNERISSEO_robots_index') return 'index';
+    if ($key === '_ASNERISSEO_robots_follow') return 'follow';
+    if ($key === '_ASNERISSEO_schema_enabled') return true;
     return '';
   }
 
   public static function sanitize($value, $key) {
-    if (in_array($key, ['_CFSEO_canonical','_CFSEO_og_image'], true)) {
+    if (in_array($key, ['_ASNERISSEO_canonical','_ASNERISSEO_og_image'], true)) {
       return esc_url_raw($value);
     }
-    if ($key === '_CFSEO_schema_enabled') {
+    if ($key === '_ASNERISSEO_schema_enabled') {
       return (bool)$value;
     }
     return sanitize_text_field($value);

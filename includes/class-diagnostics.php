@@ -3,10 +3,10 @@
  * Diagnostics helper functions
  */
 
-class CFSEO_Diagnostics {
+class ASNERISSEO_Diagnostics {
   
   public static function ajax_http_test() {
-    check_ajax_referer('CFSEO_http_test', 'nonce');
+    check_ajax_referer('ASNERISSEO_http_test', 'nonce');
     
     if (!current_user_can('manage_options')) {
       wp_send_json_error('Unauthorized');

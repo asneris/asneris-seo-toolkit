@@ -1,15 +1,15 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class CFSEO_Admin_Settings {
-  const OPT = 'CFSEO_settings';
+class ASNERISSEO_Admin_Settings {
+  const OPT = 'ASNERISSEO_settings';
 
   public static function register_menu() {
     add_options_page(
-      'Clarity-First SEO',
-      'Clarity-First SEO',
+      'Asneris SEO Toolkit',
+      'Asneris SEO Toolkit',
       'manage_options',
-      'cfseo-settings',
+      ASNERIS_MENU_SLUG . '-settings',
       [__CLASS__, 'render']
     );
   }
@@ -23,15 +23,62 @@ class CFSEO_Admin_Settings {
    * Enqueue admin styles and scripts
    */
   public static function enqueue_admin_assets($hook) {
-    if ($hook !== 'clarity-first-seo_page_cfseo-settings') return;
+    // The actual hook uses the sanitized menu title, not the menu slug
+    // Actual: asneris-seo-toolkit_page_asneris-seo-settings
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-settings') return;
     
-    wp_enqueue_style('cfseo-admin', CFSEO_URL . 'assets/css/admin-style.css', [], CFSEO_VERSION);
-    wp_enqueue_script('cfseo-admin', CFSEO_URL . 'assets/js/admin-script.js', ['jquery'], CFSEO_VERSION, true);
+    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_script('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/js/admin-script.js', ['jquery'], ASNERISSEO_VERSION, true);
     wp_enqueue_media(); // For media uploader
+    wp_enqueue_script('jquery');
     
-    wp_localize_script('cfseo-admin', 'gscseoAdmin', [
+    $nonce = wp_create_nonce('ASNERISSEO_http_test');
+    $inline_js = "jQuery(document).ready(function(\$){\n" .
+      "  \$('#ASNERISSEO_run_http_test').on('click', function(){\n" .
+      "    var url = \$('#ASNERISSEO_test_url').val();\n" .
+      "    var button = this;\n" .
+      "    var results = \$('#ASNERISSEO_http_results');\n" .
+      "    var tbody = \$('#ASNERISSEO_http_results_body');\n" .
+      "    if (!url) { alert('Please enter a URL to test'); return; }\n" .
+      "    \$(button).prop('disabled', true).text('Testing...');\n" .
+      "    tbody.html('<tr><td colspan=\"3\">Running validation...</td></tr>');\n" .
+      "    results.show();\n" .
+      "    \$.ajax({\n" .
+      "      url: ajaxurl,\n" .
+      "      method: 'POST',\n" .
+      "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . $nonce . "' },\n" .
+      "      success: function(response){\n" .
+      "        if (response.success) {\n" .
+      "          var html = '';\n" .
+      "          response.data.checks.forEach(function(check){\n" .
+      "            var statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');\n" .
+      "            var statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');\n" .
+      "            html += '<tr>';\n" .
+      "            html += '<td><strong>' + check.label + '</strong></td>';\n" .
+      "            html += '<td><span style=\"color: ' + statusColor + ';\">' + statusIcon + ' ' + check.result + '</span></td>';\n" .
+      "            html += '<td>' + check.details + '</td>';\n" .
+      "            html += '</tr>';\n" .
+      "          });\n" .
+      "          tbody.html(html);\n" .
+      "        } else {\n" .
+      "          tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Error: ' + response.data + '</td></tr>');\n" .
+      "        }\n" .
+      "      },\n" .
+      "      error: function(){\n" .
+      "        tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Request failed. Please try again.</td></tr>');\n" .
+      "      },\n" .
+      "      complete: function(){\n" .
+      "        \$(button).prop('disabled', false).text('Run Indexing Validation');\n" .
+      "      }\n" .
+      "    });\n" .
+      "  });\n" .
+      "});";
+    wp_add_inline_script('ASNERISSEO-admin', $inline_js);
+    
+    wp_localize_script('ASNERISSEO-admin', 'gscseoAdmin', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
-      'nonce' => wp_create_nonce('CFSEO_admin_nonce'),
+      'nonce' => wp_create_nonce('ASNERISSEO_admin_nonce'),
     ]);
   }
 
@@ -74,7 +121,7 @@ class CFSEO_Admin_Settings {
     ];
 
     if ($clean['indexnow_enabled'] && $clean['indexnow_key'] === '') {
-      $clean['indexnow_key'] = CFSEO_IndexNow::generate_key();
+      $clean['indexnow_key'] = ASNERISSEO_IndexNow::generate_key();
     }
     
     return $clean;
@@ -91,54 +138,54 @@ class CFSEO_Admin_Settings {
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
-    <div class="wrap cfseo-admin-wrap">
+    <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
         <span class="dashicons dashicons-search"></span>
-        Clarity-First SEO
-        <?php CFSEO_Help_Modal::render_help_icon('settings-general', 'Learn about settings'); ?>
+        Asneris SEO Toolkit
+        <?php ASNERISSEO_Help_Modal::render_help_icon('settings-general', 'Learn about settings'); ?>
       </h1>
-      <p class="cfseo-subtitle"><?php esc_html_e('Clear and simple SEO configuration for your WordPress site.', 'clarity-first-seo'); ?></p>
+      <p class="ASNERISSEO-subtitle"><?php esc_html_e('Clear and simple SEO configuration for your WordPress site.', 'asneris-seo-toolkit'); ?></p>
 
       <?php
       // Display success message after settings saved
       if (isset($_GET['settings-updated']) && sanitize_key($_GET['settings-updated']) === 'true' && wp_verify_nonce(wp_create_nonce('settings_updated_nonce'), 'settings_updated_nonce')) {
         ?>
         <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
-          <p><strong><?php esc_html_e('Settings saved successfully!', 'clarity-first-seo'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'clarity-first-seo'); ?></p>
+          <p><strong><?php esc_html_e('Settings saved successfully!', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'asneris-seo-toolkit'); ?></p>
         </div>
         <?php
       }
       ?>
 
       <!-- Tab Navigation -->
-      <nav class="nav-tab-wrapper cfseo-nav-tab-wrapper">
-        <a href="?page=cfseo-settings&tab=general" class="nav-tab <?php echo $current_tab === 'general' ? 'nav-tab-active' : ''; ?>">
+      <nav class="nav-tab-wrapper ASNERISSEO-nav-tab-wrapper">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=general" class="nav-tab <?php echo $current_tab === 'general' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-admin-generic"></span> General
         </a>
-        <a href="?page=cfseo-settings&tab=verification" class="nav-tab <?php echo $current_tab === 'verification' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=verification" class="nav-tab <?php echo $current_tab === 'verification' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-yes-alt"></span> Verification
         </a>
-        <a href="?page=cfseo-settings&tab=indexnow" class="nav-tab <?php echo $current_tab === 'indexnow' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=indexnow" class="nav-tab <?php echo $current_tab === 'indexnow' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-update"></span> IndexNow
         </a>
-        <a href="?page=cfseo-settings&tab=social" class="nav-tab <?php echo $current_tab === 'social' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=social" class="nav-tab <?php echo $current_tab === 'social' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-share"></span> Social Media
         </a>
-        <a href="?page=cfseo-settings&tab=schema" class="nav-tab <?php echo $current_tab === 'schema' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="nav-tab <?php echo $current_tab === 'schema' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-editor-code"></span> Schema
         </a>
-        <a href="?page=cfseo-settings&tab=templates" class="nav-tab <?php echo $current_tab === 'templates' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=templates" class="nav-tab <?php echo $current_tab === 'templates' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-text"></span> Templates
         </a>
-        <a href="?page=cfseo-settings&tab=maintenance" class="nav-tab <?php echo $current_tab === 'maintenance' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=maintenance" class="nav-tab <?php echo $current_tab === 'maintenance' ? 'nav-tab-active' : ''; ?>">
           <span class="dashicons dashicons-admin-tools"></span> Maintenance & Safety
         </a>
 
       </nav>
 
-      <form method="post" action="options.php" class="cfseo-settings-form">
+      <form method="post" action="options.php" class="ASNERISSEO-settings-form">
         <?php settings_fields(self::OPT); ?>
-        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr(add_query_arg('tab', $current_tab, admin_url('admin.php?page=cfseo-settings'))); ?>" />
+        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr(add_query_arg('tab', $current_tab, admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-settings'))); ?>" />
 
         <?php if ($current_tab === 'general'): ?>
           <?php self::render_general_tab(); ?>
@@ -162,79 +209,27 @@ class CFSEO_Admin_Settings {
         <?php endif; ?>
       </form>
 
-      <?php // CFSEO_Help_Content::render_sidebar('settings'); ?>
+      <?php // ASNERISSEO_Help_Content::render_sidebar('settings'); ?>
     </div>
     
-    <?php CFSEO_Help_Modal::render_modals('settings'); ?>
+    <?php ASNERISSEO_Help_Modal::render_modals('settings'); ?>
     
-    <script>
-    jQuery(document).ready(function($) {
-      $('#CFSEO_run_http_test').on('click', function() {
-        const url = $('#CFSEO_test_url').val();
-        const $button = $(this);
-        const $results = $('#CFSEO_http_results');
-        const $tbody = $('#CFSEO_http_results_body');
-        
-        if (!url) {
-          alert('Please enter a URL to test');
-          return;
-        }
-        
-        $button.prop('disabled', true).text('Testing...');
-        $tbody.html('<tr><td colspan="3">Running validation...</td></tr>');
-        $results.show();
-        
-        $.ajax({
-          url: ajaxurl,
-          method: 'POST',
-          data: {
-            action: 'CFSEO_http_test',
-            url: url,
-            nonce: '<?php echo esc_attr(wp_create_nonce('CFSEO_http_test')); ?>'
-          },
-          success: function(response) {
-            if (response.success) {
-              let html = '';
-              response.data.checks.forEach(function(check) {
-                const statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');
-                const statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');
-                html += '<tr>';
-                html += '<td><strong>' + check.label + '</strong></td>';
-                html += '<td><span style="color: ' + statusColor + ';">' + statusIcon + ' ' + check.result + '</span></td>';
-                html += '<td>' + check.details + '</td>';
-                html += '</tr>';
-              });
-              $tbody.html(html);
-            } else {
-              $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Error: ' + response.data + '</td></tr>');
-            }
-          },
-          error: function() {
-            $tbody.html('<tr><td colspan="3" style="color: #dc3232;">Request failed. Please try again.</td></tr>');
-          },
-          complete: function() {
-            $button.prop('disabled', false).text('Run Indexing Validation');
-          }
-        });
-      });
-    });
-    </script>
     <?php
   }
 
   private static function render_general_tab() {
     ?>
-    <div class="cfseo-tab-content">
-      <div class="cfseo-card">
+    <div class="ASNERISSEO-tab-content">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-admin-home"></span> Site Information
-          <?php CFSEO_Help_Modal::render_help_icon('settings-general', 'Site Information'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('settings-general', 'Site Information'); ?>
         </h2>
         <table class="form-table">
           <tr>
             <th scope="row">
               <label for="org_name">Organization/Site Name</label>
-              <?php CFSEO_Help_Modal::render_help_icon('site-name', 'Organization/Site Name Help'); ?>
+              <?php ASNERISSEO_Help_Modal::render_help_icon('site-name', 'Organization/Site Name Help'); ?>
             </th>
             <td>
               <input type="text" id="org_name" class="large-text" name="<?php echo esc_attr(self::OPT); ?>[org_name]" value="<?php echo esc_attr(self::get('org_name', get_bloginfo('name'))); ?>">
@@ -244,15 +239,15 @@ class CFSEO_Admin_Settings {
           <tr>
             <th scope="row">
               <label for="org_logo">Logo URL</label>
-              <?php CFSEO_Help_Modal::render_help_icon('logo-url', 'Logo URL Help'); ?>
+              <?php ASNERISSEO_Help_Modal::render_help_icon('logo-url', 'Logo URL Help'); ?>
             </th>
             <td>
-              <div class="cfseo-media-upload">
-                <input type="url" id="org_logo" class="large-text cfseo-media-url" name="<?php echo esc_attr(self::OPT); ?>[org_logo]" value="<?php echo esc_url(self::get('org_logo')); ?>">
-                <button type="button" class="button cfseo-upload-button" data-target="#org_logo">
+              <div class="ASNERISSEO-media-upload">
+                <input type="url" id="org_logo" class="large-text ASNERISSEO-media-url" name="<?php echo esc_attr(self::OPT); ?>[org_logo]" value="<?php echo esc_url(self::get('org_logo')); ?>">
+                <button type="button" class="button ASNERISSEO-upload-button" data-target="#org_logo">
                   <span class="dashicons dashicons-upload"></span> Upload Logo
                 </button>
-                <div class="cfseo-image-preview">
+                <div class="ASNERISSEO-image-preview">
                   <?php if (self::get('org_logo')): ?>
                     <img src="<?php echo esc_url(self::get('org_logo')); ?>" style="max-width: 200px; margin-top: 10px;">
                   <?php endif; ?>
@@ -265,12 +260,12 @@ class CFSEO_Admin_Settings {
       </div>
 
       <!-- Sitemap Info -->
-      <?php CFSEO_Sitemap_Helper::render_sitemap_info(); ?>
+      <?php ASNERISSEO_Sitemap_Helper::render_sitemap_info(); ?>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-visibility"></span> Default Robots Settings
-          <?php CFSEO_Help_Modal::render_help_icon('default-robots', 'Default Robots Settings'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('default-robots', 'Default Robots Settings'); ?>
         </h2>
         <table class="form-table">
           <tr>
@@ -303,11 +298,11 @@ class CFSEO_Admin_Settings {
 
   private static function render_verification_tab() {
     ?>
-    <div class="cfseo-tab-content">
-      <div class="cfseo-card">
+    <div class="ASNERISSEO-tab-content">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-google"></span> Google Search Console
-          <?php CFSEO_Help_Modal::render_help_icon('gsc-verification', 'Google Search Console Verification'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('gsc-verification', 'Google Search Console Verification'); ?>
         </h2>
         <table class="form-table">
           <tr>
@@ -317,19 +312,19 @@ class CFSEO_Admin_Settings {
             <td>
               <input type="text" id="google_verification" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[google_verification]" value="<?php echo esc_attr(self::get('google_verification')); ?>" placeholder="abc123xyz456">
               <p class="description">
-                <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
-                <?php esc_html_e('If Google gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="google-site-verification" content="<strong style="color: #d63638;">abc123xyz456</strong>" /&gt;</code><br>
-                <?php esc_html_e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">abc123xyz456</strong> <?php esc_html_e('in the field above', 'clarity-first-seo'); ?>
+                <strong><?php esc_html_e('Enter ONLY the code value:', 'asneris-seo-toolkit'); ?></strong><br>
+                <?php esc_html_e('If Google gives you:', 'asneris-seo-toolkit'); ?> <code>&lt;meta name="google-site-verification" content="<strong style="color: #d63638;">abc123xyz456</strong>" /&gt;</code><br>
+                <?php esc_html_e('Enter only:', 'asneris-seo-toolkit'); ?> <strong style="color: #00a32a;">abc123xyz456</strong> <?php esc_html_e('in the field above', 'asneris-seo-toolkit'); ?>
               </p>
             </td>
           </tr>
         </table>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-admin-site"></span> Bing Webmaster Tools
-          <?php CFSEO_Help_Modal::render_help_icon('bing-verification', 'Bing Webmaster Tools Verification'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('bing-verification', 'Bing Webmaster Tools Verification'); ?>
         </h2>
         <table class="form-table">
           <tr>
@@ -339,19 +334,19 @@ class CFSEO_Admin_Settings {
             <td>
               <input type="text" id="bing_verification" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[bing_verification]" value="<?php echo esc_attr(self::get('bing_verification')); ?>" placeholder="1234ABCD5678EFGH">
               <p class="description">
-                <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
-                <?php esc_html_e('If Bing gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="msvalidate.01" content="<strong style="color: #d63638;">1234ABCD5678EFGH</strong>" /&gt;</code><br>
-                <?php esc_html_e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">1234ABCD5678EFGH</strong> <?php esc_html_e('in the field above', 'clarity-first-seo'); ?>
+                <strong><?php esc_html_e('Enter ONLY the code value:', 'asneris-seo-toolkit'); ?></strong><br>
+                <?php esc_html_e('If Bing gives you:', 'asneris-seo-toolkit'); ?> <code>&lt;meta name="msvalidate.01" content="<strong style="color: #d63638;">1234ABCD5678EFGH</strong>" /&gt;</code><br>
+                <?php esc_html_e('Enter only:', 'asneris-seo-toolkit'); ?> <strong style="color: #00a32a;">1234ABCD5678EFGH</strong> <?php esc_html_e('in the field above', 'asneris-seo-toolkit'); ?>
               </p>
             </td>
           </tr>
         </table>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-admin-site-alt2"></span> Yandex Webmaster
-          <?php CFSEO_Help_Modal::render_help_icon('yandex-verification', 'Yandex Webmaster Verification'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('yandex-verification', 'Yandex Webmaster Verification'); ?>
         </h2>
         <table class="form-table">
           <tr>
@@ -361,57 +356,57 @@ class CFSEO_Admin_Settings {
             <td>
               <input type="text" id="yandex_verification" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[yandex_verification]" value="<?php echo esc_attr(self::get('yandex_verification')); ?>" placeholder="1234567890abcdef">
               <p class="description">
-                <strong><?php esc_html_e('Enter ONLY the code value:', 'clarity-first-seo'); ?></strong><br>
-                <?php esc_html_e('If Yandex gives you:', 'clarity-first-seo'); ?> <code>&lt;meta name="yandex-verification" content="<strong style="color: #d63638;">1234567890abcdef</strong>" /&gt;</code><br>
-                <?php esc_html_e('Enter only:', 'clarity-first-seo'); ?> <strong style="color: #00a32a;">1234567890abcdef</strong> <?php esc_html_e('in the field above', 'clarity-first-seo'); ?>
+                <strong><?php esc_html_e('Enter ONLY the code value:', 'asneris-seo-toolkit'); ?></strong><br>
+                <?php esc_html_e('If Yandex gives you:', 'asneris-seo-toolkit'); ?> <code>&lt;meta name="yandex-verification" content="<strong style="color: #d63638;">1234567890abcdef</strong>" /&gt;</code><br>
+                <?php esc_html_e('Enter only:', 'asneris-seo-toolkit'); ?> <strong style="color: #00a32a;">1234567890abcdef</strong> <?php esc_html_e('in the field above', 'asneris-seo-toolkit'); ?>
               </p>
             </td>
           </tr>
         </table>
       </div>
 
-      <div class="cfseo-info-box" style="background: #e7f5fe; border-left: 4px solid #00a0d2; padding: 15px;">
+      <div class="ASNERISSEO-info-box" style="background: #e7f5fe; border-left: 4px solid #00a0d2; padding: 15px;">
         <p style="margin: 0 0 10px; font-weight: 600; color: #23282d;">
           <span class="dashicons dashicons-info" style="color: #00a0d2;"></span>
-          <?php esc_html_e('What are Webmaster Tools?', 'clarity-first-seo'); ?>
+          <?php esc_html_e('What are Webmaster Tools?', 'asneris-seo-toolkit'); ?>
         </p>
         <p style="margin: 0 0 12px; color: #50575e; line-height: 1.6;">
-          <?php esc_html_e('Webmaster Tools are free platforms provided by search engines where you can:', 'clarity-first-seo'); ?>
+          <?php esc_html_e('Webmaster Tools are free platforms provided by search engines where you can:', 'asneris-seo-toolkit'); ?>
         </p>
         <ul style="margin: 0 0 12px 20px; color: #50575e; line-height: 1.7;">
-          <li><?php esc_html_e('Monitor your site\'s search performance and rankings', 'clarity-first-seo'); ?></li>
-          <li><?php esc_html_e('Submit sitemaps to help search engines discover your content', 'clarity-first-seo'); ?></li>
-          <li><?php esc_html_e('Check indexing status and fix crawling issues', 'clarity-first-seo'); ?></li>
-          <li><?php esc_html_e('View search queries that bring visitors to your site', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('Monitor your site\'s search performance and rankings', 'asneris-seo-toolkit'); ?></li>
+          <li><?php esc_html_e('Submit sitemaps to help search engines discover your content', 'asneris-seo-toolkit'); ?></li>
+          <li><?php esc_html_e('Check indexing status and fix crawling issues', 'asneris-seo-toolkit'); ?></li>
+          <li><?php esc_html_e('View search queries that bring visitors to your site', 'asneris-seo-toolkit'); ?></li>
         </ul>
         <p style="margin: 0 0 10px; font-weight: 600; color: #23282d;">
-          <?php esc_html_e('Next Steps After Saving:', 'clarity-first-seo'); ?>
+          <?php esc_html_e('Next Steps After Saving:', 'asneris-seo-toolkit'); ?>
         </p>
         <ol style="margin: 0 0 0 20px; color: #50575e; line-height: 1.7;">
-          <li><?php esc_html_e('Click "Save Settings" below', 'clarity-first-seo'); ?></li>
-          <li><?php esc_html_e('Visit the webmaster tool you\'re verifying and click their "Verify" button:', 'clarity-first-seo'); ?>
+          <li><?php esc_html_e('Click "Save Settings" below', 'asneris-seo-toolkit'); ?></li>
+          <li><?php esc_html_e('Visit the webmaster tool you\'re verifying and click their "Verify" button:', 'asneris-seo-toolkit'); ?>
             <ul style="margin: 5px 0 5px 20px;">
               <li>
                 <a href="https://search.google.com/search-console" target="_blank" style="text-decoration: none;">
-                  <?php esc_html_e('Google Search Console', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Google Search Console', 'asneris-seo-toolkit'); ?>
                   <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
                 </a>
               </li>
               <li>
                 <a href="https://www.bing.com/webmasters" target="_blank" style="text-decoration: none;">
-                  <?php esc_html_e('Bing Webmaster Tools', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Bing Webmaster Tools', 'asneris-seo-toolkit'); ?>
                   <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
                 </a>
               </li>
               <li>
                 <a href="https://webmaster.yandex.com" target="_blank" style="text-decoration: none;">
-                  <?php esc_html_e('Yandex Webmaster', 'clarity-first-seo'); ?>
+                  <?php esc_html_e('Yandex Webmaster', 'asneris-seo-toolkit'); ?>
                   <span class="dashicons dashicons-external" style="font-size: 12px; margin-top: 2px;"></span>
                 </a>
               </li>
             </ul>
           </li>
-          <li><?php esc_html_e('Once verified, you can submit your sitemap (see General tab)', 'clarity-first-seo'); ?></li>
+          <li><?php esc_html_e('Once verified, you can submit your sitemap (see General tab)', 'asneris-seo-toolkit'); ?></li>
         </ol>
       </div>
     </div>
@@ -420,11 +415,11 @@ class CFSEO_Admin_Settings {
 
   private static function render_indexnow_tab($indexnow_key, $key_url) {
     ?>
-    <div class="cfseo-tab-content">
-      <div class="cfseo-card">
+    <div class="ASNERISSEO-tab-content">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-update"></span> IndexNow Configuration
-          <?php CFSEO_Help_Modal::render_help_icon('indexnow-protocol', 'IndexNow Protocol'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('indexnow-protocol', 'IndexNow Protocol'); ?>
         </h2>
         <p class="description" style="margin-bottom: 20px;">
           Notify Bing, Yandex, and other participating search engines when content changes (Google not included).
@@ -435,9 +430,9 @@ class CFSEO_Admin_Settings {
               <label for="indexnow_enabled">Enable IndexNow</label>
             </th>
             <td>
-              <label class="cfseo-toggle">
+              <label class="ASNERISSEO-toggle">
                 <input type="checkbox" id="indexnow_enabled" name="<?php echo esc_attr(self::OPT); ?>[indexnow_enabled]" value="1" <?php checked((int)self::get('indexnow_enabled', 0), 1); ?>>
-                <span class="cfseo-toggle-slider"></span>
+                <span class="ASNERISSEO-toggle-slider"></span>
               </label>
               <p class="description">Automatically submit updated URLs to search engines.</p>
             </td>
@@ -463,10 +458,10 @@ class CFSEO_Admin_Settings {
       </div>
 
       <?php if (self::get('indexnow_enabled')): ?>
-      <div class="cfseo-info-box cfseo-success-box">
+      <div class="ASNERISSEO-info-box ASNERISSEO-success-box">
         <h3><span class="dashicons dashicons-yes"></span> IndexNow is Active</h3>
         <p>Your site is automatically notifying search engines when content is published or updated.</p>
-        <p><strong>Important:</strong> If this is your first time enabling IndexNow, visit <strong>Settings → Permalinks</strong> and click "Save Changes" to flush rewrite rules.</p>
+        <p><strong>Important:</strong> If this is your first time enabling IndexNow, go to <strong style="color: #2271b1;">Settings → Permalinks</strong> in WordPress admin and click <strong style="color: #d63638;">"Save Changes"</strong> (you don't need to change anything). This flushes the rewrite rules and registers the key file route.</p>
       </div>
       <?php endif; ?>
     </div>
@@ -475,11 +470,11 @@ class CFSEO_Admin_Settings {
 
   private static function render_social_tab() {
     ?>
-    <div class="cfseo-tab-content">
-      <div class="cfseo-card">
+    <div class="ASNERISSEO-tab-content">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-format-image"></span> Default Open Graph Image
-          <?php CFSEO_Help_Modal::render_help_icon('social-media-tags', 'Social Media Tags'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('social-media-tags', 'Social Media Tags'); ?>
         </h2>
         <table class="form-table">
           <tr>
@@ -487,12 +482,12 @@ class CFSEO_Admin_Settings {
               <label for="default_og_image">Default Image</label>
             </th>
             <td>
-              <div class="cfseo-media-upload">
-                <input type="url" id="default_og_image" class="large-text cfseo-media-url" name="<?php echo esc_attr(self::OPT); ?>[default_og_image]" value="<?php echo esc_url(self::get('default_og_image')); ?>">
-                <button type="button" class="button cfseo-upload-button" data-target="#default_og_image">
+              <div class="ASNERISSEO-media-upload">
+                <input type="url" id="default_og_image" class="large-text ASNERISSEO-media-url" name="<?php echo esc_attr(self::OPT); ?>[default_og_image]" value="<?php echo esc_url(self::get('default_og_image')); ?>">
+                <button type="button" class="button ASNERISSEO-upload-button" data-target="#default_og_image">
                   <span class="dashicons dashicons-upload"></span> Upload Image
                 </button>
-                <div class="cfseo-image-preview">
+                <div class="ASNERISSEO-image-preview">
                   <?php if (self::get('default_og_image')): ?>
                     <img src="<?php echo esc_url(self::get('default_og_image')); ?>" style="max-width: 400px; margin-top: 10px;">
                   <?php endif; ?>
@@ -504,7 +499,7 @@ class CFSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2><span class="dashicons dashicons-share"></span> Supported Social Media Platforms</h2>
         <p style="margin-bottom: 20px;">This plugin automatically generates optimized meta tags for all major social media platforms:</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
@@ -538,7 +533,7 @@ class CFSEO_Admin_Settings {
         </p>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2><span class="dashicons dashicons-twitter"></span> Platform Configuration</h2>
         <table class="form-table">
           <tr>
@@ -546,7 +541,7 @@ class CFSEO_Admin_Settings {
               <label for="twitter_username">Twitter Username</label>
             </th>
             <td>
-              <div class="cfseo-input-prefix">
+              <div class="ASNERISSEO-input-prefix">
                 <span class="prefix">@</span>
                 <input type="text" id="twitter_username" class="regular-text" name="<?php echo esc_attr(self::OPT); ?>[twitter_username]" value="<?php echo esc_attr(self::get('twitter_username')); ?>" placeholder="username">
               </div>
@@ -579,11 +574,11 @@ class CFSEO_Admin_Settings {
 
   private static function render_schema_tab() {
     ?>
-    <div class="cfseo-tab-content">
-      <div class="cfseo-card">
+    <div class="ASNERISSEO-tab-content">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-admin-home"></span> Organization Schema
-          <?php CFSEO_Help_Modal::render_help_icon('schema-structured-data', 'Schema & Structured Data'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('schema-structured-data', 'Schema & Structured Data'); ?>
         </h2>
         <p class="description" style="margin-bottom: 20px;">
           Schema.org markup helps search engines understand your content better and can enhance search results with rich snippets.
@@ -594,9 +589,9 @@ class CFSEO_Admin_Settings {
               <label for="enable_breadcrumbs">Enable Breadcrumbs</label>
             </th>
             <td>
-              <label class="cfseo-toggle">
+              <label class="ASNERISSEO-toggle">
                 <input type="checkbox" id="enable_breadcrumbs" name="<?php echo esc_attr(self::OPT); ?>[enable_breadcrumbs]" value="1" <?php checked((int)self::get('enable_breadcrumbs', 0), 1); ?>>
-                <span class="cfseo-toggle-slider"></span>
+                <span class="ASNERISSEO-toggle-slider"></span>
               </label>
               <p class="description">Add breadcrumb schema to posts and pages.</p>
             </td>
@@ -604,10 +599,10 @@ class CFSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-store"></span> Local Business Schema
-          <?php CFSEO_Help_Modal::render_help_icon('local-biz-data', 'Local Business Schema'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('local-biz-data', 'Local Business Schema'); ?>
         </h2>
         <table class="form-table">
           <tr>
@@ -615,9 +610,9 @@ class CFSEO_Admin_Settings {
               <label for="enable_local_business">Enable Local Business</label>
             </th>
             <td>
-              <label class="cfseo-toggle">
+              <label class="ASNERISSEO-toggle">
                 <input type="checkbox" id="enable_local_business" name="<?php echo esc_attr(self::OPT); ?>[enable_local_business]" value="1" <?php checked((int)self::get('enable_local_business', 0), 1); ?>>
-                <span class="cfseo-toggle-slider"></span>
+                <span class="ASNERISSEO-toggle-slider"></span>
               </label>
               <p class="description">Add local business schema for better local search visibility.</p>
               
@@ -631,7 +626,7 @@ class CFSEO_Admin_Settings {
               </div>
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_type">Business Type</label>
             </th>
@@ -739,7 +734,7 @@ class CFSEO_Admin_Settings {
               </select>
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_phone">Phone Number</label>
             </th>
@@ -747,7 +742,7 @@ class CFSEO_Admin_Settings {
               <input type="tel" id="business_phone" class="regular-text" name="<?php echo esc_attr(self::OPT); ?>[business_phone]" value="<?php echo esc_attr(self::get('business_phone')); ?>">
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_address">Address</label>
             </th>
@@ -756,7 +751,7 @@ class CFSEO_Admin_Settings {
               <p class="description">Full business address for local SEO.</p>
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="business_hours">Opening Hours</label>
             </th>
@@ -765,7 +760,7 @@ class CFSEO_Admin_Settings {
               <p class="description">Business operating hours. One day per line (e.g., "Monday: 9:00 AM - 5:00 PM").</p>
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="service_area">Service Area</label>
             </th>
@@ -774,7 +769,7 @@ class CFSEO_Admin_Settings {
               <p class="description">Cities, regions, or areas you serve (comma-separated).</p>
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="price_range">Price Range</label>
             </th>
@@ -789,7 +784,7 @@ class CFSEO_Admin_Settings {
               <p class="description">Relative price indicator for your services/products.</p>
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="payment_methods">Payment Methods</label>
             </th>
@@ -798,7 +793,7 @@ class CFSEO_Admin_Settings {
               <p class="description">Accepted payment methods (comma-separated).</p>
             </td>
           </tr>
-          <tr class="cfseo-conditional" data-depends="enable_local_business">
+          <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
             <th scope="row">
               <label for="languages_spoken">Languages Spoken</label>
             </th>
@@ -818,13 +813,13 @@ class CFSEO_Admin_Settings {
     $title_templates = self::get('title_templates', []);
     $description_templates = self::get('description_templates', []);
     $separator = self::get('title_separator', '|');
-    $variables = CFSEO_Templates::get_available_variables();
+    $variables = ASNERISSEO_Templates::get_available_variables();
     ?>
-    <div class="cfseo-tab-content">
-      <div class="cfseo-info-box cfseo-info">
+    <div class="ASNERISSEO-tab-content">
+      <div class="ASNERISSEO-info-box ASNERISSEO-info">
         <h3>
           <span class="dashicons dashicons-info"></span> About Templates
-          <?php CFSEO_Help_Modal::render_help_icon('seo-templates', 'SEO Templates'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('seo-templates', 'SEO Templates'); ?>
         </h3>
         <p>
           Title and description templates provide automated fallbacks when per-page values aren't set.
@@ -839,7 +834,7 @@ class CFSEO_Admin_Settings {
         <p style="margin-top: 12px; color: #2271b1;"><strong>Note:</strong> Variables are optional — you don't need to use all of them.</p>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2><span class="dashicons dashicons-admin-settings"></span> Title Separator</h2>
         <table class="form-table">
           <tr>
@@ -854,7 +849,7 @@ class CFSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2><span class="dashicons dashicons-editor-code"></span> Title Templates</h2>
         <p style="margin-top: 0; color: #646970;">Define title templates for each post type. Leave empty to use default behavior.</p>
         <p style="margin-top: 8px; color: #2271b1;"><strong>Note:</strong> Used only if the page title is not set manually.</p>
@@ -884,7 +879,7 @@ class CFSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2><span class="dashicons dashicons-text"></span> Description Templates</h2>
         <p style="margin-top: 0; color: #646970;">Define description templates for each post type. Leave empty to auto-generate from content.</p>
         <p style="margin-top: 8px; color: #2271b1;"><strong>Note:</strong> Leave empty to automatically generate from page content.</p>
@@ -918,20 +913,20 @@ class CFSEO_Admin_Settings {
 
   private static function render_advanced_tab() {
     ?>
-    <div class="cfseo-tab-content">
+    <div class="ASNERISSEO-tab-content">
       <!-- Conflict Detection Status -->
-      <?php CFSEO_Conflict_Detector::render_status(); ?>
+      <?php ASNERISSEO_Conflict_Detector::render_status(); ?>
       
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2>
           <span class="dashicons dashicons-admin-tools"></span> Import / Export Settings
-          <?php CFSEO_Help_Modal::render_help_icon('maintenance-safety', 'Maintenance & Safety'); ?>
+          <?php ASNERISSEO_Help_Modal::render_help_icon('maintenance-safety', 'Maintenance & Safety'); ?>
         </h2>
         <table class="form-table">
           <tr>
             <th scope="row">Export Settings</th>
             <td>
-              <button type="button" class="button" id="cfseo-export-settings">
+              <button type="button" class="button" id="ASNERISSEO-export-settings">
                 <span class="dashicons dashicons-download"></span> Export Configuration
               </button>
               <p class="description">Download your current settings as a JSON file.</p>
@@ -940,8 +935,8 @@ class CFSEO_Admin_Settings {
           <tr>
             <th scope="row">Import Settings</th>
             <td>
-              <input type="file" id="cfseo-import-file" accept=".json" style="display:none;">
-              <button type="button" class="button" id="cfseo-import-settings">
+              <input type="file" id="ASNERISSEO-import-file" accept=".json" style="display:none;">
+              <button type="button" class="button" id="ASNERISSEO-import-settings">
                 <span class="dashicons dashicons-upload"></span> Import Configuration
               </button>
               <p class="description">Upload a previously exported settings file.</p>
@@ -951,13 +946,13 @@ class CFSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="cfseo-card">
+      <div class="ASNERISSEO-card">
         <h2><span class="dashicons dashicons-trash"></span> Reset Settings</h2>
         <table class="form-table">
           <tr>
             <th scope="row">Clear All Data</th>
             <td>
-              <button type="button" class="button button-link-delete" id="cfseo-reset-settings">
+              <button type="button" class="button button-link-delete" id="ASNERISSEO-reset-settings">
                 <span class="dashicons dashicons-warning"></span> Reset All Settings
               </button>
               <p class="description">This will delete all plugin settings. This action cannot be undone.</p>
@@ -967,10 +962,10 @@ class CFSEO_Admin_Settings {
         </table>
       </div>
 
-      <div class="cfseo-info-box">
+      <div class="ASNERISSEO-info-box">
         <h3><span class="dashicons dashicons-info"></span> Plugin Information</h3>
-        <p><strong>Version:</strong> <?php echo esc_html(CFSEO_VERSION); ?></p>
-        <p><strong>Plugin Path:</strong> <code><?php echo esc_html(CFSEO_DIR); ?></code></p>
+        <p><strong>Version:</strong> <?php echo esc_html(ASNERISSEO_VERSION); ?></p>
+        <p><strong>Plugin Path:</strong> <code><?php echo esc_html(ASNERISSEO_DIR); ?></code></p>
       </div>
     </div>
     <?php
@@ -1088,7 +1083,7 @@ class CFSEO_Admin_Settings {
    * AJAX handler for exporting settings
    */
   public static function ajax_export_settings() {
-    check_ajax_referer('CFSEO_admin_nonce', 'nonce');
+    check_ajax_referer('ASNERISSEO_admin_nonce', 'nonce');
     
     if (!current_user_can('manage_options')) {
       wp_send_json_error('Unauthorized');
@@ -1102,7 +1097,7 @@ class CFSEO_Admin_Settings {
    * AJAX handler for importing settings
    */
   public static function ajax_import_settings() {
-    check_ajax_referer('CFSEO_admin_nonce', 'nonce');
+    check_ajax_referer('ASNERISSEO_admin_nonce', 'nonce');
     
     if (!current_user_can('manage_options')) {
       wp_send_json_error('Unauthorized');
@@ -1125,7 +1120,7 @@ class CFSEO_Admin_Settings {
    * AJAX handler for resetting settings
    */
   public static function ajax_reset_settings() {
-    check_ajax_referer('CFSEO_admin_nonce', 'nonce');
+    check_ajax_referer('ASNERISSEO_admin_nonce', 'nonce');
     
     if (!current_user_can('manage_options')) {
       wp_send_json_error('Unauthorized');
