@@ -128,6 +128,9 @@ class ASNERISSEO_Admin_Settings {
   }
 
   public static function render_page() {
+    // Load help modals for this page
+    ASNERISSEO_Help_Modal::render_modals('settings');
+    
     // Verify nonce for tab parameter
     $current_tab = 'general';
     if (isset($_GET['tab']) && wp_verify_nonce(wp_create_nonce('admin_tab_nonce'), 'admin_tab_nonce')) {

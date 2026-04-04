@@ -188,6 +188,9 @@ class ASNERISSEO_Diagnostics_Page {
    * Render diagnostics page
    */
   public static function render_page() {
+    // Load help modals for this page
+    ASNERISSEO_Help_Modal::render_modals('diagnostics');
+    
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $results = null;
     

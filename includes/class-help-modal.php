@@ -19,7 +19,8 @@ class ASNERISSEO_Help_Modal {
    */
   public static function init() {
     add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_assets']);
-    add_action('admin_footer', [__CLASS__, 'render_modal_html']);
+    add_action('admin_footer', [__CLASS__, 'render_core_script'], 1);
+    add_action('admin_footer', [__CLASS__, 'render_modal_html'], 20);
   }
   
   /**
@@ -69,12 +70,55 @@ class ASNERISSEO_Help_Modal {
   public static function render_modals($page_id) {
     $content = self::get($page_id);
     
-    if (empty($content['modals'])) {
+    // Check for modals key directly or nested
+    if (isset($content['modals']) && !empty($content['modals'])) {
+      self::$modals_to_render = $content['modals'];
+    } elseif (empty($content)) {
       return;
     }
-    
-    // Store modals to render in footer
-    self::$modals_to_render = $content['modals'];
+  }
+  
+  /**
+   * Render core modal JavaScript in footer (priority 1 - before modal HTML)
+   */
+  public static function render_core_script() {
+    if (!self::$assets_enqueued) {
+      return;
+    }
+    ?>
+    <script type="text/javascript" id="ASNERISSEO-help-modal-js">
+    window.ASNERISSEOHelpModal = {
+      content: {},
+      setContent: function(modals) {
+        this.content = modals;
+      },
+      open: function(contentId) {
+        var modal = document.getElementById("ASNERISSEO-help-modal");
+        var overlay = document.getElementById("ASNERISSEO-help-modal-overlay");
+        var title = document.getElementById("ASNERISSEO-modal-title");
+        var content = document.getElementById("ASNERISSEO-modal-content");
+        if (!this.content || !this.content[contentId]) return;
+        title.textContent = this.content[contentId].title;
+        content.innerHTML = this.content[contentId].body;
+        modal.classList.add("active");
+        overlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+      },
+      close: function() {
+        var modal = document.getElementById("ASNERISSEO-help-modal");
+        var overlay = document.getElementById("ASNERISSEO-help-modal-overlay");
+        modal.classList.remove("active");
+        overlay.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+    };
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        window.ASNERISSEOHelpModal.close();
+      }
+    });
+    </script>
+    <?php
   }
   
   /**
@@ -84,10 +128,6 @@ class ASNERISSEO_Help_Modal {
     if (empty(self::$modals_to_render)) {
       return;
     }
-    
-    // Add modal content data via wp_add_inline_script
-    $inline_js = 'if(typeof ASNERISSEOHelpModal!=="undefined"){ASNERISSEOHelpModal.setContent(' . wp_json_encode(self::$modals_to_render) . ');}';
-    wp_add_inline_script('ASNERISSEO-help-modal', $inline_js);
     ?>
     <!-- Help Modals -->
     <div id="ASNERISSEO-help-modal-overlay" class="ASNERISSEO-modal-overlay" onclick="ASNERISSEOHelpModal.close()"></div>
@@ -100,6 +140,11 @@ class ASNERISSEO_Help_Modal {
       </div>
       <div class="ASNERISSEO-modal-content" id="ASNERISSEO-modal-content"></div>
     </div>
+    <script type="text/javascript">
+      if (typeof ASNERISSEOHelpModal !== "undefined") {
+        ASNERISSEOHelpModal.setContent(<?php echo wp_json_encode(self::$modals_to_render); ?>);
+      }
+    </script>
     <?php
   }
   
@@ -111,12 +156,6 @@ class ASNERISSEO_Help_Modal {
       return;
     }
     
-    // Only enqueue on plugin admin pages
-    $screen = get_current_screen();
-    if (!$screen || strpos($screen->id, 'asneris-seo') === false) {
-      return;
-    }
-    
     self::$assets_enqueued = true;
 
     wp_register_style('ASNERISSEO-help-modal', false, [], ASNERISSEO_VERSION);
@@ -125,14 +164,6 @@ class ASNERISSEO_Help_Modal {
     // Minified CSS for help modal
     $css = '.ASNERISSEO-help-icon{background:none;border:none;cursor:pointer;padding:0;margin-left:5px;color:#2271b1;vertical-align:middle;}.ASNERISSEO-help-icon:hover{color:#135e96;}.ASNERISSEO-help-icon .dashicons{font-size:16px;width:16px;height:16px;}.ASNERISSEO-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100000;}.ASNERISSEO-modal-overlay.active{display:block;}.ASNERISSEO-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.3);z-index:100001;max-width:600px;width:90%;max-height:80vh;overflow:hidden;}.ASNERISSEO-modal.active{display:block;}.ASNERISSEO-modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 25px;border-bottom:1px solid #dcdcde;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;}.ASNERISSEO-modal-header h2{margin:0;font-size:18px;color:#fff;}.ASNERISSEO-modal-close{background:none;border:none;cursor:pointer;padding:0;color:#fff;opacity:0.8;}.ASNERISSEO-modal-close:hover{opacity:1;}.ASNERISSEO-modal-close .dashicons{font-size:24px;width:24px;height:24px;}.ASNERISSEO-modal-content{padding:25px;overflow-y:auto;max-height:calc(80vh - 80px);}.ASNERISSEO-modal-content h3{margin-top:0;color:#1d2327;font-size:16px;}.ASNERISSEO-modal-content p{line-height:1.6;color:#3c434a;}.ASNERISSEO-modal-content code{background:#f6f7f7;padding:2px 6px;border-radius:3px;font-size:13px;}.ASNERISSEO-modal-content ul{line-height:1.8;}.ASNERISSEO-modal-content .ASNERISSEO-info-box{background:#e7f5fe;border-left:4px solid #2271b1;padding:12px 15px;margin:15px 0;border-radius:4px;}.ASNERISSEO-modal-content .ASNERISSEO-warning-box{background:#fff8e5;border-left:4px solid #f0ad4e;padding:12px 15px;margin:15px 0;border-radius:4px;}';
     wp_add_inline_style('ASNERISSEO-help-modal', $css);
-
-    // Register script to load in header with no dependencies
-    wp_register_script('ASNERISSEO-help-modal', '', [], ASNERISSEO_VERSION, false);
-    wp_enqueue_script('ASNERISSEO-help-modal');
-    
-    // Minified JavaScript for help modal
-    $inline_js = 'window.ASNERISSEOHelpModal={content:{},setContent:function(modals){this.content=modals;},open:function(contentId){var modal=document.getElementById("ASNERISSEO-help-modal");var overlay=document.getElementById("ASNERISSEO-help-modal-overlay");var title=document.getElementById("ASNERISSEO-modal-title");var content=document.getElementById("ASNERISSEO-modal-content");if(!this.content||!this.content[contentId])return;title.textContent=this.content[contentId].title;content.innerHTML=this.content[contentId].body;modal.classList.add("active");overlay.classList.add("active");document.body.style.overflow="hidden";},close:function(){var modal=document.getElementById("ASNERISSEO-help-modal");var overlay=document.getElementById("ASNERISSEO-help-modal-overlay");modal.classList.remove("active");overlay.classList.remove("active");document.body.style.overflow="";}};document.addEventListener("keydown",function(e){if(e.key==="Escape"){window.ASNERISSEOHelpModal.close();}});';
-    wp_add_inline_script('ASNERISSEO-help-modal', $inline_js);
   }
   
   /**

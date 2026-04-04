@@ -202,6 +202,9 @@ class ASNERISSEO_Dashboard {
    * Render dashboard page
    */
   public static function render_page() {
+    // Load help modals for this page
+    ASNERISSEO_Help_Modal::render_modals('dashboard');
+    
     $validation_summary = self::get_validation_summary();
     $diagnostic_summary = self::get_diagnostic_summary();
     $config_status = self::get_config_status();
