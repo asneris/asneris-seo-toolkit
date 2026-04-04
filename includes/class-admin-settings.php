@@ -162,25 +162,25 @@ class ASNERISSEO_Admin_Settings {
 
       <!-- Tab Navigation -->
       <nav class="nav-tab-wrapper ASNERISSEO-nav-tab-wrapper">
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=general" class="nav-tab <?php echo $current_tab === 'general' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=general" class="nav-tab <?php echo esc_attr($current_tab === 'general' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-admin-generic"></span> General
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=verification" class="nav-tab <?php echo $current_tab === 'verification' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=verification" class="nav-tab <?php echo esc_attr($current_tab === 'verification' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-yes-alt"></span> Verification
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=indexnow" class="nav-tab <?php echo $current_tab === 'indexnow' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=indexnow" class="nav-tab <?php echo esc_attr($current_tab === 'indexnow' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-update"></span> IndexNow
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=social" class="nav-tab <?php echo $current_tab === 'social' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=social" class="nav-tab <?php echo esc_attr($current_tab === 'social' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-share"></span> Social Media
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="nav-tab <?php echo $current_tab === 'schema' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="nav-tab <?php echo esc_attr($current_tab === 'schema' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-editor-code"></span> Schema
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=templates" class="nav-tab <?php echo $current_tab === 'templates' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=templates" class="nav-tab <?php echo esc_attr($current_tab === 'templates' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-text"></span> Templates
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=maintenance" class="nav-tab <?php echo $current_tab === 'maintenance' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=maintenance" class="nav-tab <?php echo esc_attr($current_tab === 'maintenance' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-admin-tools"></span> Maintenance & Safety
         </a>
 
