@@ -76,7 +76,7 @@ class ASNERISSEO_Admin_Settings {
       "});";
     wp_add_inline_script('ASNERISSEO-admin', $inline_js);
     
-    wp_localize_script('ASNERISSEO-admin', 'gscseoAdmin', [
+    wp_localize_script('ASNERISSEO-admin', 'asnerisseoAdmin', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_admin_nonce'),
     ]);

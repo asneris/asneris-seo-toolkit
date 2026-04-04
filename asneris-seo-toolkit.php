@@ -142,7 +142,7 @@ add_action('enqueue_block_editor_assets', function () {
     true
   );
 
-  wp_localize_script('ASNERISSEO-editor', 'gscseoData', [
+  wp_localize_script('ASNERISSEO-editor', 'asnerisseoData', [
     'ajaxurl' => admin_url('admin-ajax.php'),
     'indexnowNonce' => wp_create_nonce('ASNERISSEO_manual_indexnow')
   ]);

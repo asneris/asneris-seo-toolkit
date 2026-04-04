@@ -34,7 +34,7 @@ if (count($results['yandex_verification']) >= 1) $ASNERISSEO_console_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Google Search Console', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engine: Google', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['google_verification'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['google_verification']))); ?>
       </div>
       <?php if (count($results['google_verification']) >= 1): ?>
         <div class="ASNERISSEO-check-details">

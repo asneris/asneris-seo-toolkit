@@ -289,7 +289,7 @@ if (!defined('ABSPATH')) exit;
       <!-- Sitemap Visibility -->
       <div class="ASNERISSEO-validation-item">
         <?php
-        $ASNERISSEO_sitemap_data = esc_html(ASNERISSEO_Validation::check_sitemap_visibility();
+        $ASNERISSEO_sitemap_data = ASNERISSEO_Validation::check_sitemap_visibility();
         if ($ASNERISSEO_sitemap_data['status'] === 'pass') {
           $ASNERISSEO_status = 'pass';
           $ASNERISSEO_icon = '✅';

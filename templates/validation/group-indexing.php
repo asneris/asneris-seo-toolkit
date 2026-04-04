@@ -34,7 +34,7 @@ if ($canonical_check['status'] === 'pass') $ASNERISSEO_indexing_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Robots Meta Tag', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing, Yandex', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['robots'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['robots']))); ?>
       </div>
       <?php if (count($results['robots']) === 1): ?>
         <div class="ASNERISSEO-check-details">

@@ -112,11 +112,11 @@
                 e.preventDefault();
                 
                 $.ajax({
-                    url: gscseoAdmin.ajaxUrl,
+                    url: asnerisseoAdmin.ajaxUrl,
                     type: 'POST',
                     data: {
                         action: 'ASNERISSEO_export_settings',
-                        nonce: gscseoAdmin.nonce
+                        nonce: asnerisseoAdmin.nonce
                     },
                     success: function(response) {
                         if (response.success) {
@@ -166,11 +166,11 @@
                         const settings = JSON.parse(e.target.result);
                         
                         $.ajax({
-                            url: gscseoAdmin.ajaxUrl,
+                            url: asnerisseoAdmin.ajaxUrl,
                             type: 'POST',
                             data: {
                                 action: 'ASNERISSEO_import_settings',
-                                nonce: gscseoAdmin.nonce,
+                                nonce: asnerisseoAdmin.nonce,
                                 settings: settings
                             },
                             success: function(response) {
@@ -213,11 +213,11 @@
                 }
 
                 $.ajax({
-                    url: gscseoAdmin.ajaxUrl,
+                    url: asnerisseoAdmin.ajaxUrl,
                     type: 'POST',
                     data: {
                         action: 'ASNERISSEO_reset_settings',
-                        nonce: gscseoAdmin.nonce
+                        nonce: asnerisseoAdmin.nonce
                     },
                     success: function(response) {
                         if (response.success) {

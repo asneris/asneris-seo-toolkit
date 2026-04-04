@@ -17,7 +17,7 @@ $ASNERISSEO_schema_total = 1;
       <span class="ASNERISSEO-confidence-badge confidence-medium"><?php esc_html_e('Confidence: Medium', 'asneris-seo-toolkit'); ?></span>
     </div>
     <div class="ASNERISSEO-group-summary">
-      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($schema_pass, $schema_total); ?>
+      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($schema_pass, $schema_total)); ?>
         <span><?php echo esc_html($schema_pass); ?> / <?php echo esc_html($schema_total); ?> <?php esc_html_e('passed', 'asneris-seo-toolkit'); ?></span>
       <span class="ASNERISSEO-toggle">▼</span>
     </div>

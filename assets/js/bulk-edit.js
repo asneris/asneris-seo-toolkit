@@ -178,7 +178,7 @@ jQuery(document).ready(function($) {
     
     const data = {
       action: 'ASNERISSEO_bulk_save',
-      nonce: gscseoBulkEdit.nonce,
+      nonce: asnerisBulkEdit.nonce,
       post_ids: [],
       seo_title: {},
       seo_description: {},
@@ -197,7 +197,7 @@ jQuery(document).ready(function($) {
     $status.html('<span style="color: #666;">Processing...</span>');
     
     $.ajax({
-      url: gscseoBulkEdit.ajaxUrl,
+      url: asnerisBulkEdit.ajaxUrl,
       type: 'POST',
       data: data,
       success: function(response) {

@@ -55,7 +55,7 @@ class ASNERISSEO_Bulk_Edit {
 @media screen and (max-width:640px){#ASNERISSEO-confirm-modal-content{min-width:auto;max-width:90%;margin:10px;}}';
     wp_add_inline_style('ASNERISSEO-bulk-edit', $inline_css);
     
-    wp_localize_script('ASNERISSEO-bulk-edit', 'gscseoBulkEdit', [
+    wp_localize_script('ASNERISSEO-bulk-edit', 'asnerisBulkEdit', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_bulk_edit'),
     ]);
@@ -76,9 +76,9 @@ class ASNERISSEO_Bulk_Edit {
       );
     }
     if ($form_nonce_ok) {
-      foreach ($_GET as $key => $value) {
-        $key = sanitize_key($key);
-        if ($key === 'seo_title' || $key === 'seo_description' || $key === 'robots_index') {
+      $allowed_keys = ['seo_title', 'seo_description', 'robots_index'];
+      foreach ($allowed_keys as $key) {
+        if (isset($_GET[$key])) {
           $has_form_data = true;
           break;
         }

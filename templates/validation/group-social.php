@@ -22,7 +22,7 @@ if (count($results['twitter_description']) >= 1) $social_pass++;
       <span class="ASNERISSEO-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'asneris-seo-toolkit'); ?></span>
     </div>
     <div class="ASNERISSEO-group-summary">
-      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($social_pass, $social_total); ?>
+      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($social_pass, $social_total)); ?>
         <span><?php echo esc_html($social_pass); ?> / <?php echo esc_html($social_total); ?> <?php esc_html_e('passed', 'asneris-seo-toolkit'); ?></span>
       <span class="ASNERISSEO-toggle">▼</span>
     </div>

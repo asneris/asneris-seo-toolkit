@@ -15,8 +15,8 @@ const IndexNowSubmit = () => {
     setIsSubmitting(true);
     setNotice(null);
     
-    const ajaxurl = window.gscseoData?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php';
-    const nonce = window.gscseoData?.indexnowNonce || window.ASNERISSEO_indexnow_nonce;
+    const ajaxurl = window.asnerisseoData?.ajaxurl || window.ajaxurl || '/wp-admin/admin-ajax.php';
+    const nonce = window.asnerisseoData?.indexnowNonce || window.ASNERISSEO_indexnow_nonce;
     
     fetch(ajaxurl, {
       method: 'POST',

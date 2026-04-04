@@ -1,5 +1,5 @@
 === Asneris SEO Toolkit ===
-Contributors: asneris
+Contributors: clarityfirstseo, asneris
 Tags: seo, technical seo, indexnow, search console
 Requires at least: 5.8
 Tested up to: 6.9
@@ -47,3 +47,21 @@ This plugin connects to the IndexNow API to notify participating search engines 
 == Notes ==
 This plugin does not control search rankings or guarantee indexing.  
 All features are optional and configurable by the site administrator.
+== Build Instructions ==
+
+This plugin uses npm and webpack for building JavaScript assets.
+
+**Source Code Repository:**
+https://github.com/asneris/asneris-seo-toolkit
+
+**Build from Source:**
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Build production assets: `npm run build`
+
+The source files are in `/src/` directory and compiled output is in `/build/`.
+
+**Development Mode:**
+
+For development with auto-rebuild: `npm run start`
