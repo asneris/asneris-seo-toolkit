@@ -96,7 +96,12 @@ class ASNERISSEO_Robots {
         }
         
         // Get content
-        $content = file_get_contents(self::$robots_file);
+        global $wp_filesystem;
+        if ( empty( $wp_filesystem ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+        $content = $wp_filesystem->get_contents( self::$robots_file );
         
         // Check 3: No sitewide crawl block
         $has_sitewide_block = preg_match('/User-agent:\s*\*\s+Disallow:\s*\/\s*$/im', $content);
@@ -227,8 +232,13 @@ Sitemap: {$sitemap_url}
         
         $content = isset($_POST['robots_content']) ? sanitize_textarea_field(wp_unslash($_POST['robots_content'])) : '';
         
-        // Save to file
-        $saved = file_put_contents(self::$robots_file, $content);
+        // Save to file using WP_Filesystem
+        global $wp_filesystem;
+        if ( empty( $wp_filesystem ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+        $saved = $wp_filesystem->put_contents( self::$robots_file, $content, FS_CHMOD_FILE );
         
         if ($saved !== false) {
             wp_safe_redirect(add_query_arg([
@@ -249,9 +259,14 @@ Sitemap: {$sitemap_url}
      */
     public static function render_page() {
         // Get current content
+        global $wp_filesystem;
+        if ( empty( $wp_filesystem ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
         $content = '';
         if (file_exists(self::$robots_file)) {
-            $content = file_get_contents(self::$robots_file);
+            $content = $wp_filesystem->get_contents( self::$robots_file );
         } else {
             $content = self::get_default_content();
         }
@@ -260,16 +275,10 @@ Sitemap: {$sitemap_url}
         $validation = self::validate();
         
         // Check for save status
-        $saved = false;
-        $error = false;
-        
-        if (isset($_GET['saved']) && wp_verify_nonce(wp_create_nonce('robots_status'), 'robots_status')) {
-          $saved = sanitize_text_field(wp_unslash($_GET['saved'])) === '1';
-        }
-        
-        if (isset($_GET['error']) && wp_verify_nonce(wp_create_nonce('robots_status'), 'robots_status')) {
-          $error = sanitize_text_field(wp_unslash($_GET['error'])) === '1';
-        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of status flags set after nonce-verified save_robots action
+        $saved = isset( $_GET['saved'] ) && sanitize_key( $_GET['saved'] ) === '1';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of status flags set after nonce-verified save_robots action
+        $error = isset( $_GET['error'] ) && sanitize_key( $_GET['error'] ) === '1';
         
         ?>
         <div class="wrap ASNERISSEO-admin-wrap">

@@ -23,7 +23,6 @@ define('ASNERISSEO_VERSION', '0.1.1');
 define('ASNERISSEO_DIR', plugin_dir_path(__FILE__));
 define('ASNERISSEO_URL', plugin_dir_url(__FILE__));
 define('ASNERISSEO_BASENAME', plugin_basename(__FILE__));
-define('ASNERIS_TEXT_DOMAIN', 'asneris-seo-toolkit');
 define('ASNERIS_MENU_SLUG', 'asneris-seo');
 
 
@@ -237,8 +236,16 @@ add_action('wp_ajax_ASNERISSEO_bulk_save', ['ASNERISSEO_Bulk_Edit', 'ajax_bulk_s
 // Admin notices
 add_action('admin_notices', function() {
   // Check if we're on the plugin's settings page
-  if (isset($_GET['page']) && wp_verify_nonce(wp_create_nonce('admin_page_check'), 'admin_page_check') && sanitize_key($_GET['page']) === ASNERIS_MENU_SLUG . '-settings') {
+  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check on admin page slug, no data modification
+  if ( isset( $_GET['page'] ) && sanitize_key( $_GET['page'] ) === ASNERIS_MENU_SLUG . '-settings' ) {
     ASNERISSEO_Conflict_Detector::admin_notice();
   }
+});
+
+// Activation hook - flush rewrite rules for IndexNow key file
+register_activation_hook( __FILE__, function() {
+  // Trigger rewrite rule registration
+  ASNERISSEO_IndexNow::register_rewrite();
+  flush_rewrite_rules();
 });
 

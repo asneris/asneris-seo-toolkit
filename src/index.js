@@ -35,13 +35,13 @@ const IndexNowSubmit = () => {
       if (data.success) {
         setNotice({ type: 'success', message: data.data.message });
       } else {
-        setNotice({ type: 'error', message: data.data.message || __('Failed to submit', 'ASNERISSEO') });
+        setNotice({ type: 'error', message: data.data.message || __('Failed to submit', 'asneris-seo-toolkit') });
       }
       setTimeout(() => setNotice(null), 5000);
     })
     .catch(error => {
       setIsSubmitting(false);
-      setNotice({ type: 'error', message: __('Request failed', 'ASNERISSEO') });
+      setNotice({ type: 'error', message: __('Request failed', 'asneris-seo-toolkit') });
       setTimeout(() => setNotice(null), 5000);
     });
   };
@@ -49,7 +49,7 @@ const IndexNowSubmit = () => {
   if (postStatus !== 'publish') {
     return (
       <Notice status="warning" isDismissible={false}>
-        {__('Post must be published to submit to IndexNow', 'ASNERISSEO')}
+        {__('Post must be published to submit to IndexNow', 'asneris-seo-toolkit')}
       </Notice>
     );
   }
@@ -63,7 +63,7 @@ const IndexNowSubmit = () => {
       )}
       
       <p style={{ marginBottom: '12px', color: '#646970', fontSize: '13px' }}>
-        {__('Manually notify search engines about this page update via IndexNow protocol.', 'ASNERISSEO')}
+        {__('Manually notify search engines about this page update via IndexNow protocol.', 'asneris-seo-toolkit')}
       </p>
       
       <Button
@@ -72,11 +72,11 @@ const IndexNowSubmit = () => {
         disabled={isSubmitting}
         style={{ width: '100%' }}
       >
-        {isSubmitting ? __('Submitting...', 'ASNERISSEO') : __('Submit to IndexNow', 'ASNERISSEO')}
+        {isSubmitting ? __('Submitting...', 'asneris-seo-toolkit') : __('Submit to IndexNow', 'asneris-seo-toolkit')}
       </Button>
       
       <p style={{ marginTop: '12px', color: '#646970', fontSize: '12px', fontStyle: 'italic' }}>
-        {__('Note: IndexNow must be enabled in plugin settings.', 'ASNERISSEO')}
+        {__('Note: IndexNow must be enabled in plugin settings.', 'asneris-seo-toolkit')}
       </p>
     </>
   );
@@ -283,30 +283,30 @@ registerPlugin('asneris-seo-sidebar', {
     return (
       <>
         <PluginSidebarMoreMenuItem target="asneris-seo-sidebar">
-          {__('Asneris SEO Toolkit', 'ASNERISSEO')}
+          {__('Asneris SEO Toolkit', 'asneris-seo-toolkit')}
         </PluginSidebarMoreMenuItem>
         
         <PluginSidebar
           name="asneris-seo-sidebar"
-          title={__('Asneris SEO Toolkit', 'ASNERISSEO')}
+          title={__('Asneris SEO Toolkit', 'asneris-seo-toolkit')}
           icon="search"
         >
           <PanelBody 
-            title={__('SEO Overview', 'ASNERISSEO')} 
+            title={__('SEO Overview', 'asneris-seo-toolkit')} 
             initialOpen={true}
           >
             <SEOScore />
             <ExternalLink href="/wp-admin/admin.php?page=asneris-seo">
-              {__('Open SEO Settings', 'ASNERISSEO')}
+              {__('Open SEO Settings', 'asneris-seo-toolkit')}
             </ExternalLink>
           </PanelBody>
           
           <PanelBody 
-            title={__('Search Appearance', 'ASNERISSEO')} 
+            title={__('Search Appearance', 'asneris-seo-toolkit')} 
             initialOpen={true}
           >
             <MetaField 
-              label={__('SEO Title', 'ASNERISSEO')}
+              label={__('SEO Title', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_title" 
               placeholder="Custom title for search engines"
               help="Leave empty to use the post title"
@@ -320,7 +320,7 @@ registerPlugin('asneris-seo-sidebar', {
             />
             
             <MetaField 
-              label={__('Meta Description', 'ASNERISSEO')}
+              label={__('Meta Description', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_description"
               type="textarea"
               placeholder="Brief description of your content"
@@ -335,7 +335,7 @@ registerPlugin('asneris-seo-sidebar', {
             />
             
             <MetaField 
-              label={__('Canonical URL', 'ASNERISSEO')}
+              label={__('Canonical URL', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_canonical"
               placeholder="https://example.com/canonical-url"
               help="Leave empty to use the current URL"
@@ -343,11 +343,11 @@ registerPlugin('asneris-seo-sidebar', {
           </PanelBody>
           
           <PanelBody 
-            title={__('Robots Meta', 'ASNERISSEO')} 
+            title={__('Robots Meta', 'asneris-seo-toolkit')} 
             initialOpen={false}
           >
             <RobotsControl 
-              label={__('Index', 'ASNERISSEO')}
+              label={__('Index', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_robots_index"
               options={[
                 { label: 'Index (allow search engines)', value: 'index' },
@@ -356,7 +356,7 @@ registerPlugin('asneris-seo-sidebar', {
             />
             
             <RobotsControl 
-              label={__('Follow', 'ASNERISSEO')}
+              label={__('Follow', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_robots_follow"
               options={[
                 { label: 'Follow (allow link following)', value: 'follow' },
@@ -366,18 +366,18 @@ registerPlugin('asneris-seo-sidebar', {
           </PanelBody>
           
           <PanelBody 
-            title={__('Social Media (Open Graph)', 'ASNERISSEO')} 
+            title={__('Social Media (Open Graph)', 'asneris-seo-toolkit')} 
             initialOpen={false}
           >
             <MetaField 
-              label={__('Social Title', 'ASNERISSEO')}
+              label={__('Social Title', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_og_title"
               placeholder="Title for social media"
               help="Leave empty to use SEO title"
             />
             
             <MetaField 
-              label={__('Social Description', 'ASNERISSEO')}
+              label={__('Social Description', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_og_description"
               type="textarea"
               placeholder="Description for social media"
@@ -385,7 +385,7 @@ registerPlugin('asneris-seo-sidebar', {
             />
             
             <MetaField 
-              label={__('Social Image URL', 'ASNERISSEO')}
+              label={__('Social Image URL', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_og_image"
               placeholder="https://example.com/image.jpg"
               help="Recommended: 1200x630px"
@@ -393,11 +393,11 @@ registerPlugin('asneris-seo-sidebar', {
           </PanelBody>
           
           <PanelBody 
-            title={__('Schema (Structured Data)', 'ASNERISSEO')} 
+            title={__('Schema (Structured Data)', 'asneris-seo-toolkit')} 
             initialOpen={false}
           >
             <ToggleControl
-              label={__('Enable Schema', 'ASNERISSEO')}
+              label={__('Enable Schema', 'asneris-seo-toolkit')}
               checked={schemaEnabled}
               onChange={(v) => editPost({ meta: { _ASNERISSEO_schema_enabled: v } })}
               help="Adds structured data markup for better search results"
@@ -405,7 +405,7 @@ registerPlugin('asneris-seo-sidebar', {
             
             {schemaEnabled && (
               <RobotsControl
-                label={__('Schema Type', 'ASNERISSEO')}
+                label={__('Schema Type', 'asneris-seo-toolkit')}
                 metaKey="_ASNERISSEO_schema_type"
                 options={[
                   { label: 'Auto-detect (recommended)', value: '' },
@@ -428,7 +428,7 @@ registerPlugin('asneris-seo-sidebar', {
           </PanelBody>
 
           <PanelBody 
-            title={__('IndexNow', 'ASNERISSEO')} 
+            title={__('IndexNow', 'asneris-seo-toolkit')} 
             initialOpen={false}
           >
             <IndexNowSubmit />

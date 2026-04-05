@@ -131,13 +131,8 @@ class ASNERISSEO_Admin_Settings {
     // Load help modals for this page
     ASNERISSEO_Help_Modal::render_modals('settings');
     
-    // Verify nonce for tab parameter
-    $current_tab = 'general';
-    if (isset($_GET['tab']) && wp_verify_nonce(wp_create_nonce('admin_tab_nonce'), 'admin_tab_nonce')) {
-      $current_tab = sanitize_text_field(wp_unslash($_GET['tab']));
-    } elseif (isset($_GET['tab'])) {
-      $current_tab = sanitize_text_field(wp_unslash($_GET['tab']));
-    }
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab display parameter, no data modification
+    $current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
@@ -151,7 +146,8 @@ class ASNERISSEO_Admin_Settings {
 
       <?php
       // Display success message after settings saved
-      if (isset($_GET['settings-updated']) && sanitize_key($_GET['settings-updated']) === 'true' && wp_verify_nonce(wp_create_nonce('settings_updated_nonce'), 'settings_updated_nonce')) {
+      // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display check set by WordPress core after options.php redirect
+      if ( isset( $_GET['settings-updated'] ) && sanitize_key( $_GET['settings-updated'] ) === 'true' ) {
         ?>
         <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
           <p><strong><?php esc_html_e('Settings saved successfully!', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'asneris-seo-toolkit'); ?></p>

@@ -40,6 +40,14 @@ class ASNERISSEO_Diagnostics_Page {
     wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     wp_enqueue_script('jquery');
     
+    // Add inline CSS to prevent text overflow in diagnostics tables
+    $inline_css = '.ASNERISSEO-admin-wrap table td { word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; }
+.ASNERISSEO-admin-wrap table td code { display: inline-block; max-width: 100%; word-break: break-all; white-space: normal; background: #f0f0f1; padding: 2px 6px; border-radius: 3px; }
+.ASNERISSEO-admin-wrap table { table-layout: fixed; width: 100%; }
+.ASNERISSEO-admin-wrap table th:first-child, .ASNERISSEO-admin-wrap table td:first-child { width: 250px; }
+.ASNERISSEO-admin-wrap table th:nth-child(2), .ASNERISSEO-admin-wrap table td:nth-child(2) { width: 120px; }';
+    wp_add_inline_style('ASNERISSEO-admin', $inline_css);
+    
     $inline_js = "jQuery(function(\$){\n" .
       "  \$('#page_selector').on('change', function(){\n" .
       "    var selectedUrl = \$(this).val();\n" .
@@ -485,7 +493,7 @@ class ASNERISSEO_Diagnostics_Page {
                 </td>
                 <td>
                   <?php if (!empty($results['x_robots_tag'])): ?>
-                    <code><?php echo esc_html($results['x_robots_tag']); ?></code>
+                    <code style="display: inline-block; max-width: 100%; word-break: break-all; white-space: normal;"><?php echo esc_html($results['x_robots_tag']); ?></code>
                   <?php else: ?>
                     Not present - No restrictions
                   <?php endif; ?>

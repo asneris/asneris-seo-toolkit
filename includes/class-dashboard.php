@@ -136,7 +136,7 @@ class ASNERISSEO_Dashboard {
     $sitemap_exists = false;
     $sitemap_urls = [home_url('/wp-sitemap.xml'), home_url('/sitemap.xml')];
     foreach ($sitemap_urls as $url) {
-      $response = @wp_remote_head($url, ['timeout' => 3]);
+      $response = wp_remote_head($url, ['timeout' => 3]);
       if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
         $sitemap_exists = true;
         break;
