@@ -37,7 +37,7 @@ if (count($results['twitter_description']) >= 1) $social_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Open Graph Title', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Platforms: Facebook, LinkedIn', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['og_title'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['og_title']))); ?>
       </div>
       <?php if (count($results['og_title']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -54,7 +54,7 @@ if (count($results['twitter_description']) >= 1) $social_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Open Graph Description', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Platforms: Facebook, LinkedIn', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['og_description'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['og_description']))); ?>
       </div>
       <?php if (count($results['og_description']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -71,7 +71,7 @@ if (count($results['twitter_description']) >= 1) $social_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Open Graph Image', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Platforms: Facebook, LinkedIn', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['og_image'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['og_image']))); ?>
       </div>
       <?php if (count($results['og_image']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -99,7 +99,7 @@ if (count($results['twitter_description']) >= 1) $social_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Twitter Card Type', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Platform: X (Twitter)', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['twitter_card'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['twitter_card']))); ?>
       </div>
       <?php if (count($results['twitter_card']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -116,7 +116,7 @@ if (count($results['twitter_description']) >= 1) $social_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Twitter Title', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Platform: X (Twitter)', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['twitter_title'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['twitter_title']))); ?>
       </div>
       <?php if (count($results['twitter_title']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -133,7 +133,7 @@ if (count($results['twitter_description']) >= 1) $social_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Twitter Description', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Platform: X (Twitter)', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['twitter_description'])); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['twitter_description']))); ?>
       </div>
       <?php if (count($results['twitter_description']) >= 1): ?>
         <div class="ASNERISSEO-check-details">

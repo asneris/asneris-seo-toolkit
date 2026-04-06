@@ -81,7 +81,7 @@ if ($canonical_check['status'] === 'pass') $ASNERISSEO_indexing_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Canonical URL', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($canonical_check['status'] === 'pass' ? 1 : 0); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($canonical_check['status'] === 'pass' ? 1 : 0)); ?>
       </div>
       <div class="ASNERISSEO-check-details">
         <?php if (count($results['canonical']) === 1): ?>

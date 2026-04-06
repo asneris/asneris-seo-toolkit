@@ -34,7 +34,9 @@ class ASNERISSEO_Bulk_Edit {
 .ASNERISSEO-bulk-table-wrapper{overflow-x:auto;margin:0 -20px;padding:0 20px;}
 #ASNERISSEO-bulk-edit-table{width:100%;table-layout:fixed;border-collapse:collapse;min-width:1200px;}
 #ASNERISSEO-bulk-edit-table th,#ASNERISSEO-bulk-edit-table td{padding:12px;vertical-align:middle;border-bottom:1px solid #e5e5e5;}
-#ASNERISSEO-bulk-edit-table thead th,#ASNERISSEO-bulk-edit-table thead td{background:#f9f9f9;font-weight:600;border-bottom:2px solid #ccc;position:sticky;top:32px;z-index:10;}
+#ASNERISSEO-bulk-edit-table thead th,#ASNERISSEO-bulk-edit-table thead td{background:linear-gradient(to bottom, #f0f0f1 0%, #dcdcde 100%);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#1d2327;border-bottom:4px solid #2271b1;border-top:3px solid #8c8f94;position:sticky;top:32px;z-index:10;padding:16px 12px;box-shadow:0 3px 6px rgba(0,0,0,0.1);}
+#ASNERISSEO-bulk-edit-table tbody tr:first-child{background:#fafafa;}
+#ASNERISSEO-bulk-edit-table tbody tr:first-child td{padding-top:20px;padding-bottom:20px;border-top:2px solid #8c8f94;}
 #ASNERISSEO-bulk-edit-table .col-checkbox{width:40px;}
 #ASNERISSEO-bulk-edit-table .col-title{width:220px;}
 #ASNERISSEO-bulk-edit-table .col-seo-title{width:280px;}
@@ -207,7 +209,7 @@ input.ASNERISSEO-length-error,textarea.ASNERISSEO-length-error{border-color:#d63
               </td>
               
               <td>
-                <button type="submit" class="button"><?php esc_html_e('Filter', 'asneris-seo-toolkit'); ?></button>
+                <button type="submit" class="button"><?php esc_html_e('Retrieve', 'asneris-seo-toolkit'); ?></button>
               </td>
             </tr>
           </table>

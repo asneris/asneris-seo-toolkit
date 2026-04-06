@@ -32,7 +32,7 @@ if ($indexnow && $indexnow['configured']) $perf_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('IndexNow Configuration', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Bing, Yandex', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($indexnow && $indexnow['configured'] ? 1 : 0); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($indexnow && $indexnow['configured'] ? 1 : 0)); ?>
       </div>
       <?php if ($indexnow && $indexnow['configured']): ?>
         <div class="ASNERISSEO-check-details">

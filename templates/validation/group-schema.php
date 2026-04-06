@@ -32,7 +32,7 @@ $ASNERISSEO_schema_total = 1;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Schema.org JSON-LD', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing, Yandex', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($schema_pass, $schema_total); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($schema_pass, $schema_total)); ?>
       </div>
       <div class="ASNERISSEO-check-details">
         <?php if (!empty($results['schema'])): ?>

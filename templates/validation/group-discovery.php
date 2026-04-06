@@ -72,7 +72,7 @@ if ($results['http_status'] === 200) $ASNERISSEO_discovery_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Robots.txt', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing, Yandex', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($robots && $robots['status'] === 'exists' ? 1 : 0); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($robots && $robots['status'] === 'exists' ? 1 : 0)); ?>
       </div>
       <?php if ($robots && $robots['status'] === 'exists'): ?>
         <div class="ASNERISSEO-check-details">
@@ -107,7 +107,7 @@ if ($results['http_status'] === 200) $ASNERISSEO_discovery_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('HTTP Status Code', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: All', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($results['http_status'] === 200 ? 1 : 0); ?>
+        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($results['http_status'] === 200 ? 1 : 0)); ?>
       </div>
       <div class="ASNERISSEO-check-details">
         <code><?php echo esc_html($results['http_status']); ?> <?php echo $results['http_status'] === 200 ? 'OK' : 'Error'; ?></code>

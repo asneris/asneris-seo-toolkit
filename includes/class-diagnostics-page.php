@@ -790,8 +790,6 @@ class ASNERISSEO_Diagnostics_Page {
         </div>
         
       <?php endif; ?>
-      </div><!-- .ASNERISSEO-tab-content -->
-      </div><!-- .ASNERISSEO-card -->
       
     </div><!-- .wrap -->
     <?php ASNERISSEO_Help_Modal::render_modals('page-diagnostics'); ?>
