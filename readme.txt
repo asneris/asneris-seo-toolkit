@@ -33,9 +33,9 @@ The plugin does not predict rankings or guarantee indexing. All features are opt
 * Redirect management (301, 302, 307) with automatic slug change tracking
 * Built-in help and documentation pages
 
-**Philosophy:** SEO is not about gaming algorithms or chasing scores. It's about making your content clear, accessible, and understandable to search engines. This plugin helps you validate that clarity — nothing more, nothing less.
+**Philosophy:** SEO is not about gaming algorithms or chasing scores. It's about making your content clear, accessible, and understandable to search engines. This plugin helps validate these signals in a clear and structured way.
 
-== Development ==
+== Installation ==
 
 1. Upload the `asneris-seo-toolkit` folder to the `/wp-content/plugins/` directory, or install directly through the WordPress plugin screen.
 2. Activate the plugin through the 'Plugins' screen in WordPress.

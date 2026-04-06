@@ -14,6 +14,11 @@ class ASNERISSEO_Sitemap_Helper {
    * Check if sitemap is accessible
    */
   public static function is_sitemap_accessible() {
+    $cached = get_transient('ASNERISSEO_sitemap_accessible');
+    if (false !== $cached) {
+      return (bool) $cached;
+    }
+    
     $sitemap_url = self::get_sitemap_url();
     
     $response = wp_remote_get($sitemap_url, [
@@ -21,12 +26,12 @@ class ASNERISSEO_Sitemap_Helper {
       'sslverify' => false
     ]);
     
-    if (is_wp_error($response)) {
-      return false;
-    }
+    $accessible = !is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200;
     
-    $status_code = wp_remote_retrieve_response_code($response);
-    return $status_code === 200;
+    // Cache for 1 hour to avoid HTTP requests on every page load
+    set_transient('ASNERISSEO_sitemap_accessible', $accessible ? 1 : 0, HOUR_IN_SECONDS);
+    
+    return $accessible;
   }
 
   /**

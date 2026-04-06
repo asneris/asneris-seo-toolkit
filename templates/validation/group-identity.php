@@ -18,7 +18,7 @@ if (count($results['description']) === 1) $identity_pass++;
       <span class="ASNERISSEO-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'asneris-seo-toolkit'); ?></span>
     </div>
     <div class="ASNERISSEO-group-summary">
-      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($identity_pass, $identity_total)); ?>
+      <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($identity_pass, $identity_total)); ?>
         <span><?php echo esc_html($identity_pass); ?> / <?php echo esc_html($identity_total); ?> <?php esc_html_e('passed', 'asneris-seo-toolkit'); ?></span>
       <span class="ASNERISSEO-toggle">▼</span>
     </div>
@@ -33,7 +33,7 @@ if (count($results['description']) === 1) $identity_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Title Tag', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['title']))); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge(count($results['title']))); ?>
       </div>
       <?php if (count($results['title']) === 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -69,7 +69,7 @@ if (count($results['description']) === 1) $identity_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Meta Description', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing (CTR only)', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['description']), 1)); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge(count($results['description']), 1)); ?>
       </div>
       <?php if (count($results['description']) === 1): 
         $ASNERISSEO_desc_length = strlen($results['description'][0]);

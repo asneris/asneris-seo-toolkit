@@ -234,7 +234,7 @@ class ASNERISSEO_Diagnostics_Page {
                 $pages = get_pages(['sort_column' => 'post_title', 'number' => 100]);
                 foreach ($pages as $page) {
                   $page_url = get_permalink($page->ID);
-                  echo '<option value="' . esc_attr($page_url) . '">' . esc_html($page->post_title) . '</option>';
+                  echo '<option value="' . esc_attr($page_url) . '"' . selected($test_url, $page_url, false) . '>' . esc_html($page->post_title) . '</option>';
                 }
                 ?>
               </optgroup>
@@ -243,15 +243,16 @@ class ASNERISSEO_Diagnostics_Page {
                 $posts = get_posts(['numberposts' => 50, 'post_status' => 'publish']);
                 foreach ($posts as $post) {
                   $post_url = get_permalink($post->ID);
-                  echo '<option value="' . esc_attr($post_url) . '">' . esc_html($post->post_title) . '</option>';
+                  echo '<option value="' . esc_attr($post_url) . '"' . selected($test_url, $post_url, false) . '>' . esc_html($post->post_title) . '</option>';
                 }
                 ?>
               </optgroup>
               <optgroup label="Special Pages">
-                <option value="<?php echo esc_attr(home_url('/')); ?>">Homepage</option>
+                <option value="<?php echo esc_attr(home_url('/')); ?>"<?php selected($test_url, home_url('/')); ?>>Homepage</option>
                 <?php
                 if (get_option('page_for_posts')) {
-                  echo '<option value="' . esc_attr(get_permalink(get_option('page_for_posts'))) . '">Blog Page</option>';
+                  $blog_url = get_permalink(get_option('page_for_posts'));
+                  echo '<option value="' . esc_attr($blog_url) . '"' . selected($test_url, $blog_url, false) . '>Blog Page</option>';
                 }
                 ?>
               </optgroup>

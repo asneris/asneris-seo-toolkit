@@ -17,7 +17,7 @@ if ($indexnow && $indexnow['configured']) $perf_pass++;
       <span class="ASNERISSEO-confidence-badge confidence-medium"><?php esc_html_e('Confidence: Medium', 'asneris-seo-toolkit'); ?></span>
     </div>
     <div class="ASNERISSEO-group-summary">
-      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($perf_pass, $perf_total)); ?>
+      <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($perf_pass, $perf_total)); ?>
         <span><?php echo esc_html($perf_pass); ?> / <?php echo esc_html($perf_total); ?> <?php esc_html_e('passed', 'asneris-seo-toolkit'); ?></span>
       <span class="ASNERISSEO-toggle">▼</span>
     </div>
@@ -32,7 +32,7 @@ if ($indexnow && $indexnow['configured']) $perf_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('IndexNow Configuration', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Bing, Yandex', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($indexnow && $indexnow['configured'] ? 1 : 0)); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($indexnow && $indexnow['configured'] ? 1 : 0)); ?>
       </div>
       <?php if ($indexnow && $indexnow['configured']): ?>
         <div class="ASNERISSEO-check-details">

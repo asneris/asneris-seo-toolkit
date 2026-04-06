@@ -48,13 +48,25 @@ class ASNERISSEO_IndexNow {
     });
   }
 
-  public static function submit_url(string $url): void {
-    if (!self::is_enabled()) return;
+  /**
+   * Submit a URL to the IndexNow API.
+   *
+   * @param string $url The URL to submit.
+   * @return true|WP_Error True on success, WP_Error on failure.
+   */
+  public static function submit_url(string $url) {
+    if (!self::is_enabled()) {
+      return new \WP_Error('disabled', __('IndexNow is not enabled', 'asneris-seo-toolkit'));
+    }
     $key = self::key();
-    if (!$key) return;
+    if (!$key) {
+      return new \WP_Error('no_key', __('IndexNow API key is not configured', 'asneris-seo-toolkit'));
+    }
 
     $host = wp_parse_url(home_url('/'), PHP_URL_HOST);
-    if (!$host) return;
+    if (!$host) {
+      return new \WP_Error('no_host', __('Could not determine site host', 'asneris-seo-toolkit'));
+    }
 
     $payload = [
       'host' => $host,
@@ -71,15 +83,17 @@ class ASNERISSEO_IndexNow {
 
     $response = wp_remote_post('https://api.indexnow.org/IndexNow', $args);
     
-    // Handle errors silently; callers may implement their own handling as needed.
     if (is_wp_error($response)) {
-      return;
+      return $response;
     }
     
     $status = wp_remote_retrieve_response_code($response);
     if ($status !== 200 && $status !== 202) {
-      return;
+      /* translators: %d is the HTTP status code returned by the IndexNow API */
+      return new \WP_Error('api_error', sprintf(__('IndexNow API returned status %d', 'asneris-seo-toolkit'), $status));
     }
+    
+    return true;
   }
 
   /**
@@ -105,45 +119,16 @@ class ASNERISSEO_IndexNow {
       return;
     }
 
-    if (!self::is_enabled()) {
-      wp_send_json_error(['message' => __('IndexNow is not enabled', 'asneris-seo-toolkit')]);
-      return;
-    }
-
     $url = get_permalink($post_id);
     if (!$url) {
       wp_send_json_error(['message' => __('Could not get permalink', 'asneris-seo-toolkit')]);
       return;
     }
 
-    // Submit to IndexNow with error handling
-    $key = self::key();
-    $host = wp_parse_url(home_url('/'), PHP_URL_HOST);
+    $result = self::submit_url($url);
     
-    $payload = [
-      'host' => $host,
-      'key' => $key,
-      'keyLocation' => self::key_url(),
-      'urlList' => [ $url ],
-    ];
-
-    $args = [
-      'headers' => ['Content-Type' => 'application/json; charset=utf-8'],
-      'body' => wp_json_encode($payload),
-      'timeout' => 5,
-    ];
-
-    $response = wp_remote_post('https://api.indexnow.org/IndexNow', $args);
-    
-    if (is_wp_error($response)) {
-      wp_send_json_error(['message' => __('IndexNow API error: ', 'asneris-seo-toolkit') . $response->get_error_message()]);
-      return;
-    }
-    
-    $status = wp_remote_retrieve_response_code($response);
-    if ($status !== 200 && $status !== 202) {
-      /* translators: %d is the HTTP status code returned by the IndexNow API */
-      wp_send_json_error(['message' => sprintf(__('IndexNow API returned status %d', 'asneris-seo-toolkit'), $status)]);
+    if (is_wp_error($result)) {
+      wp_send_json_error(['message' => $result->get_error_message()]);
       return;
     }
 
