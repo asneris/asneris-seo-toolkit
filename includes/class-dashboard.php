@@ -13,20 +13,6 @@ if (!defined('ABSPATH')) exit;
 class ASNERISSEO_Dashboard {
   
   /**
-   * Register dashboard page
-   */
-  public static function register_menu() {
-    add_submenu_page(
-      ASNERIS_MENU_SLUG,
-      __('Dashboard', 'asneris-seo-toolkit'),
-      __('Dashboard', 'asneris-seo-toolkit'),
-      'manage_options',
-      ASNERIS_MENU_SLUG . '-dashboard',
-      [__CLASS__, 'render_page']
-    );
-  }
-  
-  /**
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {

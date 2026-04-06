@@ -248,6 +248,7 @@ class ASNERISSEO_Redirects {
       $from = isset($_POST['from']) ? sanitize_text_field(wp_unslash($_POST['from'])) : '';
       $to = isset($_POST['to']) ? sanitize_url(wp_unslash($_POST['to'])) : '';
       $code = isset($_POST['code']) ? (int) $_POST['code'] : 301;
+      $code = in_array($code, [301, 302, 307], true) ? $code : 301;
       
       // Strip domain from URLs to store only path + query
       $from = str_replace(home_url(), '', $from);

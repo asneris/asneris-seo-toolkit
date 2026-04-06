@@ -249,3 +249,8 @@ register_activation_hook( __FILE__, function() {
   flush_rewrite_rules();
 });
 
+// Deactivation hook - clean up rewrite rules
+register_deactivation_hook( __FILE__, function() {
+  flush_rewrite_rules();
+});
+

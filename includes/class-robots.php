@@ -102,6 +102,11 @@ class ASNERISSEO_Robots {
             WP_Filesystem();
         }
         $content = $wp_filesystem->get_contents( self::$robots_file );
+        if ( false === $content ) {
+            $results['status'] = 'error';
+            $results['errors'][] = 'Could not read robots.txt file contents.';
+            return $results;
+        }
         
         // Check 3: No sitewide crawl block
         $has_sitewide_block = preg_match('/User-agent:\s*\*\s+Disallow:\s*\/\s*$/im', $content);

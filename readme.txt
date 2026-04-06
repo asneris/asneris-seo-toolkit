@@ -7,13 +7,13 @@ Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI. Clear signals, diagnostics, no ranking promises.
+Asneris SEO Toolkit is a WordPress plugin for technical SEO settings, diagnostics, and indexing utilities.
 
 == Description ==
 
-Asneris SEO Toolkit is a systematic, clarity-first SEO plugin for WordPress. It validates what search engines can see on your site — it does not predict rankings or make promises about traffic.
+Asneris SEO Toolkit is a technical SEO plugin for WordPress. It helps site administrators configure and validate technical SEO signals that search engines can access.
 
-The plugin provides clear, understandable SEO configuration with an intuitive admin interface. All features are optional and configurable by the site administrator.
+The plugin does not predict rankings or guarantee indexing. All features are optional and configurable by the site administrator.
 
 **Key capabilities:**
 
@@ -35,7 +35,7 @@ The plugin provides clear, understandable SEO configuration with an intuitive ad
 
 **Philosophy:** SEO is not about gaming algorithms or chasing scores. It's about making your content clear, accessible, and understandable to search engines. This plugin helps you validate that clarity — nothing more, nothing less.
 
-== Installation ==
+== Development ==
 
 1. Upload the `asneris-seo-toolkit` folder to the `/wp-content/plugins/` directory, or install directly through the WordPress plugin screen.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
@@ -108,11 +108,13 @@ After enabling IndexNow, you may need to re-save permalinks so the key URL becom
 == External Services ==
 This plugin connects to the IndexNow API to notify participating search engines when URLs are added, updated, or removed.
 
-* **Service:** IndexNow (https://www.indexnow.org/)
-* **Data sent:** The URL of the content being published/updated/deleted and the IndexNow API Key (used for verification). No user data or personal information is transmitted.
-* **When data is sent:** Only when IndexNow is enabled and a supported content event (publish, update, or delete) occurs.
-* **Purpose:** To inform search engines about content changes for faster discovery.
+* **Service:** IndexNow
+* **Service URL:** https://www.indexnow.org/
+* **Data sent:** The URL of the content being published, updated, or deleted, and the IndexNow API key used for verification.
+* **When data is sent:** Only when IndexNow is enabled and a supported content event occurs.
+* **Purpose:** To notify participating search engines about content changes.
 * **Privacy policy:** https://www.indexnow.org/privacy
+* **Terms / documentation:** https://www.indexnow.org/
 
 == Notes ==
 This plugin does not control search rankings or guarantee indexing.

@@ -242,7 +242,7 @@ class ASNERISSEO_Schema {
         return self::generate_article_schema($id, $type, $post, $permalink, $org, $site_url, $description, $og_image);
       
       case 'Product':
-        return self::generate_product_schema($id, $post, $permalink, $og, $description, $og_image);
+        return self::generate_product_schema($id, $post, $permalink, $org, $description, $og_image);
       
       case 'Event':
         return self::generate_event_schema($id, $post, $permalink, $org, $description, $og_image);

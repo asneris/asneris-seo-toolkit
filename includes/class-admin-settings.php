@@ -4,16 +4,6 @@ if (!defined('ABSPATH')) exit;
 class ASNERISSEO_Admin_Settings {
   const OPT = 'ASNERISSEO_settings';
 
-  public static function register_menu() {
-    add_options_page(
-      'Asneris SEO Toolkit',
-      'Asneris SEO Toolkit',
-      'manage_options',
-      ASNERIS_MENU_SLUG . '-settings',
-      [__CLASS__, 'render']
-    );
-  }
-
   public static function register_settings() {
     // Use option name as group name - WordPress convention
     register_setting(self::OPT, self::OPT, ['sanitize_callback' => [__CLASS__, 'sanitize']]);
@@ -203,9 +193,7 @@ class ASNERISSEO_Admin_Settings {
 
         <?php endif; ?>
 
-        <?php if (true): ?>
-          <?php submit_button('Save Settings', 'primary large'); ?>
-        <?php endif; ?>
+        <?php submit_button('Save Settings', 'primary large'); ?>
       </form>
 
       <?php // ASNERISSEO_Help_Content::render_sidebar('settings'); ?>
