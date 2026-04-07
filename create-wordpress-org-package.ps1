@@ -22,8 +22,8 @@ Write-Host ""
 
 # Clean all previous build artifacts
 Write-Host "Cleaning previous build artifacts..." -ForegroundColor Yellow
-if (Test-Path "$sourceDir\asneris-seo-toolkit-0.1.1.zip") {
-    Remove-Item "$sourceDir\asneris-seo-toolkit-0.1.1.zip" -Force
+if (Test-Path "$sourceDir\asneris-seo-toolkit-0.1.2.zip") {
+    Remove-Item "$sourceDir\asneris-seo-toolkit-0.1.2.zip" -Force
 }
 
 # Clean previous temp directory
@@ -69,7 +69,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Move ZIP to source directory
-Move-Item "$tempDir\asneris-seo-toolkit-0.1.1.zip" "$sourceDir\asneris-seo-toolkit-0.1.1.zip" -Force
+Move-Item "$tempDir\asneris-seo-toolkit-0.1.2.zip" "$sourceDir\asneris-seo-toolkit-0.1.2.zip" -Force
 
 # Clean up temp directory
 Write-Host "Cleaning up..." -ForegroundColor Yellow
@@ -79,7 +79,7 @@ Write-Host ""
 Write-Host "=== SUCCESS! ===" -ForegroundColor Green
 Write-Host ""
 Write-Host "WordPress.org submission package created:" -ForegroundColor Cyan
-Write-Host "$sourceDir\asneris-seo-toolkit-0.1.1.zip" -ForegroundColor White
+Write-Host "$sourceDir\asneris-seo-toolkit-0.1.2.zip" -ForegroundColor White
 Write-Host ""
 Write-Host "Package Contents:" -ForegroundColor Yellow
 Write-Host "  - asneris-seo-toolkit.php (main plugin file)" -ForegroundColor Gray

@@ -1,0 +1,377 @@
+<?php
+/**
+ * Dashboard - High-level clarity overview
+ * 
+ * Purpose: Show summary of validation results
+ * - Counts only (no scoring)
+ * - No judgments
+ * - Links to relevant tabs
+ */
+
+if (!defined('ABSPATH')) exit;
+
+class ASNERISSEO_Dashboard {
+  
+  /**
+   * Enqueue admin styles
+   */
+  public static function enqueue_assets($hook) {
+    // WordPress uses sanitized menu TITLE (not slug) as parent identifier
+    // Dashboard uses the main menu slug directly
+    if ($hook !== 'toplevel_page_' . ASNERIS_MENU_SLUG) return;
+    wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+  }
+  
+  /**
+   * Get configuration status for all sections
+   */
+  private static function get_config_status() {
+    $settings = get_option('ASNERISSEO_settings', []);
+    
+    return [
+      'general' => [
+        'label' => 'General Settings',
+        'icon' => 'dashicons-admin-generic',
+        'completed' => !empty($settings['org_name']) && !empty($settings['org_logo']),
+        'items' => [
+          'Organization name configured' => !empty($settings['org_name']),
+          'Logo uploaded' => !empty($settings['org_logo']),
+        ]
+      ],
+      'verification' => [
+        'label' => 'Search Engine Verification',
+        'icon' => 'dashicons-yes-alt',
+        'completed' => !empty($settings['google_verification']) && !empty($settings['bing_verification']) && !empty($settings['yandex_verification']),
+        'items' => [
+          'Google Search Console' => !empty($settings['google_verification']),
+          'Bing Webmaster Tools' => !empty($settings['bing_verification']),
+          'Yandex Webmaster' => !empty($settings['yandex_verification']),
+        ]
+      ],
+      'indexnow' => [
+        'label' => 'IndexNow',
+        'icon' => 'dashicons-update',
+        'completed' => !empty($settings['indexnow_enabled']) && !empty($settings['indexnow_key']),
+        'items' => [
+          'IndexNow enabled' => !empty($settings['indexnow_enabled']),
+          'API key generated' => !empty($settings['indexnow_key']),
+        ]
+      ],
+      'social' => [
+        'label' => 'Social Media',
+        'icon' => 'dashicons-share',
+        'completed' => !empty($settings['default_og_image']) && !empty($settings['twitter_username']) && !empty($settings['facebook_app_id']),
+        'items' => [
+          'Default OG image set' => !empty($settings['default_og_image']),
+          'Twitter username' => !empty($settings['twitter_username']),
+          'Facebook App ID' => !empty($settings['facebook_app_id']),
+        ]
+      ],
+      'schema' => [
+        'label' => 'Schema Markup',
+        'icon' => 'dashicons-editor-code',
+        'completed' => !empty($settings['enable_breadcrumbs']) && !empty($settings['enable_local_business']),
+        'items' => [
+          'Breadcrumbs enabled' => !empty($settings['enable_breadcrumbs']),
+          'Local Business schema' => !empty($settings['enable_local_business']),
+        ]
+      ],
+      'templates' => [
+        'label' => 'SEO Templates',
+        'icon' => 'dashicons-text',
+        'completed' => !empty($settings['title_templates']) && !empty($settings['description_templates']),
+        'items' => [
+          'Title templates configured' => !empty($settings['title_templates']),
+          'Description templates configured' => !empty($settings['description_templates']),
+        ]
+      ],
+    ];
+  }
+  
+  /**
+   * Get validation summary counts
+   */
+  private static function get_validation_summary() {
+    // Get saved validation results from database
+    $saved = get_option('ASNERISSEO_validation_summary', null);
+    
+    if ($saved === null) {
+      // State 1: Never run
+      return [
+        'passed' => 0,
+        'warnings' => 0,
+        'conflicts' => 0,
+        'last_checked' => null
+      ];
+    }
+    
+    // Return saved results
+    return [
+      'passed' => isset($saved['passed']) ? $saved['passed'] : 0,
+      'warnings' => isset($saved['warnings']) ? $saved['warnings'] : 0,
+      'conflicts' => isset($saved['conflicts']) ? $saved['conflicts'] : 0,
+      'last_checked' => isset($saved['last_checked']) ? $saved['last_checked'] : 'Today'
+    ];
+  }
+  
+  /**
+   * Get diagnostic summary
+   */
+  private static function get_diagnostic_summary() {
+    // Check if sitemap exists (cached for 1 hour to avoid HTTP requests on every dashboard load)
+    $sitemap_exists = get_transient('ASNERISSEO_sitemap_exists');
+    if (false === $sitemap_exists) {
+      $sitemap_exists = 0;
+      $sitemap_urls = [home_url('/wp-sitemap.xml'), home_url('/sitemap.xml')];
+      foreach ($sitemap_urls as $url) {
+        $response = wp_remote_head($url, ['timeout' => 3]);
+        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+          $sitemap_exists = 1;
+          break;
+        }
+      }
+      set_transient('ASNERISSEO_sitemap_exists', $sitemap_exists, HOUR_IN_SECONDS);
+    }
+    $sitemap_exists = (bool) $sitemap_exists;
+    
+    // Check for SEO plugin conflicts
+    $known_plugins = [
+      'wordpress-seo/wp-seo.php' => 'Yoast SEO',
+      'seo-by-rank-math/rank-math.php' => 'Rank Math',
+      'all-in-one-seo-pack/all_in_one_seo_pack.php' => 'All in One SEO',
+    ];
+    $active_seo_plugins = [];
+    foreach ($known_plugins as $plugin_file => $plugin_name) {
+      if (is_plugin_active($plugin_file)) {
+        $active_seo_plugins[] = $plugin_name;
+      }
+    }
+    
+    return [
+      'sitemap_exists' => $sitemap_exists,
+      'robots_txt_exists' => file_exists(ABSPATH . 'robots.txt'),
+      'seo_plugin_conflicts' => count($active_seo_plugins),
+      'redirect_count' => self::get_redirect_count()
+    ];
+  }
+  
+  /**
+   * Get redirect count
+   */
+  private static function get_redirect_count() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ASNERISSEO_redirects';
+    
+    // Check if table exists using prepared statement with caching
+    $table_exists_cache_key = 'ASNERISSEO_redirect_table_exists';
+    $table_exists = wp_cache_get($table_exists_cache_key);
+    
+    if (false === $table_exists) {
+      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check with proper caching
+      $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name;
+      wp_cache_set($table_exists_cache_key, $table_exists, '', 3600); // Cache for 1 hour
+    }
+    
+    if (!$table_exists) {
+      return 0;
+    }
+    
+    // Get count with caching
+    $cache_key = 'ASNERISSEO_redirect_count';
+    $count = wp_cache_get($cache_key);
+    
+    if (false === $count) {
+      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Count query with proper caching
+      $count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}ASNERISSEO_redirects WHERE status = %s", 'active'));
+      wp_cache_set($cache_key, $count, '', 300); // Cache for 5 minutes
+    }
+    
+    return $count;
+  }
+  
+  /**
+   * Render dashboard page
+   */
+  public static function render_page() {
+    // Load help modals for this page
+    ASNERISSEO_Help_Modal::render_modals('dashboard');
+    
+    $validation_summary = self::get_validation_summary();
+    $diagnostic_summary = self::get_diagnostic_summary();
+    $config_status = self::get_config_status();
+    $total_sections = count($config_status);
+    $completed_sections = count(array_filter($config_status, function($s) { return $s['completed']; }));
+    $progress_percent = round(($completed_sections / $total_sections) * 100);
+    ?>
+    <div class="wrap ASNERISSEO-admin-wrap asnerisseo-dashboard-wrap">
+      <h1>
+        <span class="dashicons dashicons-dashboard"></span>
+        <?php esc_html_e('Dashboard', 'asneris-seo-toolkit'); ?>
+      </h1>
+      <p class="ASNERISSEO-subtitle">
+        <?php esc_html_e('Asneris SEO Toolkit checks what search engines can see on your site. It does not predict rankings.', 'asneris-seo-toolkit'); ?>
+      </p>
+      
+      <!-- Configuration Status -->
+      <div class="ASNERISSEO-card asnerisseo-hero-card">
+        <div class="asnerisseo-hero-content">
+          <h2 class="asnerisseo-hero-title">
+            <span class="dashicons dashicons-admin-settings asnerisseo-hero-icon"></span>
+            <?php esc_html_e('Configuration Status', 'asneris-seo-toolkit'); ?>
+          </h2>
+          
+          <div class="asnerisseo-progress-bar">
+            <div class="asnerisseo-progress-fill" style="width: <?php echo esc_attr($progress_percent); ?>%;"></div>
+          </div>
+          
+          <p class="asnerisseo-hero-text">
+            <strong><?php echo esc_html($completed_sections); ?> <?php esc_html_e('of', 'asneris-seo-toolkit'); ?> <?php echo esc_html($total_sections); ?></strong> <?php esc_html_e('sections configured', 'asneris-seo-toolkit'); ?> 
+            (<?php echo esc_html($progress_percent); ?>%)
+            <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings" class="asnerisseo-hero-link">→ <?php esc_html_e('Go to Settings', 'asneris-seo-toolkit'); ?></a>
+          </p>
+          
+          <div class="asnerisseo-checklist-grid">
+            <?php foreach ($config_status as $key => $section): ?>
+              <div class="asnerisseo-checklist-item">
+                <h3 class="asnerisseo-checklist-title">
+                  <span class="dashicons <?php echo esc_attr($section['icon']); ?>"></span>
+                  <?php echo esc_html($section['label']); ?>
+                  <?php if ($section['completed']): ?>
+                    <span class="dashicons dashicons-yes-alt asnerisseo-status-check"></span>
+                  <?php else: ?>
+                    <span class="dashicons dashicons-warning asnerisseo-status-warning"></span>
+                  <?php endif; ?>
+                </h3>
+                <ul class="asnerisseo-checklist-list">
+                  <?php foreach ($section['items'] as $item => $done): ?>
+                    <li class="<?php echo $done ? 'asnerisseo-checklist-done' : 'asnerisseo-checklist-pending'; ?>">
+                      <?php echo $done ? '✓' : '○'; ?> <?php echo esc_html($item); ?>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Diagnostics Tools -->
+      <div class="asnerisseo-features-grid">
+        
+        <!-- Site Diagnostics -->
+        <div class="ASNERISSEO-card asnerisseo-feature-card">
+          <h2 class="asnerisseo-feature-title">
+            <span class="dashicons dashicons-analytics asnerisseo-feature-icon"></span>
+            Site Diagnostics
+          </h2>
+          <p class="asnerisseo-feature-text">
+            Check site-wide SEO configuration including sitemaps, robots.txt, verification codes, and plugin conflicts.
+          </p>
+          <ul class="asnerisseo-feature-list">
+            <li>✓ Sitemap accessibility</li>
+            <li>✓ Robots.txt validation</li>
+            <li>✓ Search engine verification</li>
+            <li>✓ Plugin conflict detection</li>
+          </ul>
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-validation'); ?>" class="button button-primary button-large asnerisseo-full-width-button">
+            <span class="dashicons dashicons-yes-alt asnerisseo-button-icon"></span> 
+            Run Site Diagnostics
+          </a>
+        </div>
+        
+        <!-- Page Diagnostics -->
+        <div class="ASNERISSEO-card asnerisseo-feature-card">
+          <h2 class="asnerisseo-feature-title">
+            <span class="dashicons dashicons-search asnerisseo-feature-icon"></span>
+            Page Diagnostics
+          </h2>
+          <p class="asnerisseo-feature-text">
+            Inspect what search engines see on individual pages including title tags, meta descriptions, and structured data.
+          </p>
+          <ul class="asnerisseo-feature-list">
+            <li>✓ Title tags & meta descriptions</li>
+            <li>✓ Canonical URLs & robots directives</li>
+            <li>✓ Open Graph & Twitter cards</li>
+            <li>✓ Schema markup validation</li>
+          </ul>
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-diagnostics'); ?>" class="button button-primary button-large asnerisseo-full-width-button">
+            <span class="dashicons dashicons-visibility asnerisseo-button-icon"></span> 
+            Analyze a Page
+          </a>
+        </div>
+        
+      </div>
+      
+      <div class="asnerisseo-actions-grid">
+        
+        <!-- Quick Actions -->
+        <div class="ASNERISSEO-card asnerisseo-feature-card">
+          <h2><span class="dashicons dashicons-admin-tools"></span> Quick Actions</h2>
+          <p class="asnerisseo-action-subtitle">Common SEO tasks you can do right now</p>
+          
+          <div class="asnerisseo-actions-list">
+            <!-- Action 1 -->
+            <div class="asnerisseo-action-item">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-edit asnerisseo-action-icon"></span>
+                Bulk Edit Metadata
+              </h3>
+              <p class="asnerisseo-action-description">
+                Update titles and descriptions for multiple posts at once
+              </p>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-bulk-edit'); ?>" class="button">Edit Metadata</a>
+            </div>
+            
+            <!-- Action 3 -->
+            <div class="asnerisseo-action-item">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-location asnerisseo-action-icon"></span>
+                Google Business Profile
+              </h3>
+              <p class="asnerisseo-action-description">
+                Add your business details to appear in Google Maps and local search
+              </p>
+              <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="button">Setup Local Business</a>
+            </div>
+            
+            <!-- Action 4 -->
+            <div class="asnerisseo-action-item">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-randomize asnerisseo-action-icon"></span>
+                Manage Redirects
+              </h3>
+              <p class="asnerisseo-action-description">
+                Guide visitors to correct pages when URLs change
+              </p>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-redirects'); ?>" class="button">Manage Redirects</a>
+            </div>
+            
+            <!-- Action 5 -->
+            <div class="asnerisseo-action-item" style="border-bottom: none;">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-shield asnerisseo-action-icon"></span>
+                Edit Robots.txt
+              </h3>
+              <p class="asnerisseo-action-description">
+                Control which pages search engines can visit and read
+              </p>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-robots'); ?>" class="button">Edit Robots.txt</a>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Beta Notice -->
+      <div class="notice notice-info asnerisseo-notice-info">
+        <p>
+          <strong>🧪 Beta Software</strong> – 
+          This plugin is in active development. 
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-help'); ?>">Learn what this plugin does and doesn't do</a>
+        </p>
+      </div>
+      
+    </div>
+    <?php
+  }
+}

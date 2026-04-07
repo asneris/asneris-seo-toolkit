@@ -148,8 +148,7 @@ add_action('enqueue_block_editor_assets', function () {
 
   wp_localize_script('ASNERISSEO-editor', 'asnerisseoData', [
     'ajaxurl' => admin_url('admin-ajax.php'),
-    'indexnowNonce' => wp_create_nonce('ASNERISSEO_manual_indexnow'),
-    'siteName' => get_bloginfo('name')
+    'indexnowNonce' => wp_create_nonce('ASNERISSEO_manual_indexnow')
   ]);
 });
 
