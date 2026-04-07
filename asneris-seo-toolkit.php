@@ -56,6 +56,7 @@ add_action('init', function () {
   remove_action('wp_head', 'wp_robots', 1); // Remove WordPress 5.7+ robots meta tag
   
   ASNERISSEO_Meta::register_post_meta();
+  ASNERISSEO_Meta::init(); // Initialize custom columns
   // IndexNow rewrite is registered on activation hook only (performance optimization)
   ASNERISSEO_Redirects::init();
   ASNERISSEO_Robots::init();

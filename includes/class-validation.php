@@ -809,6 +809,15 @@ class ASNERISSEO_Validation {
     ];
     
     update_option('ASNERISSEO_validation_summary', $summary);
+    
+    // Cache the score for the validated URL's post if it's a single post/page
+    if (isset($data['url']) && isset($data['score']['percentage'])) {
+      $post_id = url_to_postid($data['url']);
+      if ($post_id > 0) {
+        update_post_meta($post_id, '_asneris_seo_score_cache', intval($data['score']['percentage']));
+        update_post_meta($post_id, '_asneris_seo_score_timestamp', time());
+      }
+    }
   }
   
   /**
