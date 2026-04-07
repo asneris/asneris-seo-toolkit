@@ -194,7 +194,7 @@ jQuery(document).ready(function($) {
     });
     
     $button.prop('disabled', true).text('Saving...');
-    $status.html('<span style="color: #666;">Processing...</span>');
+    $status.empty().append($('<span>').css('color', '#666').text('Processing...'));
     
     $.ajax({
       url: asnerisBulkEdit.ajaxUrl,
@@ -203,20 +203,20 @@ jQuery(document).ready(function($) {
       success: function(response) {
         if (response.success) {
           hasUnsavedChanges = false;
-          $status.html('<span style="color: #46b450;">Success: ' + response.data.message + '</span>');
+          $status.empty().append($('<span>').css('color', '#46b450').text('Success: ' + response.data.message));
           customAlert(response.data.message).then(function(confirmed) {
             if (confirmed) {
               location.reload();
             }
           });
         } else {
-          $status.html('<span style="color: #d63638;">Error: ' + response.data.message + '</span>');
+          $status.empty().append($('<span>').css('color', '#d63638').text('Error: ' + response.data.message));
           customAlert('Error: ' + response.data.message);
           $button.prop('disabled', false).text('Save All Changes');
         }
       },
       error: function() {
-        $status.html('<span style="color: #d63638;">Save failed. Please try again.</span>');
+        $status.empty().append($('<span>').css('color', '#d63638').text('Save failed. Please try again.'));
         customAlert('Save failed. Please try again.');
         $button.prop('disabled', false).text('Save All Changes');
       }

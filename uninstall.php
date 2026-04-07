@@ -16,7 +16,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 global $wpdb;
 
 // 1. Delete plugin options.
-$options_to_delete = array(
+$asnerisseo_options_to_delete = array(
 	'ASNERISSEO_settings',
 	'ASNERISSEO_redirects',
 	'ASNERISSEO_migration_version',
@@ -24,12 +24,12 @@ $options_to_delete = array(
 	'ASNERISSEO_validation_summary',
 );
 
-foreach ( $options_to_delete as $option ) {
-	delete_option( $option );
+foreach ( $asnerisseo_options_to_delete as $asnerisseo_option ) {
+	delete_option( $asnerisseo_option );
 }
 
 // 2. Delete all post meta created by this plugin.
-$meta_keys_to_delete = array(
+$asnerisseo_meta_keys_to_delete = array(
 	'_ASNERISSEO_title',
 	'_ASNERISSEO_description',
 	'_ASNERISSEO_canonical',
@@ -38,18 +38,19 @@ $meta_keys_to_delete = array(
 	'_ASNERISSEO_og_title',
 	'_ASNERISSEO_og_description',
 	'_ASNERISSEO_og_image',
+	'_ASNERISSEO_og_image_id',
 	'_ASNERISSEO_schema_enabled',
 	'_ASNERISSEO_schema_type',
 	'_ASNERISSEO_indexnow_last',
 );
 
-foreach ( $meta_keys_to_delete as $meta_key ) {
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cleanup during uninstall, no caching needed
-	$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => $meta_key ) );
+foreach ( $asnerisseo_meta_keys_to_delete as $asnerisseo_meta_key ) {
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Cleanup during uninstall, no caching needed
+	$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => $asnerisseo_meta_key ) );
 }
 
 // 3. Delete legacy post meta from older versions (gscseo_* prefix).
-$legacy_meta_keys = array(
+$asnerisseo_legacy_meta_keys = array(
 	'_gscseo_title',
 	'_gscseo_description',
 	'_gscseo_canonical',
@@ -62,20 +63,20 @@ $legacy_meta_keys = array(
 	'_gscseo_schema_type',
 );
 
-foreach ( $legacy_meta_keys as $meta_key ) {
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cleanup during uninstall, no caching needed
-	$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => $meta_key ) );
+foreach ( $asnerisseo_legacy_meta_keys as $asnerisseo_meta_key ) {
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Cleanup during uninstall, no caching needed
+	$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => $asnerisseo_meta_key ) );
 }
 
 // 4. Delete legacy options.
-$legacy_options = array(
+$asnerisseo_legacy_options = array(
 	'gscseo_settings',
 	'gscseo_redirects',
 	'gscseo_indexnow_submissions',
 );
 
-foreach ( $legacy_options as $option ) {
-	delete_option( $option );
+foreach ( $asnerisseo_legacy_options as $asnerisseo_option ) {
+	delete_option( $asnerisseo_option );
 }
 
 // 5. Flush rewrite rules to clean up IndexNow key file route.

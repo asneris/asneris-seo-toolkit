@@ -240,6 +240,7 @@ class ASNERISSEO_Bulk_Edit {
                   $desc_preview = ASNERISSEO_Templates::generate_description($current_post);
                   /* translators: %s is the auto-generated value from the template system */
                   $title_placeholder = $title_preview ? sprintf(__('Auto: %s', 'asneris-seo-toolkit'), $title_preview) : __('Leave blank for auto-generated title', 'asneris-seo-toolkit');
+                  /* translators: %s is the auto-generated value from the template system */
                   $desc_placeholder = $desc_preview ? sprintf(__('Auto: %s', 'asneris-seo-toolkit'), $desc_preview) : __('Leave blank for auto-generated description', 'asneris-seo-toolkit');
                 ?>
                   <tr>

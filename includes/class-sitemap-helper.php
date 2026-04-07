@@ -21,6 +21,7 @@ class ASNERISSEO_Sitemap_Helper {
     
     $sitemap_url = self::get_sitemap_url();
     
+    // sslverify disabled: self-request to check the site's own sitemap accessibility
     $response = wp_remote_get($sitemap_url, [
       'timeout' => 5,
       'sslverify' => false

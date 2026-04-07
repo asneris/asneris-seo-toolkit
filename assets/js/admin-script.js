@@ -51,8 +51,8 @@
                     targetInput.val(attachment.url);
                     
                     // Update preview
-                    previewContainer.html(
-                        '<img src="' + attachment.url + '" style="max-width: 400px; margin-top: 10px;">'
+                    previewContainer.empty().append(
+                        $('<img>').attr('src', attachment.url).css({maxWidth: '400px', marginTop: '10px'})
                     );
                     
                     // Trigger change event
@@ -287,8 +287,8 @@
                 const previewContainer = input.siblings('.ASNERISSEO-image-preview');
                 
                 if (url && ASNERISSEO_Admin.isValidUrl(url)) {
-                    previewContainer.html(
-                        '<img src="' + url + '" style="max-width: 400px; margin-top: 10px;">'
+                    previewContainer.empty().append(
+                        $('<img>').attr('src', url).css({maxWidth: '400px', marginTop: '10px'})
                     );
                 } else if (!url) {
                     previewContainer.empty();
@@ -301,7 +301,7 @@
          */
         showNotice: function(message, type) {
             const noticeClass = type === 'error' ? 'notice-error' : 'notice-success';
-            const notice = $('<div class="notice ' + noticeClass + ' is-dismissible"><p>' + message + '</p></div>');
+            const notice = $('<div>').addClass('notice ' + noticeClass + ' is-dismissible').append($('<p>').text(message));
             
             $('.ASNERISSEO-admin-wrap').prepend(notice);
             

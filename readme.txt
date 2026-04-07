@@ -1,5 +1,5 @@
 === Asneris SEO Toolkit ===
-Contributors: clarityfirstseo, asneris
+Contributors: asneris, asiva
 Tags: seo, technical seo, indexnow, search console
 Requires at least: 5.8
 Tested up to: 6.9
@@ -14,6 +14,8 @@ Asneris SEO Toolkit is a WordPress plugin for technical SEO settings, diagnostic
 Asneris SEO Toolkit is a technical SEO plugin for WordPress. It helps site administrators configure and validate technical SEO signals that search engines can access.
 
 The plugin does not predict rankings or guarantee indexing. All features are optional and configurable by the site administrator.
+
+This plugin focuses on technical SEO configuration and validation using standard WordPress APIs.
 
 **Key capabilities:**
 

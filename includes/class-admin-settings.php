@@ -32,7 +32,7 @@ class ASNERISSEO_Admin_Settings {
       "    var tbody = \$('#ASNERISSEO_http_results_body');\n" .
       "    if (!url) { alert('Please enter a URL to test'); return; }\n" .
       "    \$(button).prop('disabled', true).text('Testing...');\n" .
-      "    tbody.html('<tr><td colspan=\"3\">Running validation...</td></tr>');\n" .
+      "    tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').text('Running validation...')));\n" .
       "    results.show();\n" .
       "    \$.ajax({\n" .
       "      url: ajaxurl,\n" .
@@ -40,23 +40,22 @@ class ASNERISSEO_Admin_Settings {
       "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . $nonce . "' },\n" .
       "      success: function(response){\n" .
       "        if (response.success) {\n" .
-      "          var html = '';\n" .
+      "          tbody.empty();\n" .
       "          response.data.checks.forEach(function(check){\n" .
       "            var statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');\n" .
       "            var statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');\n" .
-      "            html += '<tr>';\n" .
-      "            html += '<td><strong>' + check.label + '</strong></td>';\n" .
-      "            html += '<td><span style=\"color: ' + statusColor + ';\">' + statusIcon + ' ' + check.result + '</span></td>';\n" .
-      "            html += '<td>' + check.details + '</td>';\n" .
-      "            html += '</tr>';\n" .
+      "            var \$tr = \$('<tr>');\n" .
+      "            \$tr.append(\$('<td>').append(\$('<strong>').text(check.label)));\n" .
+      "            \$tr.append(\$('<td>').append(\$('<span>').css('color', statusColor).text(statusIcon + ' ' + check.result)));\n" .
+      "            \$tr.append(\$('<td>').text(check.details));\n" .
+      "            tbody.append(\$tr);\n" .
       "          });\n" .
-      "          tbody.html(html);\n" .
       "        } else {\n" .
-      "          tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Error: ' + response.data + '</td></tr>');\n" .
+      "          tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').css('color','#dc3232').text('Error: ' + response.data)));\n" .
       "        }\n" .
       "      },\n" .
       "      error: function(){\n" .
-      "        tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Request failed. Please try again.</td></tr>');\n" .
+      "        tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').css('color','#dc3232').text('Request failed. Please try again.')));\n" .
       "      },\n" .
       "      complete: function(){\n" .
       "        \$(button).prop('disabled', false).text('Run Indexing Validation');\n" .
@@ -72,12 +71,26 @@ class ASNERISSEO_Admin_Settings {
     ]);
   }
 
+  private static $cache = null;
+
   public static function get($key, $default = '') {
-    $opt = get_option(self::OPT, []);
-    return $opt[$key] ?? $default;
+    if (self::$cache === null) {
+      self::$cache = get_option(self::OPT, []);
+    }
+    return self::$cache[$key] ?? $default;
+  }
+
+  /**
+   * Clear the static settings cache. Called after settings are saved.
+   */
+  public static function clear_cache() {
+    self::$cache = null;
   }
 
   public static function sanitize($opt) {
+    // Clear static cache so subsequent get() calls reflect new values
+    self::clear_cache();
+
     // Get existing options to preserve data from other tabs
     $existing = get_option(self::OPT, []);
     

@@ -84,7 +84,7 @@ class ASNERISSEO_Validation {
       "    var tbody = \$('#ASNERISSEO_http_results_body');\n" .
       "    if (!url) { alert('Please enter a URL to test'); return; }\n" .
       "    \$(button).prop('disabled', true).text('Testing...');\n" .
-      "    tbody.html('<tr><td colspan=\"3\">Running validation...</td></tr>');\n" .
+      "    tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').text('Running validation...')));\n" .
       "    results.show();\n" .
       "    \$.ajax({\n" .
       "      url: ajaxurl,\n" .
@@ -92,23 +92,22 @@ class ASNERISSEO_Validation {
       "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . $nonce . "' },\n" .
       "      success: function(response){\n" .
       "        if (response.success) {\n" .
-      "          var html = '';\n" .
+      "          tbody.empty();\n" .
       "          response.data.checks.forEach(function(check){\n" .
       "            var statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');\n" .
       "            var statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');\n" .
-      "            html += '<tr>';\n" .
-      "            html += '<td><strong>' + check.label + '</strong></td>';\n" .
-      "            html += '<td><span style=\"color: ' + statusColor + ';\">' + statusIcon + ' ' + check.result + '</span></td>';\n" .
-      "            html += '<td>' + check.details + '</td>';\n" .
-      "            html += '</tr>';\n" .
+      "            var \$tr = \$('<tr>');\n" .
+      "            \$tr.append(\$('<td>').append(\$('<strong>').text(check.label)));\n" .
+      "            \$tr.append(\$('<td>').append(\$('<span>').css('color', statusColor).text(statusIcon + ' ' + check.result)));\n" .
+      "            \$tr.append(\$('<td>').text(check.details));\n" .
+      "            tbody.append(\$tr);\n" .
       "          });\n" .
-      "          tbody.html(html);\n" .
       "        } else {\n" .
-      "          tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Error: ' + response.data + '</td></tr>');\n" .
+      "          tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').css('color','#dc3232').text('Error: ' + response.data)));\n" .
       "        }\n" .
       "      },\n" .
       "      error: function(){\n" .
-      "        tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Request failed. Please try again.</td></tr>');\n" .
+      "        tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').css('color','#dc3232').text('Request failed. Please try again.')));\n" .
       "      },\n" .
       "      complete: function(){\n" .
       "        \$(button).prop('disabled', false).text('Run Indexing Validation');\n" .
@@ -127,18 +126,18 @@ class ASNERISSEO_Validation {
   public static function analyze_url($url) {
     // Allow WordPress to make requests to itself
     add_filter('http_request_host_is_external', '__return_true');
-    add_filter('http_request_reject_unsafe_urls', '__return_false');
     
     $response = wp_remote_get($url, [
       'timeout' => 15,
+      // sslverify disabled: self-request to validate the site's own pages
       'sslverify' => false,
+      'reject_unsafe_urls' => false,
       'redirection' => 5,
       'blocking' => true,
       'httpversion' => '1.1',
     ]);
     
     remove_filter('http_request_host_is_external', '__return_true');
-    remove_filter('http_request_reject_unsafe_urls', '__return_false');
     
     if (is_wp_error($response)) {
       return [
@@ -530,7 +529,7 @@ class ASNERISSEO_Validation {
     
     // Handle form submission
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
-    $run_test = isset($_POST['run_validation']) && check_admin_referer('ASNERISSEO_validation', '_wpnonce', false);
+    $run_test = isset($_POST['run_validation']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'ASNERISSEO_validation');
     
     $data['test_url'] = $test_url;
     
@@ -570,6 +569,7 @@ class ASNERISSEO_Validation {
         $data['indexnow'] = self::get_indexnow_status();
         
         // Analyze content
+        // sslverify disabled: self-request to analyze the site's own content
         $response = wp_remote_get($test_url, ['timeout' => 10, 'sslverify' => false]);
         if (!is_wp_error($response)) {
           $html = wp_remote_retrieve_body($response);
@@ -700,6 +700,7 @@ class ASNERISSEO_Validation {
     
     // Check which sitemap exists
     foreach ($sitemap_urls as $url) {
+      // sslverify disabled: checking the site's own sitemap URLs
       $response = wp_remote_head($url, ['timeout' => 5, 'sslverify' => false]);
       if (!is_wp_error($response)) {
         $status = wp_remote_retrieve_response_code($response);
@@ -716,6 +717,7 @@ class ASNERISSEO_Validation {
     // Check robots.txt
     if ($result['found']) {
       $robots_url = $site_url . '/robots.txt';
+      // sslverify disabled: self-request to read the site's own robots.txt
       $robots_response = wp_remote_get($robots_url, ['timeout' => 5, 'sslverify' => false]);
       if (!is_wp_error($robots_response)) {
         $robots_content = wp_remote_retrieve_body($robots_response);
@@ -800,7 +802,7 @@ class ASNERISSEO_Validation {
     
     $summary = [
       'last_checked' => 'Today',
-      'timestamp' => current_time('timestamp'),
+      'timestamp' => time(),
       'warnings' => $warnings,
       'conflicts' => $conflicts,
       'passed' => isset($data['score']) ? $data['score']['passed'] : 0,
@@ -832,7 +834,7 @@ class ASNERISSEO_Validation {
     
     $summary = [
       'last_checked' => 'Today',
-      'timestamp' => current_time('timestamp'),
+      'timestamp' => time(),
       'warnings' => $warnings,
       'conflicts' => $conflicts,
       'passed' => 0, // Site diagnostics doesn't have a "passed" count
@@ -854,7 +856,6 @@ class ASNERISSEO_Validation {
   public static function render_page() {
     // Prepare all validation data
     $data = self::prepare_validation_data();
-    extract($data);
     
     // Save diagnostics results when page loads
     // This happens automatically for Site Diagnostics (no form submission needed)

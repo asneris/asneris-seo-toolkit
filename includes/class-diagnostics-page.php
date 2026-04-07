@@ -202,7 +202,7 @@ class ASNERISSEO_Diagnostics_Page {
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $results = null;
     
-    if (!empty($test_url) && isset($_POST['run_diagnostics']) && check_admin_referer('ASNERISSEO_diagnostics', '_wpnonce', false)) {
+    if (!empty($test_url) && isset($_POST['run_diagnostics']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'ASNERISSEO_diagnostics')) {
       $results = self::analyze_url($test_url);
     }
     ?>

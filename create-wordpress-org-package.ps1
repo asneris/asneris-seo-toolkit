@@ -41,6 +41,7 @@ Write-Host "Copying plugin files..." -ForegroundColor Yellow
 # Main files
 Copy-Item "$sourceDir\asneris-seo-toolkit.php" $pluginDir
 Copy-Item "$sourceDir\readme.txt" $pluginDir
+Copy-Item "$sourceDir\uninstall.php" $pluginDir
 Copy-Item "$sourceDir\help-content.json" $pluginDir
 
 # Directories

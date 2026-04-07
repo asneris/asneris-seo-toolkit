@@ -50,7 +50,13 @@ class ASNERISSEO_Help_Modal {
       return [];
     }
     
-    $json_content = file_get_contents($json_file);
+    global $wp_filesystem;
+    if (empty($wp_filesystem)) {
+      require_once ABSPATH . 'wp-admin/includes/file.php';
+      WP_Filesystem();
+    }
+    
+    $json_content = $wp_filesystem->get_contents($json_file);
     $data = json_decode($json_content, true);
     
     if (!$data) {
