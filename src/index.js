@@ -4,7 +4,6 @@ import { PanelBody, TextControl, TextareaControl, ToggleControl, SelectControl, 
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-import { store as editPostStore } from '@wordpress/edit-post';
 
 // Template resolver helper
 const getTemplateValues = (postTitle, siteName, metaValue, separator = '|') => {
@@ -130,11 +129,12 @@ const MetaField = ({ label, metaKey, help, type = 'text', placeholder = '' }) =>
           marginTop: '-12px', 
           marginBottom: '12px',
           padding: '8px 10px',
-          background: '#f6f7f7',
+          background: '#fff3cd',
+          border: '1px solid #ffc107',
           borderRadius: '4px',
           fontStyle: 'italic'
         }}>
-          <strong>Auto:</strong> {templatePreview}
+          <strong style={{ color: '#d63638', fontWeight: '600' }}>Auto:</strong> {templatePreview}
         </div>
       )}
     </>
@@ -330,18 +330,21 @@ registerPlugin('asneris-seo-sidebar', {
       select('core/editor').getEditedPostAttribute('meta')._ASNERISSEO_schema_enabled
     );
     const { editPost } = useDispatch('core/editor');
-    const { openGeneralSidebar } = useDispatch(editPostStore);
+    const { openGeneralSidebar } = useDispatch('core/edit-post');
     
     // Auto-open sidebar if URL parameter is present
     useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('asneris-seo-open') === '1') {
-        // Wait a bit for editor to fully load
-        setTimeout(() => {
-          openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
-        }, 500);
+        // Multiple attempts to ensure sidebar opens
+        const attempts = [500, 1000, 1500, 2000];
+        attempts.forEach(delay => {
+          setTimeout(() => {
+            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
+          }, delay);
+        });
       }
-    }, []);
+    }, [openGeneralSidebar]);
     
     return (
       <>

@@ -201,9 +201,22 @@ class ASNERISSEO_Diagnostics_Page {
     
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $results = null;
+    $post_id = null;
+    $custom_title = '';
+    $custom_description = '';
+    $custom_robots = '';
     
     if (!empty($test_url) && isset($_POST['run_diagnostics']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'ASNERISSEO_diagnostics')) {
       $results = self::analyze_url($test_url);
+      // Try to get post ID from URL
+      $post_id = url_to_postid($test_url);
+      
+      // Get custom meta values if post exists
+      if ($post_id) {
+        $custom_title = get_post_meta($post_id, '_ASNERISSEO_title', true);
+        $custom_description = get_post_meta($post_id, '_ASNERISSEO_description', true);
+        $custom_robots = get_post_meta($post_id, '_ASNERISSEO_robots_index', true);
+      }
     }
     ?>
     <div class="wrap ASNERISSEO-admin-wrap">
@@ -535,7 +548,11 @@ class ASNERISSEO_Diagnostics_Page {
                         echo '<div style="background: #fef8f8; border-left: 3px solid #d63638; padding: 10px; margin: 5px 0;">';
                         echo '<strong style="color: #d63638;">⚠ Page is set to "noindex" - Search engines will NOT index this page</strong><br>';
                         echo '<span style="color: #646970; font-size: 13px; margin-top: 5px; display: block;">To allow indexing: </span>';
-                        echo '<a href="' . esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')) . '" class="button button-small" style="margin-top: 5px;">Go to Bulk Edit</a>';
+                        if ($post_id) {
+                          echo '<a href="' . esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))) . '" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>';
+                        } else {
+                          echo '<a href="' . esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')) . '" class="button button-small" style="margin-top: 5px;">Go to Bulk Edit</a>';
+                        }
                         echo '</div>';
                         break;
                       }
@@ -623,7 +640,11 @@ class ASNERISSEO_Diagnostics_Page {
                     <?php endif; ?>
                   </span>
                   <?php if ($title_length < 30 || $title_length > 60): ?>
-                    <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Title in Bulk Edit</a>
+                    <?php if ($post_id): ?>
+                      <br><a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                    <?php else: ?>
+                      <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Title in Bulk Edit</a>
+                    <?php endif; ?>
                   <?php endif; ?>
                 <?php elseif ($title_count > 1): ?>
                   <strong style="color: #d63638;">Multiple title tags detected: <?php echo esc_html($title_count); ?></strong> (should be only 1)<br>
@@ -633,7 +654,17 @@ class ASNERISSEO_Diagnostics_Page {
                   <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-validation')); ?>" class="button button-small" style="margin-top: 5px;">Check Site Diagnostics</a>
                 <?php else: ?>
                   <strong style="color: #d63638;">No title tag found</strong><br>
-                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Title in Bulk Edit</a>
+                  <?php if ($post_id && empty($custom_title)): ?>
+                    <div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 8px; margin: 8px 0; font-size: 12px;">
+                      <strong style="color: #856404;">ℹ Note:</strong> This page uses automatic template title (Page Title | Site Name).<br>
+                      You can set a custom SEO title in the editor.
+                    </div>
+                  <?php endif; ?>
+                  <?php if ($post_id): ?>
+                    <a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                  <?php else: ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Title in Bulk Edit</a>
+                  <?php endif; ?>
                 <?php endif; ?>
               </td>
             </tr>
@@ -676,7 +707,11 @@ class ASNERISSEO_Diagnostics_Page {
                     <?php endif; ?>
                   </span>
                   <?php if ($desc_length < 120 || $desc_length > 160): ?>
-                    <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Description in Bulk Edit</a>
+                    <?php if ($post_id): ?>
+                      <br><a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                    <?php else: ?>
+                      <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Description in Bulk Edit</a>
+                    <?php endif; ?>
                   <?php endif; ?>
                 <?php elseif ($desc_count > 1): ?>
                   <strong style="color: #d63638;">Multiple meta descriptions detected: <?php echo esc_html($desc_count); ?></strong> (should be only 1)<br>
@@ -685,8 +720,20 @@ class ASNERISSEO_Diagnostics_Page {
                   <?php endforeach; ?>
                   <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-validation')); ?>" class="button button-small" style="margin-top: 5px;">Check Site Diagnostics</a>
                 <?php else: ?>
-                  <strong style="color: #f0ad4e;">No meta description found</strong> - Search engines will generate one<br>
-                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Description in Bulk Edit</a>
+                  <strong style="color: #f0ad4e;">No meta description found</strong><br>
+                  <?php if ($post_id && empty($custom_description)): ?>
+                    <div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 8px; margin: 8px 0; font-size: 12px;">
+                      <strong style="color: #856404;">ℹ Note:</strong> This page uses automatic template description (post excerpt).<br>
+                      You can set a custom meta description in the editor.
+                    </div>
+                  <?php elseif (!$post_id): ?>
+                    <span style="font-size: 12px;">Search engines will generate one</span><br>
+                  <?php endif; ?>
+                  <?php if ($post_id): ?>
+                    <a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                  <?php else: ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Description in Bulk Edit</a>
+                  <?php endif; ?>
                 <?php endif; ?>
               </td>
             </tr>
