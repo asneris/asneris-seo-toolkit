@@ -60,7 +60,7 @@ $wslTempDir = $tempDir -replace '\\', '/' -replace 'D:', '/mnt/d'
 Write-Host "Creating Unix-compatible ZIP using WSL..." -ForegroundColor Yellow
 
 # Create ZIP using WSL
-$wslCommand = "cd '$wslTempDir' && zip -r asneris-seo-toolkit-0.1.1.zip asneris-seo-toolkit/"
+$wslCommand = "cd '$wslTempDir' && zip -r asneris-seo-toolkit-0.1.2.zip asneris-seo-toolkit/"
 wsl bash -c $wslCommand
 
 if ($LASTEXITCODE -ne 0) {

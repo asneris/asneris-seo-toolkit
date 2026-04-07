@@ -25,30 +25,27 @@ define('ASNERISSEO_URL', plugin_dir_url(__FILE__));
 define('ASNERISSEO_BASENAME', plugin_basename(__FILE__));
 define('ASNERIS_MENU_SLUG', 'asneris-seo');
 
-// Front-end classes (loaded on all requests)
+// Load all plugin classes
 require_once ASNERISSEO_DIR . 'includes/class-meta.php';
 require_once ASNERISSEO_DIR . 'includes/class-render.php';
 require_once ASNERISSEO_DIR . 'includes/class-schema.php';
 require_once ASNERISSEO_DIR . 'includes/class-redirects.php';
+require_once ASNERISSEO_DIR . 'includes/class-indexnow.php';
+require_once ASNERISSEO_DIR . 'includes/class-robots.php';
+require_once ASNERISSEO_DIR . 'includes/class-help-modal.php';
+require_once ASNERISSEO_DIR . 'includes/class-migration.php';
+require_once ASNERISSEO_DIR . 'includes/class-admin-settings.php';
+require_once ASNERISSEO_DIR . 'includes/class-dashboard.php';
+require_once ASNERISSEO_DIR . 'includes/class-diagnostics-page.php';
+require_once ASNERISSEO_DIR . 'includes/class-conflict-detector.php';
+require_once ASNERISSEO_DIR . 'includes/class-sitemap-helper.php';
+require_once ASNERISSEO_DIR . 'includes/class-templates.php';
+require_once ASNERISSEO_DIR . 'includes/class-bulk-edit.php';
+require_once ASNERISSEO_DIR . 'includes/class-validation.php';
+require_once ASNERISSEO_DIR . 'includes/class-diagnostics.php';
+require_once ASNERISSEO_DIR . 'includes/class-help.php';
+require_once ASNERISSEO_DIR . 'includes/class-help-content.php';
 
-// Admin-only classes (loaded only in wp-admin)
-if (is_admin()) {
-  require_once ASNERISSEO_DIR . 'includes/class-admin-settings.php';
-  require_once ASNERISSEO_DIR . 'includes/class-dashboard.php';
-  require_once ASNERISSEO_DIR . 'includes/class-diagnostics-page.php';
-  require_once ASNERISSEO_DIR . 'includes/class-indexnow.php';
-  require_once ASNERISSEO_DIR . 'includes/class-conflict-detector.php';
-  require_once ASNERISSEO_DIR . 'includes/class-sitemap-helper.php';
-  require_once ASNERISSEO_DIR . 'includes/class-templates.php';
-  require_once ASNERISSEO_DIR . 'includes/class-bulk-edit.php';
-  require_once ASNERISSEO_DIR . 'includes/class-validation.php';
-  require_once ASNERISSEO_DIR . 'includes/class-diagnostics.php';
-  require_once ASNERISSEO_DIR . 'includes/class-robots.php';
-  require_once ASNERISSEO_DIR . 'includes/class-help.php';
-  require_once ASNERISSEO_DIR . 'includes/class-help-modal.php';
-  require_once ASNERISSEO_DIR . 'includes/class-migration.php';
-  require_once ASNERISSEO_DIR . 'includes/class-help-content.php';
-}
 
 
 add_action('init', function () {
@@ -153,6 +150,15 @@ add_action('enqueue_block_editor_assets', function () {
     'indexnowNonce' => wp_create_nonce('ASNERISSEO_manual_indexnow'),
     'siteName' => get_bloginfo('name')
   ]);
+  
+  // Check if auto-open parameter is present and inject sessionStorage flag
+  if (isset($_GET['asneris-seo-open']) && $_GET['asneris-seo-open'] === '1') {
+    wp_add_inline_script(
+      'ASNERISSEO-editor',
+      'sessionStorage.setItem("asneris-seo-open", "1");',
+      'before'
+    );
+  }
 });
 
 add_action('wp_head', function () {

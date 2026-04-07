@@ -5,6 +5,9 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 
+// Debug: Verify file is loading
+console.log('🔍 Asneris SEO: index.js file loaded');
+
 // Template resolver helper
 const getTemplateValues = (postTitle, siteName, metaValue, separator = '|') => {
   if (metaValue) return null; // Manual override exists
@@ -331,19 +334,36 @@ registerPlugin('asneris-seo-sidebar', {
     );
     const { editPost } = useDispatch('core/editor');
     const { openGeneralSidebar } = useDispatch('core/edit-post');
+    const { createNotice, removeNotice } = useDispatch('core/notices');
     
-    // Auto-open sidebar if URL parameter is present
+    // Auto-open sidebar when accessed via ?asneris-seo-open=1
     useEffect(() => {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('asneris-seo-open') === '1') {
-        // Multiple attempts to ensure sidebar opens
-        const attempts = [500, 1000, 1500, 2000];
-        attempts.forEach(delay => {
-          setTimeout(() => {
-            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
-          }, delay);
-        });
+      const shouldOpen = sessionStorage.getItem('asneris-seo-open');
+      console.log('Asneris SEO: Checking auto-open flag', { shouldOpen });
+      
+      if (shouldOpen !== '1') {
+        return;
       }
+      
+      // Clear the flag so it only opens once
+      sessionStorage.removeItem('asneris-seo-open');
+      console.log('Asneris SEO: Auto-open flag detected, attempting to open sidebar');
+      
+      // Try opening sidebar with progressive retries (no notice, just auto-open)
+      const delays = [0, 100, 500, 1000, 2000];
+      const timeouts = delays.map(delay => 
+        setTimeout(() => {
+          try {
+            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
+            console.log(`Asneris SEO: Sidebar open attempt at ${delay}ms`);
+          } catch (e) {
+            console.error(`Asneris SEO: Failed at ${delay}ms`, e);
+          }
+        }, delay)
+      );
+      
+      // Cleanup timeouts
+      return () => timeouts.forEach(id => clearTimeout(id));
     }, [openGeneralSidebar]);
     
     return (
@@ -504,3 +524,6 @@ registerPlugin('asneris-seo-sidebar', {
     );
   }
 });
+
+// Debug: Verify registerPlugin was called
+console.log('✅ Asneris SEO: Plugin registered successfully');
