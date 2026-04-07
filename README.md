@@ -98,6 +98,42 @@ asneris-seo-toolkit/
 
 ---
 
+## Changelog
+
+### 0.1.2 (April 8, 2026)
+- **New:** Added custom SEO columns to Pages admin list
+  - SEO Title column (250px width, 2-line display with ellipsis)
+  - SEO Description column (300px width, 2-line display with ellipsis)
+  - Hover tooltips showing full content
+- **Performance:** Added SEO score caching infrastructure to post meta
+- **Enhancement:** Auto-open Gutenberg sidebar from Bulk Edit and Diagnostics links using sessionStorage
+- **Fix:** Removed is_admin() conditional to prevent fatal class loading errors on REST API and AJAX requests
+- **Fix:** Resolved React Strict Mode cleanup timing issues in auto-open feature
+
+### 0.1.1
+- **Security:** Improved nonce handling and input sanitization
+- **Cleanup:** Added uninstall cleanup for plugin data
+- **Fix:** Fixed text domain consistency in JavaScript
+- **Enhancement:** Added activation hook for rewrite rule flushing
+- **Enhancement:** Robots.txt editor now uses WP_Filesystem API
+- **Cleanup:** Removed unused files
+- **Documentation:** Improved readme.txt with required WordPress.org sections
+
+### 0.1.0
+- Initial release
+- SEO titles, meta descriptions, and canonical URLs
+- Open Graph and Twitter Card support
+- JSON-LD schema output
+- IndexNow integration
+- Site and Page Diagnostics
+- Robots.txt editor and validator
+- Bulk Edit for SEO fields
+- Redirect management
+- Template system for titles and descriptions
+- Conflict detection for duplicate SEO plugins
+
+---
+
 ## Support / issues
 
 - GitHub Issues: use for bugs and feature requests
