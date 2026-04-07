@@ -4,16 +4,6 @@ if (!defined('ABSPATH')) exit;
 class ASNERISSEO_Admin_Settings {
   const OPT = 'ASNERISSEO_settings';
 
-  public static function register_menu() {
-    add_options_page(
-      'Asneris SEO Toolkit',
-      'Asneris SEO Toolkit',
-      'manage_options',
-      ASNERIS_MENU_SLUG . '-settings',
-      [__CLASS__, 'render']
-    );
-  }
-
   public static function register_settings() {
     // Use option name as group name - WordPress convention
     register_setting(self::OPT, self::OPT, ['sanitize_callback' => [__CLASS__, 'sanitize']]);
@@ -42,7 +32,7 @@ class ASNERISSEO_Admin_Settings {
       "    var tbody = \$('#ASNERISSEO_http_results_body');\n" .
       "    if (!url) { alert('Please enter a URL to test'); return; }\n" .
       "    \$(button).prop('disabled', true).text('Testing...');\n" .
-      "    tbody.html('<tr><td colspan=\"3\">Running validation...</td></tr>');\n" .
+      "    tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').text('Running validation...')));\n" .
       "    results.show();\n" .
       "    \$.ajax({\n" .
       "      url: ajaxurl,\n" .
@@ -50,23 +40,22 @@ class ASNERISSEO_Admin_Settings {
       "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . $nonce . "' },\n" .
       "      success: function(response){\n" .
       "        if (response.success) {\n" .
-      "          var html = '';\n" .
+      "          tbody.empty();\n" .
       "          response.data.checks.forEach(function(check){\n" .
       "            var statusColor = check.status === 'pass' ? '#46b450' : (check.status === 'warning' ? '#f0ad4e' : '#dc3232');\n" .
       "            var statusIcon = check.status === 'pass' ? '✓' : (check.status === 'warning' ? '⚠' : '✗');\n" .
-      "            html += '<tr>';\n" .
-      "            html += '<td><strong>' + check.label + '</strong></td>';\n" .
-      "            html += '<td><span style=\"color: ' + statusColor + ';\">' + statusIcon + ' ' + check.result + '</span></td>';\n" .
-      "            html += '<td>' + check.details + '</td>';\n" .
-      "            html += '</tr>';\n" .
+      "            var \$tr = \$('<tr>');\n" .
+      "            \$tr.append(\$('<td>').append(\$('<strong>').text(check.label)));\n" .
+      "            \$tr.append(\$('<td>').append(\$('<span>').css('color', statusColor).text(statusIcon + ' ' + check.result)));\n" .
+      "            \$tr.append(\$('<td>').text(check.details));\n" .
+      "            tbody.append(\$tr);\n" .
       "          });\n" .
-      "          tbody.html(html);\n" .
       "        } else {\n" .
-      "          tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Error: ' + response.data + '</td></tr>');\n" .
+      "          tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').css('color','#dc3232').text('Error: ' + response.data)));\n" .
       "        }\n" .
       "      },\n" .
       "      error: function(){\n" .
-      "        tbody.html('<tr><td colspan=\"3\" style=\"color: #dc3232;\">Request failed. Please try again.</td></tr>');\n" .
+      "        tbody.empty().append(\$('<tr>').append(\$('<td>').attr('colspan','3').css('color','#dc3232').text('Request failed. Please try again.')));\n" .
       "      },\n" .
       "      complete: function(){\n" .
       "        \$(button).prop('disabled', false).text('Run Indexing Validation');\n" .
@@ -76,18 +65,32 @@ class ASNERISSEO_Admin_Settings {
       "});";
     wp_add_inline_script('ASNERISSEO-admin', $inline_js);
     
-    wp_localize_script('ASNERISSEO-admin', 'gscseoAdmin', [
+    wp_localize_script('ASNERISSEO-admin', 'asnerisseoAdmin', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_admin_nonce'),
     ]);
   }
 
+  private static $cache = null;
+
   public static function get($key, $default = '') {
-    $opt = get_option(self::OPT, []);
-    return $opt[$key] ?? $default;
+    if (self::$cache === null) {
+      self::$cache = get_option(self::OPT, []);
+    }
+    return self::$cache[$key] ?? $default;
+  }
+
+  /**
+   * Clear the static settings cache. Called after settings are saved.
+   */
+  public static function clear_cache() {
+    self::$cache = null;
   }
 
   public static function sanitize($opt) {
+    // Clear static cache so subsequent get() calls reflect new values
+    self::clear_cache();
+
     // Get existing options to preserve data from other tabs
     $existing = get_option(self::OPT, []);
     
@@ -128,13 +131,11 @@ class ASNERISSEO_Admin_Settings {
   }
 
   public static function render_page() {
-    // Verify nonce for tab parameter
-    $current_tab = 'general';
-    if (isset($_GET['tab']) && wp_verify_nonce(wp_create_nonce('admin_tab_nonce'), 'admin_tab_nonce')) {
-      $current_tab = sanitize_text_field(wp_unslash($_GET['tab']));
-    } elseif (isset($_GET['tab'])) {
-      $current_tab = sanitize_text_field(wp_unslash($_GET['tab']));
-    }
+    // Load help modals for this page
+    ASNERISSEO_Help_Modal::render_modals('settings');
+    
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab display parameter, no data modification
+    $current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
     $indexnow_key = esc_attr(self::get('indexnow_key', ''));
     $key_url = $indexnow_key ? esc_url(home_url('/' . $indexnow_key . '.txt')) : '';
     ?>
@@ -148,7 +149,8 @@ class ASNERISSEO_Admin_Settings {
 
       <?php
       // Display success message after settings saved
-      if (isset($_GET['settings-updated']) && sanitize_key($_GET['settings-updated']) === 'true' && wp_verify_nonce(wp_create_nonce('settings_updated_nonce'), 'settings_updated_nonce')) {
+      // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display check set by WordPress core after options.php redirect
+      if ( isset( $_GET['settings-updated'] ) && sanitize_key( $_GET['settings-updated'] ) === 'true' ) {
         ?>
         <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
           <p><strong><?php esc_html_e('Settings saved successfully!', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'asneris-seo-toolkit'); ?></p>
@@ -159,25 +161,25 @@ class ASNERISSEO_Admin_Settings {
 
       <!-- Tab Navigation -->
       <nav class="nav-tab-wrapper ASNERISSEO-nav-tab-wrapper">
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=general" class="nav-tab <?php echo $current_tab === 'general' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=general" class="nav-tab <?php echo esc_attr($current_tab === 'general' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-admin-generic"></span> General
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=verification" class="nav-tab <?php echo $current_tab === 'verification' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=verification" class="nav-tab <?php echo esc_attr($current_tab === 'verification' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-yes-alt"></span> Verification
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=indexnow" class="nav-tab <?php echo $current_tab === 'indexnow' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=indexnow" class="nav-tab <?php echo esc_attr($current_tab === 'indexnow' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-update"></span> IndexNow
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=social" class="nav-tab <?php echo $current_tab === 'social' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=social" class="nav-tab <?php echo esc_attr($current_tab === 'social' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-share"></span> Social Media
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="nav-tab <?php echo $current_tab === 'schema' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="nav-tab <?php echo esc_attr($current_tab === 'schema' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-editor-code"></span> Schema
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=templates" class="nav-tab <?php echo $current_tab === 'templates' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=templates" class="nav-tab <?php echo esc_attr($current_tab === 'templates' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-text"></span> Templates
         </a>
-        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=maintenance" class="nav-tab <?php echo $current_tab === 'maintenance' ? 'nav-tab-active' : ''; ?>">
+        <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=maintenance" class="nav-tab <?php echo esc_attr($current_tab === 'maintenance' ? 'nav-tab-active' : ''); ?>">
           <span class="dashicons dashicons-admin-tools"></span> Maintenance & Safety
         </a>
 
@@ -204,9 +206,7 @@ class ASNERISSEO_Admin_Settings {
 
         <?php endif; ?>
 
-        <?php if (true): ?>
-          <?php submit_button('Save Settings', 'primary large'); ?>
-        <?php endif; ?>
+        <?php submit_button('Save Settings', 'primary large'); ?>
       </form>
 
       <?php // ASNERISSEO_Help_Content::render_sidebar('settings'); ?>
@@ -971,114 +971,6 @@ class ASNERISSEO_Admin_Settings {
     <?php
   }
 
-
-
-  /**
-   * Check sitemap visibility and status
-   */
-  private static function check_sitemap_visibility() {
-    $site_url = home_url();
-    $sitemap_urls = [
-      $site_url . '/wp-sitemap.xml', // WordPress Core
-      $site_url . '/sitemap.xml',
-      $site_url . '/sitemap_index.xml',
-    ];
-    
-    $result = [
-      'found' => false,
-      'url' => 'Not found',
-      'http_status' => 0,
-      'http_message' => 'Not checked',
-      'in_robots' => false,
-      'robots_message' => 'Not found in robots.txt',
-      'controller' => 'Unknown'
-    ];
-    
-    // Check which sitemap exists
-    foreach ($sitemap_urls as $url) {
-      $response = wp_remote_head($url, ['timeout' => 5, 'sslverify' => false]);
-      if (!is_wp_error($response)) {
-        $status = wp_remote_retrieve_response_code($response);
-        if ($status === 200) {
-          $result['found'] = true;
-          $result['url'] = $url;
-          $result['http_status'] = $status;
-          $result['http_message'] = 'Sitemap is accessible';
-          break;
-        }
-      }
-    }
-    
-    // Check robots.txt
-    if ($result['found']) {
-      $robots_url = $site_url . '/robots.txt';
-      $robots_response = wp_remote_get($robots_url, ['timeout' => 5, 'sslverify' => false]);
-      if (!is_wp_error($robots_response)) {
-        $robots_content = wp_remote_retrieve_body($robots_response);
-        if (stripos($robots_content, 'sitemap:') !== false && stripos($robots_content, basename($result['url'])) !== false) {
-          $result['in_robots'] = true;
-          $result['robots_message'] = 'Sitemap is declared in robots.txt';
-        }
-      }
-    }
-    
-    // Detect controller
-    if (function_exists('wp_sitemaps_get_server')) {
-      $result['controller'] = '<strong>WordPress Core</strong> (Built-in sitemaps since WP 5.5)';
-    } elseif (defined('WPSEO_VERSION')) {
-      $result['controller'] = '<strong>Yoast SEO</strong> (Version ' . WPSEO_VERSION . ')';
-    } elseif (class_exists('RankMath')) {
-      $result['controller'] = '<strong>Rank Math</strong>';
-    } elseif (class_exists('AIOSEO\\Plugin\\AIOSEO')) {
-      $result['controller'] = '<strong>All in One SEO</strong>';
-    } elseif (function_exists('the_seo_framework')) {
-      $result['controller'] = '<strong>The SEO Framework</strong>';
-    } else {
-      $result['controller'] = 'Unknown plugin or theme generating sitemaps';
-    }
-    
-    return $result;
-  }
-
-  /**
-   * Detect duplicate SEO outputs
-   */
-  private static function detect_duplicate_outputs() {
-    $active_seo_plugins = [];
-    $known_plugins = [
-      'wordpress-seo/wp-seo.php' => 'Yoast SEO',
-      'seo-by-rank-math/rank-math.php' => 'Rank Math',
-      'all-in-one-seo-pack/all_in_one_seo_pack.php' => 'All in One SEO',
-      'autodescription/autodescription.php' => 'The SEO Framework',
-      'wp-seopress/seopress.php' => 'SEOPress',
-      'squirrly-seo/squirrly.php' => 'Squirrly SEO',
-    ];
-    
-    foreach ($known_plugins as $plugin_file => $plugin_name) {
-      if (is_plugin_active($plugin_file)) {
-        $active_seo_plugins[] = $plugin_name;
-      }
-    }
-    
-    // We can't easily detect duplicate tags without loading a frontend page
-    // This would require a separate AJAX call to check the actual HTML output
-    // For now, we'll just warn if multiple plugins are active
-    
-    $duplicates = [];
-    if (count($active_seo_plugins) > 0) {
-      $duplicates['title'] = 'Multiple SEO plugins detected - check homepage source';
-      $duplicates['description'] = 'Multiple SEO plugins detected - check homepage source';
-      $duplicates['canonical'] = 'Multiple SEO plugins detected - check homepage source';
-      $duplicates['robots'] = 'Multiple SEO plugins detected - check homepage source';
-      $duplicates['schema'] = 'Multiple SEO plugins detected - check homepage source';
-    }
-    
-    return [
-      'active_plugins' => $active_seo_plugins,
-      'duplicates' => $duplicates
-    ];
-  }
-  
   /**
    * AJAX handler for exporting settings
    */

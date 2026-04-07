@@ -82,11 +82,6 @@ class ASNERISSEO_Conflict_Detector {
       return;
     }
     
-    $screen = get_current_screen();
-    if (!$screen || $screen->id !== 'settings_page_gscseo') {
-      return;
-    }
-    
     $message = self::get_conflict_message();
     ?>
     <div class="notice notice-warning is-dismissible">

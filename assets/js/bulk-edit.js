@@ -178,7 +178,7 @@ jQuery(document).ready(function($) {
     
     const data = {
       action: 'ASNERISSEO_bulk_save',
-      nonce: gscseoBulkEdit.nonce,
+      nonce: asnerisBulkEdit.nonce,
       post_ids: [],
       seo_title: {},
       seo_description: {},
@@ -194,33 +194,88 @@ jQuery(document).ready(function($) {
     });
     
     $button.prop('disabled', true).text('Saving...');
-    $status.html('<span style="color: #666;">Processing...</span>');
+    $status.empty().append($('<span>').css('color', '#666').text('Processing...'));
     
     $.ajax({
-      url: gscseoBulkEdit.ajaxUrl,
+      url: asnerisBulkEdit.ajaxUrl,
       type: 'POST',
       data: data,
       success: function(response) {
         if (response.success) {
           hasUnsavedChanges = false;
-          $status.html('<span style="color: #46b450;">Success: ' + response.data.message + '</span>');
+          $status.empty().append($('<span>').css('color', '#46b450').text('Success: ' + response.data.message));
           customAlert(response.data.message).then(function(confirmed) {
             if (confirmed) {
               location.reload();
             }
           });
         } else {
-          $status.html('<span style="color: #d63638;">Error: ' + response.data.message + '</span>');
+          $status.empty().append($('<span>').css('color', '#d63638').text('Error: ' + response.data.message));
           customAlert('Error: ' + response.data.message);
           $button.prop('disabled', false).text('Save All Changes');
         }
       },
       error: function() {
-        $status.html('<span style="color: #d63638;">Save failed. Please try again.</span>');
+        $status.empty().append($('<span>').css('color', '#d63638').text('Save failed. Please try again.'));
         customAlert('Save failed. Please try again.');
         $button.prop('disabled', false).text('Save All Changes');
       }
     });
+  });
+  
+  // Character counter functionality with visual feedback
+  function updateCharCounter($field) {
+    const $wrapper = $field.closest('.ASNERISSEO-field-wrapper');
+    const $counter = $wrapper.find('.ASNERISSEO-char-counter');
+    const $count = $counter.find('.ASNERISSEO-char-count');
+    const length = $field.val().length;
+    const optimal = $counter.data('optimal');
+    
+    $count.text(length);
+    
+    // Remove all status classes
+    $counter.removeClass('optimal warning error');
+    $field.removeClass('ASNERISSEO-length-optimal ASNERISSEO-length-warning ASNERISSEO-length-error');
+    
+    if (length === 0) {
+      return; // Empty - no color
+    }
+    
+    // Determine status based on field type
+    if ($field.hasClass('ASNERISSEO-seo-title-input')) {
+      // SEO Title: optimal 50-60, warning <40 or >70, error >100
+      if (length >= 50 && length <= 60) {
+        $counter.addClass('optimal');
+        $field.addClass('ASNERISSEO-length-optimal');
+      } else if (length > 70) {
+        $counter.addClass('warning');
+        $field.addClass('ASNERISSEO-length-warning');
+      } else if (length < 40) {
+        // Too short but not error
+        $counter.addClass('warning');
+      }
+    } else if ($field.hasClass('ASNERISSEO-seo-desc-input')) {
+      // Meta Description: optimal 150-160, warning <120 or >180, error >320
+      if (length >= 150 && length <= 160) {
+        $counter.addClass('optimal');
+        $field.addClass('ASNERISSEO-length-optimal');
+      } else if (length > 180) {
+        $counter.addClass('warning');
+        $field.addClass('ASNERISSEO-length-warning');
+      } else if (length < 120 && length > 0) {
+        $counter.addClass('warning');
+      }
+    }
+  }
+  
+  // Initialize counters on page load
+  $('.ASNERISSEO-seo-title-input, .ASNERISSEO-seo-desc-input').each(function() {
+    updateCharCounter($(this));
+  });
+  
+  // Update counters on input
+  $(document).on('input', '.ASNERISSEO-seo-title-input, .ASNERISSEO-seo-desc-input', function() {
+    updateCharCounter($(this));
   });
   
 });

@@ -47,7 +47,7 @@ class ASNERISSEO_Migration {
       
       // Copy old meta to new key (only if new key doesn't exist)
       // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Migration query runs once during plugin upgrade
-      $migration_result = $wpdb->query($wpdb->prepare(
+      $wpdb->query($wpdb->prepare(
         "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value)
          SELECT post_id, %s, meta_value
          FROM {$wpdb->postmeta}
@@ -59,15 +59,10 @@ class ASNERISSEO_Migration {
         $old_key,
         $new_key
       ));
-      
-      // Clear cache after migration
-      wp_cache_flush();
-      
-      // Log migration progress
-      if ($migration_result !== false) {
-        wp_cache_delete('ASNERISSEO_migration_progress', 'ASNERISSEO');
-      }
     }
+    
+    // Clear object cache once after all meta keys have been migrated
+    wp_cache_flush();
   }
   
   /**
@@ -76,19 +71,19 @@ class ASNERISSEO_Migration {
   private static function migrate_options() {
     // Migrate main settings
     $old_settings = get_option('gscseo_settings', []);
-    if (!empty($old_settings) && !get_option('ASNERISSEO_settings')) {
+    if (!empty($old_settings) && get_option('ASNERISSEO_settings', null) === null) {
       update_option('ASNERISSEO_settings', $old_settings);
     }
     
     // Migrate redirects
     $old_redirects = get_option('gscseo_redirects', []);
-    if (!empty($old_redirects) && !get_option('ASNERISSEO_redirects')) {
+    if (!empty($old_redirects) && get_option('ASNERISSEO_redirects', null) === null) {
       update_option('ASNERISSEO_redirects', $old_redirects);
     }
     
     // Migrate indexnow submissions
     $old_indexnow = get_option('gscseo_indexnow_submissions', []);
-    if (!empty($old_indexnow) && !get_option('ASNERISSEO_indexnow_submissions')) {
+    if (!empty($old_indexnow) && get_option('ASNERISSEO_indexnow_submissions', null) === null) {
       update_option('ASNERISSEO_indexnow_submissions', $old_indexnow);
     }
   }

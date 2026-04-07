@@ -3,6 +3,8 @@
  * Diagnostics helper functions
  */
 
+if (!defined('ABSPATH')) exit;
+
 class ASNERISSEO_Diagnostics {
   
   public static function ajax_http_test() {

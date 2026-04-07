@@ -24,38 +24,14 @@ class ASNERISSEO_Bulk_Edit {
     // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-bulk-edit') return;
     
-    // Use timestamp for cache busting during development
-    $version = ASNERISSEO_VERSION . '.' . time();
+    // Use file modification time for cache busting during development
+    $css_version = ASNERISSEO_VERSION . '.' . filemtime(ASNERISSEO_DIR . 'assets/css/admin-style.css');
+    $js_version  = ASNERISSEO_VERSION . '.' . filemtime(ASNERISSEO_DIR . 'assets/js/bulk-edit.js');
     
-    wp_enqueue_style('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/css/admin-style.css', [], $version);
-    wp_enqueue_script('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/js/bulk-edit.js', ['jquery'], $version, true);
+    wp_enqueue_style('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/css/admin-style.css', [], $css_version);
+    wp_enqueue_script('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/js/bulk-edit.js', ['jquery'], $js_version, true);
     
-    $inline_css = '/* Bulk Edit table layout */
-.ASNERISSEO-bulk-table-wrapper{overflow-x:auto;margin:0 -20px;padding:0 20px;}
-#ASNERISSEO-bulk-edit-table{width:100%;table-layout:fixed;border-collapse:collapse;min-width:1200px;}
-#ASNERISSEO-bulk-edit-table th,#ASNERISSEO-bulk-edit-table td{padding:12px;vertical-align:middle;border-bottom:1px solid #e5e5e5;}
-#ASNERISSEO-bulk-edit-table thead th,#ASNERISSEO-bulk-edit-table thead td{background:#f9f9f9;font-weight:600;border-bottom:2px solid #ccc;position:sticky;top:32px;z-index:10;}
-#ASNERISSEO-bulk-edit-table .col-checkbox{width:40px;}
-#ASNERISSEO-bulk-edit-table .col-title{width:220px;}
-#ASNERISSEO-bulk-edit-table .col-seo-title{width:280px;}
-#ASNERISSEO-bulk-edit-table .col-description{width:320px;}
-#ASNERISSEO-bulk-edit-table .col-robots{width:140px;}
-#ASNERISSEO-bulk-edit-table .col-actions{width:60px;text-align:center;}
-#ASNERISSEO-bulk-edit-table input[type="text"],#ASNERISSEO-bulk-edit-table textarea,#ASNERISSEO-bulk-edit-table select{width:100%;box-sizing:border-box;padding:8px 10px;font-size:13px;line-height:1.4;border:1px solid #ddd;border-radius:4px;transition:border-color 0.2s;}
-#ASNERISSEO-bulk-edit-table input[type="text"]:focus,#ASNERISSEO-bulk-edit-table textarea:focus,#ASNERISSEO-bulk-edit-table select:focus{border-color:#2271b1;outline:none;box-shadow:0 0 0 1px #2271b1;}
-#ASNERISSEO-bulk-edit-table textarea{resize:vertical;min-height:60px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;}
-#ASNERISSEO-bulk-edit-table .col-title strong{display:block;margin-bottom:4px;color:#2271b1;font-size:14px;}
-#ASNERISSEO-bulk-edit-table .row-actions{margin-top:4px;font-size:12px;}
-#ASNERISSEO-bulk-edit-table tbody tr:hover{background:#f6f7f7;}
-#ASNERISSEO-bulk-edit-table input[type="checkbox"]{margin:0;cursor:pointer;}
-.ASNERISSEO-edit-post-link{padding:6px 10px !important;height:auto !important;min-height:32px;display:inline-flex;align-items:center;justify-content:center;}
-@media screen and (max-width:1400px){#ASNERISSEO-bulk-edit-table{min-width:1000px;}#ASNERISSEO-bulk-edit-table .col-description{width:260px;}}
-@keyframes ASNERISSEO-slideDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
-#ASNERISSEO-confirm-modal-content{margin:20px;}
-@media screen and (max-width:640px){#ASNERISSEO-confirm-modal-content{min-width:auto;max-width:90%;margin:10px;}}';
-    wp_add_inline_style('ASNERISSEO-bulk-edit', $inline_css);
-    
-    wp_localize_script('ASNERISSEO-bulk-edit', 'gscseoBulkEdit', [
+    wp_localize_script('ASNERISSEO-bulk-edit', 'asnerisBulkEdit', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_bulk_edit'),
     ]);
@@ -76,9 +52,9 @@ class ASNERISSEO_Bulk_Edit {
       );
     }
     if ($form_nonce_ok) {
-      foreach ($_GET as $key => $value) {
-        $key = sanitize_key($key);
-        if ($key === 'seo_title' || $key === 'seo_description' || $key === 'robots_index') {
+      $allowed_keys = ['seo_title', 'seo_description', 'robots_index'];
+      foreach ($allowed_keys as $key) {
+        if (isset($_GET[$key])) {
           $has_form_data = true;
           break;
         }
@@ -191,7 +167,7 @@ class ASNERISSEO_Bulk_Edit {
               </td>
               
               <td>
-                <button type="submit" class="button"><?php esc_html_e('Filter', 'asneris-seo-toolkit'); ?></button>
+                <button type="submit" class="button"><?php esc_html_e('Retrieve', 'asneris-seo-toolkit'); ?></button>
               </td>
             </tr>
           </table>
@@ -254,9 +230,18 @@ class ASNERISSEO_Bulk_Edit {
               <?php if ($posts_query->have_posts()): ?>
                 <?php while ($posts_query->have_posts()): $posts_query->the_post(); 
                   $post_id = get_the_ID();
+                  $current_post = get_post($post_id);
                   $seo_title = get_post_meta($post_id, '_ASNERISSEO_title', true);
                   $seo_desc = get_post_meta($post_id, '_ASNERISSEO_description', true);
                   $robots_index = get_post_meta($post_id, '_ASNERISSEO_robots_index', true) ?: 'index';
+                  
+                  // Compute template preview for placeholder display
+                  $title_preview = ASNERISSEO_Templates::generate_title($current_post);
+                  $desc_preview = ASNERISSEO_Templates::generate_description($current_post);
+                  /* translators: %s is the auto-generated value from the template system */
+                  $title_placeholder = $title_preview ? sprintf(__('Auto: %s', 'asneris-seo-toolkit'), $title_preview) : __('Leave blank for auto-generated title', 'asneris-seo-toolkit');
+                  /* translators: %s is the auto-generated value from the template system */
+                  $desc_placeholder = $desc_preview ? sprintf(__('Auto: %s', 'asneris-seo-toolkit'), $desc_preview) : __('Leave blank for auto-generated description', 'asneris-seo-toolkit');
                 ?>
                   <tr>
                     <td class="check-column col-checkbox">
@@ -269,19 +254,37 @@ class ASNERISSEO_Bulk_Edit {
                       </div>
                     </td>
                     <td class="col-seo-title">
-                      <input 
-                        type="text" 
-                        name="seo_title[<?php echo esc_attr($post_id); ?>]" 
-                        value="<?php echo esc_attr($seo_title); ?>" 
-                        placeholder="<?php esc_attr_e('Leave blank for auto-generated title', 'asneris-seo-toolkit'); ?>"
-                      >
+                      <div class="ASNERISSEO-field-wrapper">
+                        <input 
+                          type="text" 
+                          name="seo_title[<?php echo esc_attr($post_id); ?>]" 
+                          value="<?php echo esc_attr($seo_title); ?>" 
+                          placeholder="<?php echo esc_attr($title_placeholder); ?>"
+                          class="ASNERISSEO-seo-title-input"
+                          data-post-id="<?php echo esc_attr($post_id); ?>"
+                          maxlength="100"
+                        >
+                        <div class="ASNERISSEO-char-counter" data-optimal="50-60">
+                          <span class="ASNERISSEO-char-count">0</span> <span class="ASNERISSEO-char-label"><?php esc_html_e('characters', 'asneris-seo-toolkit'); ?></span>
+                          <span class="ASNERISSEO-char-hint"><?php esc_html_e('(Recommended: 50-60)', 'asneris-seo-toolkit'); ?></span>
+                        </div>
+                      </div>
                     </td>
                     <td class="col-description">
-                      <textarea 
-                        name="seo_description[<?php echo esc_attr($post_id); ?>]" 
-                        rows="3" 
-                        placeholder="<?php esc_attr_e('Leave blank for auto-generated description', 'asneris-seo-toolkit'); ?>"
-                      ><?php echo esc_textarea($seo_desc); ?></textarea>
+                      <div class="ASNERISSEO-field-wrapper">
+                        <textarea 
+                          name="seo_description[<?php echo esc_attr($post_id); ?>]" 
+                          rows="3" 
+                          placeholder="<?php echo esc_attr($desc_placeholder); ?>"
+                          class="ASNERISSEO-seo-desc-input"
+                          data-post-id="<?php echo esc_attr($post_id); ?>"
+                          maxlength="320"
+                        ><?php echo esc_textarea($seo_desc); ?></textarea>
+                        <div class="ASNERISSEO-char-counter" data-optimal="150-160">
+                          <span class="ASNERISSEO-char-count">0</span> <span class="ASNERISSEO-char-label"><?php esc_html_e('characters', 'asneris-seo-toolkit'); ?></span>
+                          <span class="ASNERISSEO-char-hint"><?php esc_html_e('(Recommended: 150-160)', 'asneris-seo-toolkit'); ?></span>
+                        </div>
+                      </div>
                     </td>
                     <td class="col-robots">
                       <select name="robots_index[<?php echo esc_attr($post_id); ?>]">
@@ -355,7 +358,7 @@ class ASNERISSEO_Bulk_Edit {
   public static function ajax_bulk_save() {
     check_ajax_referer('ASNERISSEO_bulk_edit', 'nonce');
     
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('edit_posts')) {
       wp_send_json_error(['message' => __('Permission denied', 'asneris-seo-toolkit')]);
       return;
     }

@@ -21,7 +21,7 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $ASNERISSEO_co
       <span class="ASNERISSEO-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'asneris-seo-toolkit'); ?></span>
     </div>
     <div class="ASNERISSEO-group-summary">
-      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($ASNERISSEO_content_pass, $ASNERISSEO_content_total)); ?>
+      <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($ASNERISSEO_content_pass, $ASNERISSEO_content_total)); ?>
         <span><?php echo esc_html($ASNERISSEO_content_pass); ?> / <?php echo esc_html($ASNERISSEO_content_total); ?> <?php esc_html_e('passed', 'asneris-seo-toolkit'); ?></span>
       <span class="ASNERISSEO-toggle">▼</span>
     </div>
@@ -36,7 +36,7 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $ASNERISSEO_co
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Heading Structure', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($headings && $headings['has_h1'] ? 1 : 0); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($headings && $headings['has_h1'] ? 1 : 0)); ?>
       </div>
       <?php if ($headings): ?>
         <div class="ASNERISSEO-check-details">
@@ -100,7 +100,7 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $ASNERISSEO_co
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Image Optimization', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google Images', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($images && $images['with_alt'] > 0 ? 1 : 0); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($images && $images['with_alt'] > 0 ? 1 : 0)); ?>
       </div>
       <?php if ($images): ?>
         <div class="ASNERISSEO-check-details">
@@ -152,7 +152,7 @@ if ($links && ($links['internal'] > 0 || $links['external'] > 0)) $ASNERISSEO_co
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Internal & External Links', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($links && ($links['internal'] > 0 || $links['external'] > 0) ? 1 : 0); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($links && ($links['internal'] > 0 || $links['external'] > 0) ? 1 : 0)); ?>
       </div>
       <?php if ($links): ?>
         <div class="ASNERISSEO-check-details">

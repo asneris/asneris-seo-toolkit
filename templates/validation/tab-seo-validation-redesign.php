@@ -289,7 +289,7 @@ if (!defined('ABSPATH')) exit;
       <!-- Sitemap Visibility -->
       <div class="ASNERISSEO-validation-item">
         <?php
-        $ASNERISSEO_sitemap_data = esc_html(ASNERISSEO_Validation::check_sitemap_visibility();
+        $ASNERISSEO_sitemap_data = ASNERISSEO_Validation::check_sitemap_visibility();
         if ($ASNERISSEO_sitemap_data['status'] === 'pass') {
           $ASNERISSEO_status = 'pass';
           $ASNERISSEO_icon = '✅';
@@ -428,12 +428,11 @@ if (!defined('ABSPATH')) exit;
           }
           
           // Check if canonical points to itself (best practice for non-paginated content)
+          // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only URL parameter used for display comparison, submitted via nonce-verified form
           if ($ASNERISSEO_canonical_count === 1 && !empty($_GET['url'])) {
-            // Add nonce verification for URL parameter
-            $ASNERISSEO_url_nonce_verified = wp_verify_nonce(wp_create_nonce('ASNERISSEO_url_validation'), 'ASNERISSEO_url_validation');
-            if ($ASNERISSEO_url_nonce_verified) {
               $ASNERISSEO_canonical_url = $results['canonical'][0];
-              $ASNERISSEO_current_url = esc_url_raw(wp_unslash($_GET['url'])); // Properly unslash then sanitize
+              // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only URL parameter
+              $ASNERISSEO_current_url = esc_url_raw(wp_unslash($_GET['url']));
               
               // Normalize both URLs for comparison
               $ASNERISSEO_canonical_normalized = untrailingslashit(strtolower($ASNERISSEO_canonical_url));
@@ -442,7 +441,6 @@ if (!defined('ABSPATH')) exit;
               if ($ASNERISSEO_canonical_normalized !== $ASNERISSEO_current_normalized) {
                 $ASNERISSEO_canonical_warnings[] = 'Canonical URL points to a different page (may be intentional for duplicate content)';
             }
-          }
         }
         
         if ($ASNERISSEO_canonical_consistent && empty($ASNERISSEO_canonical_warnings)) {

@@ -19,7 +19,7 @@ if ($canonical_check['status'] === 'pass') $ASNERISSEO_indexing_pass++;
       <span class="ASNERISSEO-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'asneris-seo-toolkit'); ?></span>
     </div>
     <div class="ASNERISSEO-group-summary">
-      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($ASNERISSEO_indexing_pass, $ASNERISSEO_indexing_total)); ?>
+      <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($ASNERISSEO_indexing_pass, $ASNERISSEO_indexing_total)); ?>
         <span><?php echo esc_html($ASNERISSEO_indexing_pass); ?> / <?php echo esc_html($ASNERISSEO_indexing_total); ?> <?php esc_html_e('passed', 'asneris-seo-toolkit'); ?></span>
       <span class="ASNERISSEO-toggle">▼</span>
     </div>
@@ -34,7 +34,7 @@ if ($canonical_check['status'] === 'pass') $ASNERISSEO_indexing_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Robots Meta Tag', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing, Yandex', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['robots'])); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge(count($results['robots']))); ?>
       </div>
       <?php if (count($results['robots']) === 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -81,7 +81,7 @@ if ($canonical_check['status'] === 'pass') $ASNERISSEO_indexing_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Canonical URL', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engines: Google, Bing', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($canonical_check['status'] === 'pass' ? 1 : 0); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($canonical_check['status'] === 'pass' ? 1 : 0)); ?>
       </div>
       <div class="ASNERISSEO-check-details">
         <?php if (count($results['canonical']) === 1): ?>

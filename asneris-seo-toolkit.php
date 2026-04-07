@@ -3,7 +3,7 @@
  * Plugin Name: Asneris SEO Toolkit
  * Plugin URI: https://asneris.com/asneris-seo-toolkit
  * Description: Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Asneris
@@ -19,11 +19,10 @@
 if (!defined('ABSPATH')) exit;
 
 // Plugin constants
-define('ASNERISSEO_VERSION', '0.1.0');
+define('ASNERISSEO_VERSION', '0.1.1');
 define('ASNERISSEO_DIR', plugin_dir_path(__FILE__));
 define('ASNERISSEO_URL', plugin_dir_url(__FILE__));
 define('ASNERISSEO_BASENAME', plugin_basename(__FILE__));
-define('ASNERIS_TEXT_DOMAIN', 'asneris-seo-toolkit');
 define('ASNERIS_MENU_SLUG', 'asneris-seo');
 
 
@@ -142,7 +141,7 @@ add_action('enqueue_block_editor_assets', function () {
     true
   );
 
-  wp_localize_script('ASNERISSEO-editor', 'gscseoData', [
+  wp_localize_script('ASNERISSEO-editor', 'asnerisseoData', [
     'ajaxurl' => admin_url('admin-ajax.php'),
     'indexnowNonce' => wp_create_nonce('ASNERISSEO_manual_indexnow')
   ]);
@@ -237,8 +236,21 @@ add_action('wp_ajax_ASNERISSEO_bulk_save', ['ASNERISSEO_Bulk_Edit', 'ajax_bulk_s
 // Admin notices
 add_action('admin_notices', function() {
   // Check if we're on the plugin's settings page
-  if (isset($_GET['page']) && wp_verify_nonce(wp_create_nonce('admin_page_check'), 'admin_page_check') && sanitize_key($_GET['page']) === ASNERIS_MENU_SLUG . '-settings') {
+  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check on admin page slug, no data modification
+  if ( isset( $_GET['page'] ) && sanitize_key( $_GET['page'] ) === ASNERIS_MENU_SLUG . '-settings' ) {
     ASNERISSEO_Conflict_Detector::admin_notice();
   }
+});
+
+// Activation hook - flush rewrite rules for IndexNow key file
+register_activation_hook( __FILE__, function() {
+  // Trigger rewrite rule registration
+  ASNERISSEO_IndexNow::register_rewrite();
+  flush_rewrite_rules();
+});
+
+// Deactivation hook - clean up rewrite rules
+register_deactivation_hook( __FILE__, function() {
+  flush_rewrite_rules();
 });
 

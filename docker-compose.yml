@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # WordPress 5.8 for minimum version testing
+  wp58:
+    image: wordpress:5.8-php7.4-apache
+    container_name: asneris-wp58
+    ports:
+      - "8058:80"
+    environment:
+      WORDPRESS_DB_HOST: db58
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress58
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - wp58_data:/var/www/html
+    depends_on:
+      - db58
+    networks:
+      - wp58_network
+
+  db58:
+    image: mysql:5.7
+    container_name: asneris-db58
+    environment:
+      MYSQL_DATABASE: wordpress58
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db58_data:/var/lib/mysql
+    networks:
+      - wp58_network
+
+  # WordPress 6.1 for current version testing
+  wp61:
+    image: wordpress:6.1-php7.4-apache
+    container_name: asneris-wp61
+    ports:
+      - "8061:80"
+    environment:
+      WORDPRESS_DB_HOST: db61
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress61
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - ./:/var/www/html/wp-content/plugins/asneris-seo-toolkit
+      - ./docker-php-config.ini:/usr/local/etc/php/conf.d/custom.ini
+      - wp61_data:/var/www/html
+    depends_on:
+      - db61
+    networks:
+      - wp61_network
+
+  db61:
+    image: mysql:5.7
+    container_name: asneris-db61
+    environment:
+      MYSQL_DATABASE: wordpress61
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db61_data:/var/lib/mysql
+    networks:
+      - wp61_network
+
+  # WordPress 6.4 (latest) for future compatibility
+  wp64:
+    image: wordpress:6.4-php8.1-apache
+    container_name: asneris-wp64
+    ports:
+      - "8064:80"
+    environment:
+      WORDPRESS_DB_HOST: db64
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress64
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - ./:/var/www/html/wp-content/plugins/asneris-seo-toolkit
+      - ./docker-php-config.ini:/usr/local/etc/php/conf.d/custom.ini
+      - wp64_data:/var/www/html
+    depends_on:
+      - db64
+    networks:
+      - wp64_network
+
+  db64:
+    image: mysql:8.0
+    container_name: asneris-db64
+    environment:
+      MYSQL_DATABASE: wordpress64
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db64_data:/var/lib/mysql
+    networks:
+      - wp64_network
+
+volumes:
+  wp58_data:
+  db58_data:
+  wp61_data:
+  db61_data:
+  wp64_data:
+  db64_data:
+
+networks:
+  wp58_network:
+  wp61_network:
+  wp64_network:

@@ -40,6 +40,14 @@ class ASNERISSEO_Diagnostics_Page {
     wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     wp_enqueue_script('jquery');
     
+    // Add inline CSS to prevent text overflow in diagnostics tables
+    $inline_css = '.ASNERISSEO-admin-wrap table td { word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; }
+.ASNERISSEO-admin-wrap table td code { display: inline-block; max-width: 100%; word-break: break-all; white-space: normal; background: #f0f0f1; padding: 2px 6px; border-radius: 3px; }
+.ASNERISSEO-admin-wrap table { table-layout: fixed; width: 100%; }
+.ASNERISSEO-admin-wrap table th:first-child, .ASNERISSEO-admin-wrap table td:first-child { width: 250px; }
+.ASNERISSEO-admin-wrap table th:nth-child(2), .ASNERISSEO-admin-wrap table td:nth-child(2) { width: 120px; }';
+    wp_add_inline_style('ASNERISSEO-admin', $inline_css);
+    
     $inline_js = "jQuery(function(\$){\n" .
       "  \$('#page_selector').on('change', function(){\n" .
       "    var selectedUrl = \$(this).val();\n" .
@@ -188,10 +196,13 @@ class ASNERISSEO_Diagnostics_Page {
    * Render diagnostics page
    */
   public static function render_page() {
+    // Load help modals for this page
+    ASNERISSEO_Help_Modal::render_modals('diagnostics');
+    
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $results = null;
     
-    if (!empty($test_url) && isset($_POST['run_diagnostics']) && check_admin_referer('ASNERISSEO_diagnostics', '_wpnonce', false)) {
+    if (!empty($test_url) && isset($_POST['run_diagnostics']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'ASNERISSEO_diagnostics')) {
       $results = self::analyze_url($test_url);
     }
     ?>
@@ -223,7 +234,7 @@ class ASNERISSEO_Diagnostics_Page {
                 $pages = get_pages(['sort_column' => 'post_title', 'number' => 100]);
                 foreach ($pages as $page) {
                   $page_url = get_permalink($page->ID);
-                  echo '<option value="' . esc_attr($page_url) . '">' . esc_html($page->post_title) . '</option>';
+                  echo '<option value="' . esc_attr($page_url) . '"' . selected($test_url, $page_url, false) . '>' . esc_html($page->post_title) . '</option>';
                 }
                 ?>
               </optgroup>
@@ -232,15 +243,16 @@ class ASNERISSEO_Diagnostics_Page {
                 $posts = get_posts(['numberposts' => 50, 'post_status' => 'publish']);
                 foreach ($posts as $post) {
                   $post_url = get_permalink($post->ID);
-                  echo '<option value="' . esc_attr($post_url) . '">' . esc_html($post->post_title) . '</option>';
+                  echo '<option value="' . esc_attr($post_url) . '"' . selected($test_url, $post_url, false) . '>' . esc_html($post->post_title) . '</option>';
                 }
                 ?>
               </optgroup>
               <optgroup label="Special Pages">
-                <option value="<?php echo esc_attr(home_url('/')); ?>">Homepage</option>
+                <option value="<?php echo esc_attr(home_url('/')); ?>"<?php selected($test_url, home_url('/')); ?>>Homepage</option>
                 <?php
                 if (get_option('page_for_posts')) {
-                  echo '<option value="' . esc_attr(get_permalink(get_option('page_for_posts'))) . '">Blog Page</option>';
+                  $blog_url = get_permalink(get_option('page_for_posts'));
+                  echo '<option value="' . esc_attr($blog_url) . '"' . selected($test_url, $blog_url, false) . '>Blog Page</option>';
                 }
                 ?>
               </optgroup>
@@ -482,7 +494,7 @@ class ASNERISSEO_Diagnostics_Page {
                 </td>
                 <td>
                   <?php if (!empty($results['x_robots_tag'])): ?>
-                    <code><?php echo esc_html($results['x_robots_tag']); ?></code>
+                    <code style="display: inline-block; max-width: 100%; word-break: break-all; white-space: normal;"><?php echo esc_html($results['x_robots_tag']); ?></code>
                   <?php else: ?>
                     Not present - No restrictions
                   <?php endif; ?>
@@ -779,8 +791,6 @@ class ASNERISSEO_Diagnostics_Page {
         </div>
         
       <?php endif; ?>
-      </div><!-- .ASNERISSEO-tab-content -->
-      </div><!-- .ASNERISSEO-card -->
       
     </div><!-- .wrap -->
     <?php ASNERISSEO_Help_Modal::render_modals('page-diagnostics'); ?>

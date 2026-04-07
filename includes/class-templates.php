@@ -116,11 +116,12 @@ class ASNERISSEO_Templates {
    * @return array Context data
    */
   private static function build_context($post) {
+    $post_type_obj = get_post_type_object($post->post_type);
     $context = [
       'title' => $post->post_title,
       'site' => get_bloginfo('name'),
       'separator' => ASNERISSEO_Admin_Settings::get('title_separator', '|'),
-      'post_type' => get_post_type_object($post->post_type)->labels->singular_name ?? $post->post_type,
+      'post_type' => $post_type_obj ? $post_type_obj->labels->singular_name : $post->post_type,
     ];
     
     // Get primary category

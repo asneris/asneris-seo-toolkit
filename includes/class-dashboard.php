@@ -13,20 +13,6 @@ if (!defined('ABSPATH')) exit;
 class ASNERISSEO_Dashboard {
   
   /**
-   * Register dashboard page
-   */
-  public static function register_menu() {
-    add_submenu_page(
-      ASNERIS_MENU_SLUG,
-      __('Dashboard', 'asneris-seo-toolkit'),
-      __('Dashboard', 'asneris-seo-toolkit'),
-      'manage_options',
-      ASNERIS_MENU_SLUG . '-dashboard',
-      [__CLASS__, 'render_page']
-    );
-  }
-  
-  /**
    * Enqueue admin styles
    */
   public static function enqueue_assets($hook) {
@@ -132,16 +118,21 @@ class ASNERISSEO_Dashboard {
    * Get diagnostic summary
    */
   private static function get_diagnostic_summary() {
-    // Check if sitemap exists
-    $sitemap_exists = false;
-    $sitemap_urls = [home_url('/wp-sitemap.xml'), home_url('/sitemap.xml')];
-    foreach ($sitemap_urls as $url) {
-      $response = @wp_remote_head($url, ['timeout' => 3]);
-      if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
-        $sitemap_exists = true;
-        break;
+    // Check if sitemap exists (cached for 1 hour to avoid HTTP requests on every dashboard load)
+    $sitemap_exists = get_transient('ASNERISSEO_sitemap_exists');
+    if (false === $sitemap_exists) {
+      $sitemap_exists = 0;
+      $sitemap_urls = [home_url('/wp-sitemap.xml'), home_url('/sitemap.xml')];
+      foreach ($sitemap_urls as $url) {
+        $response = wp_remote_head($url, ['timeout' => 3]);
+        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+          $sitemap_exists = 1;
+          break;
+        }
       }
+      set_transient('ASNERISSEO_sitemap_exists', $sitemap_exists, HOUR_IN_SECONDS);
     }
+    $sitemap_exists = (bool) $sitemap_exists;
     
     // Check for SEO plugin conflicts
     $known_plugins = [
@@ -202,6 +193,9 @@ class ASNERISSEO_Dashboard {
    * Render dashboard page
    */
   public static function render_page() {
+    // Load help modals for this page
+    ASNERISSEO_Help_Modal::render_modals('dashboard');
+    
     $validation_summary = self::get_validation_summary();
     $diagnostic_summary = self::get_diagnostic_summary();
     $config_status = self::get_config_status();

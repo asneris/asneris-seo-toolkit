@@ -87,8 +87,15 @@ class ASNERISSEO_Render {
     if ($final_og_image) {
       echo '<meta property="og:image" content="' . esc_url($final_og_image) . '">' . "\n";
       
-      // Get image dimensions if possible
-      $image_id = attachment_url_to_postid($final_og_image);
+      // Get image dimensions if possible — use cached attachment ID to avoid expensive reverse-lookup
+      $image_id = get_post_meta($id, '_ASNERISSEO_og_image_id', true);
+      if (!$image_id && !empty($final_og_image)) {
+        $image_id = attachment_url_to_postid($final_og_image);
+        if ($image_id) {
+          update_post_meta($id, '_ASNERISSEO_og_image_id', $image_id);
+        }
+      }
+      $image_id = (int) $image_id;
       if ($image_id) {
         $image_meta = wp_get_attachment_metadata($image_id);
         if (isset($image_meta['width']) && isset($image_meta['height'])) {

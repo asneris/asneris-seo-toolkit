@@ -248,6 +248,7 @@ class ASNERISSEO_Redirects {
       $from = isset($_POST['from']) ? sanitize_text_field(wp_unslash($_POST['from'])) : '';
       $to = isset($_POST['to']) ? sanitize_url(wp_unslash($_POST['to'])) : '';
       $code = isset($_POST['code']) ? (int) $_POST['code'] : 301;
+      $code = in_array($code, [301, 302, 307], true) ? $code : 301;
       
       // Strip domain from URLs to store only path + query
       $from = str_replace(home_url(), '', $from);
@@ -259,17 +260,17 @@ class ASNERISSEO_Redirects {
       }
     }
     
-    if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['index'])) {
-      $index = (int) sanitize_text_field(wp_unslash($_GET['index']));
-      check_admin_referer('ASNERISSEO_redirect_delete_' . $index);
-      self::delete_redirect($index);
+    if ( isset( $_GET['action'] ) && sanitize_key( wp_unslash( $_GET['action'] ) ) === 'delete' && isset( $_GET['index'] ) ) {
+      $index = (int) sanitize_text_field( wp_unslash( $_GET['index'] ) );
+      check_admin_referer( 'ASNERISSEO_redirect_delete_' . $index );
+      self::delete_redirect( $index );
       echo '<div class="notice notice-success"><p>' . esc_html__('Redirect deleted!', 'asneris-seo-toolkit') . '</p></div>';
     }
     
-    if (isset($_GET['action']) && $_GET['action'] === 'toggle' && isset($_GET['index'])) {
-      $index = (int) sanitize_text_field(wp_unslash($_GET['index']));
-      check_admin_referer('ASNERISSEO_redirect_toggle_' . $index);
-      self::toggle_redirect($index);
+    if ( isset( $_GET['action'] ) && sanitize_key( wp_unslash( $_GET['action'] ) ) === 'toggle' && isset( $_GET['index'] ) ) {
+      $index = (int) sanitize_text_field( wp_unslash( $_GET['index'] ) );
+      check_admin_referer( 'ASNERISSEO_redirect_toggle_' . $index );
+      self::toggle_redirect( $index );
       echo '<div class="notice notice-success"><p>' . esc_html__('Redirect status updated!', 'asneris-seo-toolkit') . '</p></div>';
     }
     

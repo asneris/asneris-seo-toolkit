@@ -3,8 +3,8 @@ if (!defined('ABSPATH')) exit;
 
 class ASNERISSEO_Schema {
   public static function render_jsonld() {
-    $org_name = ASNERISSEO_Admin_Settings::get('org_name', get_bloginfo('name'));
-    $org_logo = ASNERISSEO_Admin_Settings::get('org_logo', '');
+    $org_name = sanitize_text_field(ASNERISSEO_Admin_Settings::get('org_name', get_bloginfo('name')));
+    $org_logo = esc_url_raw(ASNERISSEO_Admin_Settings::get('org_logo', ''));
 
     $site_url = home_url('/');
 
@@ -147,14 +147,14 @@ class ASNERISSEO_Schema {
         
         $description = get_post_meta($id, '_ASNERISSEO_description', true);
         if ($description) {
-          $webpage['description'] = $description;
+          $webpage['description'] = sanitize_text_field($description);
         }
         
         $graph[] = $webpage;
       }
       
       // Content-specific schemas based on post type and metadata
-      $schema_type = get_post_meta($id, '_ASNERISSEO_schema_type', true);
+      $schema_type = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_schema_type', true));
       
       // Auto-detect if not manually set
       if (!$schema_type) {
@@ -226,7 +226,7 @@ class ASNERISSEO_Schema {
    */
   private static function generate_content_schema($id, $type, $post, $permalink, $org, $site_url) {
     // Common properties
-    $description = get_post_meta($id, '_ASNERISSEO_description', true);
+    $description = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_description', true));
     $og_image = get_post_meta($id, '_ASNERISSEO_og_image', true);
     if (!$og_image && has_post_thumbnail($id)) {
       $og_image = get_the_post_thumbnail_url($id, 'large');
@@ -234,6 +234,7 @@ class ASNERISSEO_Schema {
     if (!$og_image) {
       $og_image = ASNERISSEO_Admin_Settings::get('default_og_image');
     }
+    $og_image = $og_image ? esc_url_raw($og_image) : '';
     
     switch ($type) {
       case 'Article':
@@ -242,7 +243,7 @@ class ASNERISSEO_Schema {
         return self::generate_article_schema($id, $type, $post, $permalink, $org, $site_url, $description, $og_image);
       
       case 'Product':
-        return self::generate_product_schema($id, $post, $permalink, $og, $description, $og_image);
+        return self::generate_product_schema($id, $post, $permalink, $org, $description, $og_image);
       
       case 'Event':
         return self::generate_event_schema($id, $post, $permalink, $org, $description, $og_image);
@@ -351,7 +352,7 @@ class ASNERISSEO_Schema {
         ];
         
         // Brand
-        $brand = get_post_meta($id, '_ASNERISSEO_product_brand', true);
+        $brand = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_product_brand', true));
         if ($brand) {
           $product['brand'] = [
             '@type' => 'Brand',
@@ -393,20 +394,20 @@ class ASNERISSEO_Schema {
     }
     
     // Start date
-    $start_date = get_post_meta($id, '_ASNERISSEO_event_start_date', true);
+    $start_date = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_event_start_date', true));
     if ($start_date) {
       $event['startDate'] = $start_date;
     }
     
     // End date
-    $end_date = get_post_meta($id, '_ASNERISSEO_event_end_date', true);
+    $end_date = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_event_end_date', true));
     if ($end_date) {
       $event['endDate'] = $end_date;
     }
     
     // Location
-    $location_name = get_post_meta($id, '_ASNERISSEO_event_location_name', true);
-    $location_address = get_post_meta($id, '_ASNERISSEO_event_location_address', true);
+    $location_name = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_event_location_name', true));
+    $location_address = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_event_location_address', true));
     if ($location_name) {
       $event['location'] = [
         '@type' => 'Place',
@@ -479,13 +480,13 @@ class ASNERISSEO_Schema {
     }
     
     // Cooking time
-    $cook_time = get_post_meta($id, '_ASNERISSEO_recipe_cook_time', true);
+    $cook_time = absint(get_post_meta($id, '_ASNERISSEO_recipe_cook_time', true));
     if ($cook_time) {
       $recipe['cookTime'] = 'PT' . $cook_time . 'M';
     }
     
     // Prep time
-    $prep_time = get_post_meta($id, '_ASNERISSEO_recipe_prep_time', true);
+    $prep_time = absint(get_post_meta($id, '_ASNERISSEO_recipe_prep_time', true));
     if ($prep_time) {
       $recipe['prepTime'] = 'PT' . $prep_time . 'M';
     }
@@ -514,13 +515,13 @@ class ASNERISSEO_Schema {
     }
     
     // Video URL
-    $video_url = get_post_meta($id, '_ASNERISSEO_video_url', true);
+    $video_url = esc_url_raw(get_post_meta($id, '_ASNERISSEO_video_url', true));
     if ($video_url) {
       $video['contentUrl'] = $video_url;
     }
     
     // Duration
-    $duration = get_post_meta($id, '_ASNERISSEO_video_duration', true);
+    $duration = absint(get_post_meta($id, '_ASNERISSEO_video_duration', true));
     if ($duration) {
       $video['duration'] = 'PT' . $duration . 'S';
     }
@@ -545,10 +546,10 @@ class ASNERISSEO_Schema {
       foreach ($faq_items as $item) {
         $main_entity[] = [
           '@type' => 'Question',
-          'name' => $item['question'],
+          'name' => sanitize_text_field($item['question']),
           'acceptedAnswer' => [
             '@type' => 'Answer',
-            'text' => $item['answer']
+            'text' => wp_kses_post($item['answer'])
           ]
         ];
       }
@@ -585,8 +586,8 @@ class ASNERISSEO_Schema {
         $step_list[] = [
           '@type' => 'HowToStep',
           'position' => $index + 1,
-          'name' => $step['name'],
-          'text' => $step['text']
+          'name' => sanitize_text_field($step['name']),
+          'text' => wp_kses_post($step['text'])
         ];
       }
       $howto['step'] = $step_list;
@@ -613,7 +614,7 @@ class ASNERISSEO_Schema {
     }
     
     // Job location
-    $location = get_post_meta($id, '_ASNERISSEO_job_location', true);
+    $location = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_job_location', true));
     if ($location) {
       $job['jobLocation'] = [
         '@type' => 'Place',
@@ -625,7 +626,7 @@ class ASNERISSEO_Schema {
     }
     
     // Employment type
-    $employment_type = get_post_meta($id, '_ASNERISSEO_job_employment_type', true);
+    $employment_type = sanitize_text_field(get_post_meta($id, '_ASNERISSEO_job_employment_type', true));
     if ($employment_type) {
       $job['employmentType'] = $employment_type;
     }
@@ -700,7 +701,7 @@ class ASNERISSEO_Schema {
         $items[] = [
           '@type' => 'ListItem',
           'position' => $position++,
-          'name' => $category->name,
+          'name' => sanitize_text_field($category->name),
           'item' => get_category_link($category->term_id)
         ];
       }
@@ -740,6 +741,6 @@ class ASNERISSEO_Schema {
       '@graph'   => $graph,
     ];
 
-    echo '<script type="application/ld+json">' . wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>' . "\n";
+    echo '<script type="application/ld+json">' . wp_json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>' . "\n";
   }
 }

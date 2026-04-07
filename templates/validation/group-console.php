@@ -19,7 +19,7 @@ if (count($results['yandex_verification']) >= 1) $ASNERISSEO_console_pass++;
       <span class="ASNERISSEO-confidence-badge confidence-high"><?php esc_html_e('Confidence: High', 'asneris-seo-toolkit'); ?></span>
     </div>
     <div class="ASNERISSEO-group-summary">
-      <?php echo esc_html(ASNERISSEO_Validation::get_status_badge($ASNERISSEO_console_pass, $ASNERISSEO_console_total)); ?>
+      <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($ASNERISSEO_console_pass, $ASNERISSEO_console_total)); ?>
         <span><?php echo esc_html($ASNERISSEO_console_pass); ?> / <?php echo esc_html($ASNERISSEO_console_total); ?> <?php esc_html_e('passed', 'asneris-seo-toolkit'); ?></span>
       <span class="ASNERISSEO-toggle">▼</span>
     </div>
@@ -34,7 +34,7 @@ if (count($results['yandex_verification']) >= 1) $ASNERISSEO_console_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Google Search Console', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engine: Google', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['google_verification'])); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge(count($results['google_verification']))); ?>
       </div>
       <?php if (count($results['google_verification']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -62,7 +62,7 @@ if (count($results['yandex_verification']) >= 1) $ASNERISSEO_console_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Bing Webmaster Tools', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engine: Bing', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['msvalidate'])); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge(count($results['msvalidate']))); ?>
       </div>
       <?php if (count($results['msvalidate']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
@@ -90,7 +90,7 @@ if (count($results['yandex_verification']) >= 1) $ASNERISSEO_console_pass++;
       <div class="ASNERISSEO-check-header">
         <strong><?php esc_html_e('Yandex Webmaster', 'asneris-seo-toolkit'); ?></strong>
         <span class="ASNERISSEO-engine-scope"><?php esc_html_e('Engine: Yandex', 'asneris-seo-toolkit'); ?></span>
-        <?php echo esc_html(ASNERISSEO_Validation::get_status_badge(count($results['yandex_verification'])); ?>
+        <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge(count($results['yandex_verification']))); ?>
       </div>
       <?php if (count($results['yandex_verification']) >= 1): ?>
         <div class="ASNERISSEO-check-details">
