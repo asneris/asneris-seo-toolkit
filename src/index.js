@@ -349,21 +349,39 @@ registerPlugin('asneris-seo-sidebar', {
       sessionStorage.removeItem('asneris-seo-open');
       console.log('Asneris SEO: Auto-open flag detected, attempting to open sidebar');
       
-      // Try opening sidebar with progressive retries (no notice, just auto-open)
-      const delays = [0, 100, 500, 1000, 2000];
-      const timeouts = delays.map(delay => 
-        setTimeout(() => {
-          try {
-            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
-            console.log(`Asneris SEO: Sidebar open attempt at ${delay}ms`);
-          } catch (e) {
-            console.error(`Asneris SEO: Failed at ${delay}ms`, e);
-          }
-        }, delay)
-      );
+      // Immediately try to open the sidebar
+      try {
+        console.log('Asneris SEO: openGeneralSidebar function exists?', !!openGeneralSidebar);
+        if (openGeneralSidebar) {
+          openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
+          console.log('Asneris SEO: Sidebar open command sent');
+        }
+      } catch (e) {
+        console.error('Asneris SEO: Error opening sidebar:', e);
+      }
       
-      // Cleanup timeouts
-      return () => timeouts.forEach(id => clearTimeout(id));
+      // Also try with retries (don't cleanup to avoid React unmount clearing them)
+      setTimeout(() => {
+        try {
+          if (openGeneralSidebar) {
+            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
+            console.log('Asneris SEO: Retry at 500ms');
+          }
+        } catch (e) {
+          console.error('Asneris SEO: Retry failed:', e);
+        }
+      }, 500);
+      
+      setTimeout(() => {
+        try {
+          if (openGeneralSidebar) {
+            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
+            console.log('Asneris SEO: Retry at 1500ms');
+          }
+        } catch (e) {
+          console.error('Asneris SEO: Retry failed:', e);
+        }
+      }, 1500);
     }, [openGeneralSidebar]);
     
     return (
