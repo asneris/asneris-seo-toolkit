@@ -97,7 +97,7 @@ class ASNERISSEO_Redirects {
         
         $from = $redirect['from'];
         $from_parsed = wp_parse_url($from);
-        $from_path = isset($from_parsed['path']) ? rtrim($from_parsed['path'], '/') : '';
+        $from_path = self::normalize_redirect_path($from);
         $from_query = isset($from_parsed['query']) ? $from_parsed['query'] : '';
         
         if (!empty($from_query)) {
@@ -121,7 +121,8 @@ class ASNERISSEO_Redirects {
     $request_path = wp_parse_url($request_uri, PHP_URL_PATH);
     $query_string = isset($_SERVER['QUERY_STRING']) ? sanitize_text_field(wp_unslash($_SERVER['QUERY_STRING'])) : '';
     
-    $normalized_path = rtrim($request_path, '/');
+    // Normalize request path consistently
+    $normalized_path = self::normalize_redirect_path($request_path ?: '');
     
     // O(1) lookup: Check query-based redirects first
     if (!empty($query_string)) {
@@ -150,6 +151,24 @@ class ASNERISSEO_Redirects {
   }
   
   /**
+   * Normalize redirect path by removing trailing slash (except root /)
+   * 
+   * @param string $path The path to normalize
+   * @return string Normalized path
+   */
+  private static function normalize_redirect_path($path) {
+    $parsed = wp_parse_url($path);
+    $normalized_path = isset($parsed['path']) ? $parsed['path'] : '';
+    
+    // Remove trailing slash except for root path
+    if ($normalized_path !== '/' && substr($normalized_path, -1) === '/') {
+      $normalized_path = rtrim($normalized_path, '/');
+    }
+    
+    return $normalized_path;
+  }
+  
+  /**
    * Get all redirects
    */
   public static function get_redirects() {
@@ -171,14 +190,22 @@ class ASNERISSEO_Redirects {
       return false;
     }
     
+    // Normalize 'from' path to prevent duplicate redirects with/without trailing slash
+    $from_normalized = $from;
+    if (strpos($from, '?') === false) {
+      // Only normalize if no query string
+      $from_normalized = self::normalize_redirect_path($from);
+    }
+    
     // Remove existing redirect with same "from"
-    $redirects = array_filter($redirects, function($r) use ($from) {
-      return $r['from'] !== $from;
+    $redirects = array_filter($redirects, function($r) use ($from_normalized) {
+      $r_normalized = strpos($r['from'], '?') === false ? self::normalize_redirect_path($r['from']) : $r['from'];
+      return $r_normalized !== $from_normalized;
     });
     
-    // Add new redirect
+    // Add new redirect (store normalized path)
     $redirects[] = [
-      'from' => $from,
+      'from' => $from_normalized,
       'to' => $to,
       'code' => $code,
       'type' => $type,  // 'manual' or 'auto'
