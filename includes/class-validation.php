@@ -23,7 +23,7 @@ class ASNERISSEO_Validation {
   public static function enqueue_assets($hook) {
     // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-validation') return;
-    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     $inline_css = ".ASNERISSEO-validation-item{\n" .
       "  margin-bottom:20px;\n" .
       "  border-bottom:1px solid #dcdcde;\n" .
@@ -59,7 +59,7 @@ class ASNERISSEO_Validation {
       ".validation-conflict .validation-content h4{\n" .
       "  color:#a94442;\n" .
       "}\n";
-    wp_add_inline_style('ASNERISSEO-admin', $inline_css);
+    wp_add_inline_style('asnerisseo-admin', $inline_css);
     wp_enqueue_script('jquery');
     $nonce = wp_create_nonce('ASNERISSEO_http_test');
     $inline_js = "jQuery(document).ready(function(\$){\n" .

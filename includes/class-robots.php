@@ -38,14 +38,14 @@ class ASNERISSEO_Robots {
         }
         
         wp_enqueue_style(
-            'ASNERISSEO-admin-style',
+            'asnerisseo-admin-style',
             plugins_url('../assets/css/admin-style.css', __FILE__),
             [],
             ASNERISSEO_VERSION
         );
         
         wp_enqueue_script(
-            'ASNERISSEO-robots',
+            'asnerisseo-robots',
             plugins_url('../assets/js/robots.js', __FILE__),
             ['jquery'],
             ASNERISSEO_VERSION,

@@ -37,7 +37,7 @@ class ASNERISSEO_Diagnostics_Page {
   public static function enqueue_assets($hook) {
     // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-diagnostics') return;
-    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     wp_enqueue_script('jquery');
     
     // Add inline CSS to prevent text overflow in diagnostics tables
@@ -46,7 +46,7 @@ class ASNERISSEO_Diagnostics_Page {
 .ASNERISSEO-admin-wrap table { table-layout: fixed; width: 100%; }
 .ASNERISSEO-admin-wrap table th:first-child, .ASNERISSEO-admin-wrap table td:first-child { width: 250px; }
 .ASNERISSEO-admin-wrap table th:nth-child(2), .ASNERISSEO-admin-wrap table td:nth-child(2) { width: 120px; }';
-    wp_add_inline_style('ASNERISSEO-admin', $inline_css);
+    wp_add_inline_style('asnerisseo-admin', $inline_css);
     
     $inline_js = "jQuery(function(\$){\n" .
       "  \$('#page_selector').on('change', function(){\n" .

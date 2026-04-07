@@ -28,10 +28,10 @@ class ASNERISSEO_Bulk_Edit {
     $css_version = ASNERISSEO_VERSION . '.' . filemtime(ASNERISSEO_DIR . 'assets/css/admin-style.css');
     $js_version  = ASNERISSEO_VERSION . '.' . filemtime(ASNERISSEO_DIR . 'assets/js/bulk-edit.js');
     
-    wp_enqueue_style('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/css/admin-style.css', [], $css_version);
-    wp_enqueue_script('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/js/bulk-edit.js', ['jquery'], $js_version, true);
+    wp_enqueue_style('asnerisseo-bulk-edit', ASNERISSEO_URL . 'assets/css/admin-style.css', [], $css_version);
+    wp_enqueue_script('asnerisseo-bulk-edit', ASNERISSEO_URL . 'assets/js/bulk-edit.js', ['jquery'], $js_version, true);
     
-    wp_localize_script('ASNERISSEO-bulk-edit', 'asnerisBulkEdit', [
+    wp_localize_script('asnerisseo-bulk-edit', 'asnerisBulkEdit', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_bulk_edit'),
     ]);

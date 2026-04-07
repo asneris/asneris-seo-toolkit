@@ -18,8 +18,8 @@ class ASNERISSEO_Admin_Settings {
     // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-settings') return;
     
-    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
-    wp_enqueue_script('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/js/admin-script.js', ['jquery'], ASNERISSEO_VERSION, true);
+    wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_script('asnerisseo-admin', ASNERISSEO_URL . 'assets/js/admin-script.js', ['jquery'], ASNERISSEO_VERSION, true);
     wp_enqueue_media(); // For media uploader
     wp_enqueue_script('jquery');
     
@@ -63,7 +63,7 @@ class ASNERISSEO_Admin_Settings {
       "    });\n" .
       "  });\n" .
       "});";
-    wp_add_inline_script('ASNERISSEO-admin', $inline_js);
+    wp_add_inline_script('asnerisseo-admin', $inline_js);
     
     wp_localize_script('ASNERISSEO-admin', 'asnerisseoAdmin', [
       'ajaxUrl' => admin_url('admin-ajax.php'),

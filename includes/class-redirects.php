@@ -19,7 +19,7 @@ class ASNERISSEO_Redirects {
   public static function enqueue_assets($hook) {
     // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-redirects') return;
-    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     wp_enqueue_script('jquery');
     $inline_js = "(function(){\n" .
       "  const descriptions = {\n" .
@@ -74,57 +74,78 @@ class ASNERISSEO_Redirects {
   
   /**
    * Handle redirects
+   * 
+   * Performance: Uses static hash-map cache for O(1) lookups instead of O(n) foreach.
+   * Cache is built once per request from enabled redirects.
    */
   public static function handle_redirects() {
     if (!isset($_SERVER['REQUEST_URI'])) return;
+    
+    static $redirect_map = null;
+    static $redirect_map_with_query = null;
+    
+    // Build hash-maps on first call (O(n) once, then O(1) lookups)
+    if ($redirect_map === null) {
+      $redirect_map = [];
+      $redirect_map_with_query = [];
+      
+      $redirects = self::get_redirects();
+      foreach ($redirects as $redirect) {
+        if (!$redirect['enabled']) {
+          continue;
+        }
+        
+        $from = $redirect['from'];
+        $from_parsed = wp_parse_url($from);
+        $from_path = isset($from_parsed['path']) ? rtrim($from_parsed['path'], '/') : '';
+        $from_query = isset($from_parsed['query']) ? $from_parsed['query'] : '';
+        
+        if (!empty($from_query)) {
+          // Store redirects with query parameters separately
+          $key = $from_path . '?' . $from_query;
+          $redirect_map_with_query[$key] = [
+            'to' => $redirect['to'],
+            'code' => (int)$redirect['code']
+          ];
+        } else {
+          // Store path-only redirects
+          $redirect_map[$from_path] = [
+            'to' => $redirect['to'],
+            'code' => (int)$redirect['code']
+          ];
+        }
+      }
+    }
+    
     $request_uri = sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
     $request_path = wp_parse_url($request_uri, PHP_URL_PATH);
     $query_string = isset($_SERVER['QUERY_STRING']) ? sanitize_text_field(wp_unslash($_SERVER['QUERY_STRING'])) : '';
     
-    $redirects = self::get_redirects();
+    $normalized_path = rtrim($request_path, '/');
     
-    foreach ($redirects as $redirect) {
-      if (!$redirect['enabled']) {
-        continue;
-      }
-      
-      $from = $redirect['from'];
-      $to = $redirect['to'];
-      $code = (int)$redirect['code'];
-      
-      // Parse the 'from' URL to check if it has query parameters
-      $from_parsed = wp_parse_url($from);
-      $from_path = isset($from_parsed['path']) ? rtrim($from_parsed['path'], '/') : '';
-      $from_query = isset($from_parsed['query']) ? $from_parsed['query'] : '';
-      
-      // Check if 'from' URL has query parameters
-      if (!empty($from_query)) {
-        // Match with query string
-        $full_request = rtrim($request_path, '/') . ($query_string ? '?' . $query_string : '');
-        $full_from = $from_path . '?' . $from_query;
-        
-        if ($full_request === $full_from || rtrim($request_path, '/') . '?' . $query_string === $full_from) {
-          // Make sure we have full URL for redirect
-          if (!preg_match('/^https?:\/\//', $to)) {
-            $to = home_url($to);
-          }
-          
-          wp_safe_redirect($to, $code);
-          exit;
+    // O(1) lookup: Check query-based redirects first
+    if (!empty($query_string)) {
+      $full_request = $normalized_path . '?' . $query_string;
+      if (isset($redirect_map_with_query[$full_request])) {
+        $match = $redirect_map_with_query[$full_request];
+        $to = $match['to'];
+        if (!preg_match('/^https?:\/\//', $to)) {
+          $to = home_url($to);
         }
-      } else {
-        // Exact path match (without query string)
-        $from_path = rtrim($from, '/');
-        if (rtrim($request_path, '/') === $from_path) {
-          // Make sure we have full URL for redirect
-          if (!preg_match('/^https?:\/\//', $to)) {
-            $to = home_url($to);
-          }
-          
-          wp_safe_redirect($to, $code);
-          exit;
-        }
+        wp_safe_redirect($to, $match['code']);
+        exit;
       }
+    }
+    
+    // O(1) lookup: Check path-only redirects
+    if (isset($redirect_map[$normalized_path])) {
+      $match = $redirect_map[$normalized_path];
+      $to = $match['to'];
+      if (!preg_match('/^https?:\/\//', $to)) {
+        $to = home_url($to);
+      }
+      wp_safe_redirect($to, $match['code']);
+      exit;
     }
   }
   
@@ -141,6 +162,14 @@ class ASNERISSEO_Redirects {
    */
   public static function add_redirect($from, $to, $code = 301, $type = 'manual') {
     $redirects = self::get_redirects();
+    
+    // Enforce 500 redirect limit to prevent performance issues
+    if (count($redirects) >= 500) {
+      if (defined('DOING_AJAX') && DOING_AJAX) {
+        wp_send_json_error(['message' => 'Redirect limit reached (500 maximum). Please delete some redirects before adding new ones.']);
+      }
+      return false;
+    }
     
     // Remove existing redirect with same "from"
     $redirects = array_filter($redirects, function($r) use ($from) {

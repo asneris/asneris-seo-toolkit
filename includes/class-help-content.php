@@ -158,8 +158,8 @@ class ASNERISSEO_Help_Content {
    */
   private static function enqueue_assets($tabbed) {
     if (!self::$assets_enqueued) {
-      wp_register_script('ASNERISSEO-help-content', '', [], ASNERISSEO_VERSION, true);
-      wp_enqueue_script('ASNERISSEO-help-content');
+      wp_register_script('asnerisseo-help-content', '', [], ASNERISSEO_VERSION, true);
+      wp_enqueue_script('asnerisseo-help-content');
       self::$assets_enqueued = true;
     }
 
@@ -195,7 +195,7 @@ class ASNERISSEO_Help_Content {
         . '    button.addEventListener("click",function(){setTimeout(updateHelpContent,50);});\n'
         . '  });\n'
         . '})();';
-      wp_add_inline_script('ASNERISSEO-help-content', $inline_js);
+      wp_add_inline_script('asnerisseo-help-content', $inline_js);
       return;
     }
 
@@ -213,6 +213,6 @@ class ASNERISSEO_Help_Content {
       . '    localStorage.setItem(storageKey,!visible);\n'
       . '  });\n'
       . '})();';
-    wp_add_inline_script('ASNERISSEO-help-content', $inline_js);
+    wp_add_inline_script('asnerisseo-help-content', $inline_js);
   }
 }
