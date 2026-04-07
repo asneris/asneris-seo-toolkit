@@ -87,7 +87,13 @@ class ASNERISSEO_Help_Modal {
    * Render modal HTML in footer
    */
   public static function render_modal_html() {
+    // Skip rendering on non-plugin pages for performance
     if (empty(self::$modals_to_render)) {
+      return;
+    }
+    
+    // Only render on plugin pages (check if our assets were enqueued)
+    if (!self::$assets_enqueued) {
       return;
     }
     ?>

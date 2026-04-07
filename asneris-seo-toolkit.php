@@ -3,7 +3,7 @@
  * Plugin Name: Asneris SEO Toolkit
  * Plugin URI: https://asneris.com/asneris-seo-toolkit
  * Description: Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI.
- * Version: 0.1.1
+ * Version: 0.1.2
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Asneris
@@ -19,7 +19,7 @@
 if (!defined('ABSPATH')) exit;
 
 // Plugin constants
-define('ASNERISSEO_VERSION', '0.1.1');
+define('ASNERISSEO_VERSION', '0.1.2');
 define('ASNERISSEO_DIR', plugin_dir_path(__FILE__));
 define('ASNERISSEO_URL', plugin_dir_url(__FILE__));
 define('ASNERISSEO_BASENAME', plugin_basename(__FILE__));
@@ -59,13 +59,15 @@ add_action('init', function () {
   remove_action('wp_head', 'wp_robots', 1); // Remove WordPress 5.7+ robots meta tag
   
   ASNERISSEO_Meta::register_post_meta();
-  ASNERISSEO_IndexNow::register_rewrite();
+  // IndexNow rewrite is registered on activation hook only (performance optimization)
   ASNERISSEO_Redirects::init();
   ASNERISSEO_Robots::init();
   ASNERISSEO_Help_Modal::init();
   
-  // Run migrations
-  ASNERISSEO_Migration::run();
+  // Run migrations (admin-only for performance)
+  if (is_admin()) {
+    ASNERISSEO_Migration::run();
+  }
 });
 
 add_action('admin_menu', function () {
