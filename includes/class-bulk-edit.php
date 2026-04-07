@@ -118,6 +118,12 @@ class ASNERISSEO_Bulk_Edit {
     }
     
     $posts_query = new WP_Query($args);
+    
+    // Pre-warm caches to avoid N+1 queries (Performance Audit M-3)
+    if ($posts_query->have_posts()) {
+      $post_ids = wp_list_pluck($posts_query->posts, 'ID');
+      update_postmeta_cache($post_ids);
+    }
     ?>
     <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
