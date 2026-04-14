@@ -37,7 +37,7 @@ class ASNERISSEO_Admin_Settings {
       "    \$.ajax({\n" .
       "      url: ajaxurl,\n" .
       "      method: 'POST',\n" .
-      "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . $nonce . "' },\n" .
+      "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . esc_js($nonce) . "' },\n" .
       "      success: function(response){\n" .
       "        if (response.success) {\n" .
       "          tbody.empty();\n" .
@@ -65,7 +65,7 @@ class ASNERISSEO_Admin_Settings {
       "});";
     wp_add_inline_script('asnerisseo-admin', $inline_js);
     
-    wp_localize_script('ASNERISSEO-admin', 'asnerisseoAdmin', [
+    wp_localize_script('asnerisseo-admin', 'asnerisseoAdmin', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_admin_nonce'),
     ]);

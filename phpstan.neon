@@ -1,0 +1,17 @@
+parameters:
+  level: 6
+  paths:
+    - includes
+    - templates
+  excludePaths:
+    - */node_modules/*
+    - */vendor/*
+    - */build/*
+  bootstrapFiles:
+    - asneris-seo-toolkit.php
+  wordpress:
+    version: '6.9'
+  ignoreErrors:
+    # WordPress globals
+    - '#Undefined variable: \$wpdb#'
+    - '#Undefined variable: \$wp_version#'
