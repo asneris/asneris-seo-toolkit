@@ -340,15 +340,15 @@ $ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) 
   
   if (false === $ASNERISSEO_canonical_urls) {
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Caching implemented with wp_cache_get/set above
-    $ASNERISSEO_canonical_urls = $wpdb->get_results("
+    $ASNERISSEO_canonical_urls = $wpdb->get_results($wpdb->prepare("
       SELECT p.ID, pm.meta_value as canonical_url, p.guid
       FROM {$wpdb->postmeta} pm
       INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-    WHERE pm.meta_key = '_ASNERISSEO_canonical'
+    WHERE pm.meta_key = %s
     AND pm.meta_value != ''
-    AND p.post_status = 'publish'
+    AND p.post_status = %s
     LIMIT 100
-  ");
+  ", '_ASNERISSEO_canonical', 'publish'));
     wp_cache_set($ASNERISSEO_canonical_cache_key, $ASNERISSEO_canonical_urls, 'ASNERISSEO_diagnostics', 300);
   }
   
@@ -445,9 +445,9 @@ $ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) 
   
   // 5. Detect missing canonicals on many pages
   // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count query, caching not needed
-  $ASNERISSEO_total_posts = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ('post', 'page')");
+  $ASNERISSEO_total_posts = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = %s AND post_type IN ('post', 'page')", 'publish'));
   // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count query, caching not needed
-  $ASNERISSEO_posts_with_canonical = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_ASNERISSEO_canonical' AND meta_value != ''");
+  $ASNERISSEO_posts_with_canonical = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value != ''", '_ASNERISSEO_canonical'));
   
   if ($ASNERISSEO_total_posts > 0 && $ASNERISSEO_posts_with_canonical > 0) {
     $ASNERISSEO_percentage_with = round(($ASNERISSEO_posts_with_canonical / $ASNERISSEO_total_posts) * 100);
