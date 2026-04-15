@@ -150,7 +150,7 @@ class ASNERISSEO_Admin_Settings {
       <?php
       // Display success message after settings saved
       // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display check set by WordPress core after options.php redirect
-      if ( isset( $_GET['settings-updated'] ) && sanitize_key( $_GET['settings-updated'] ) === 'true' ) {
+      if ( isset( $_GET['settings-updated'] ) && sanitize_key( $_GET['settings-updated'] ) === 'true' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         ?>
         <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
           <p><strong><?php esc_html_e('Settings saved successfully!', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'asneris-seo-toolkit'); ?></p>

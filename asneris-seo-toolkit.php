@@ -153,6 +153,7 @@ add_action('enqueue_block_editor_assets', function () {
   ]);
   
   // Check if auto-open parameter is present and inject sessionStorage flag
+  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only URL parameter for UX feature, no data modification
   if (isset($_GET['asneris-seo-open']) && $_GET['asneris-seo-open'] === '1') {
     wp_add_inline_script(
       'ASNERISSEO-editor',
