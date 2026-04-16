@@ -319,7 +319,7 @@ class ASNERISSEO_Dashboard {
               <p class="asnerisseo-action-description">
                 Update titles and descriptions for multiple posts at once
               </p>
-              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-bulk-edit'); ?>" class="button">Edit Metadata</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-bulk-edit'); ?>" class="button button-primary button-large asnerisseo-action-button">Edit Metadata</a>
             </div>
             
             <!-- Action 3 -->
@@ -331,7 +331,7 @@ class ASNERISSEO_Dashboard {
               <p class="asnerisseo-action-description">
                 Add your business details to appear in Google Maps and local search
               </p>
-              <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="button">Setup Local Business</a>
+              <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="button button-primary button-large asnerisseo-action-button">Setup Local Business</a>
             </div>
             
             <!-- Action 4 -->
@@ -343,7 +343,7 @@ class ASNERISSEO_Dashboard {
               <p class="asnerisseo-action-description">
                 Guide visitors to correct pages when URLs change
               </p>
-              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-redirects'); ?>" class="button">Manage Redirects</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-redirects'); ?>" class="button button-primary button-large asnerisseo-action-button">Manage Redirects</a>
             </div>
             
             <!-- Action 5 -->
@@ -355,7 +355,7 @@ class ASNERISSEO_Dashboard {
               <p class="asnerisseo-action-description">
                 Control which pages search engines can visit and read
               </p>
-              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-robots'); ?>" class="button">Edit Robots.txt</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-robots'); ?>" class="button button-primary button-large asnerisseo-action-button">Edit Robots.txt</a>
             </div>
           </div>
         </div>

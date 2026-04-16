@@ -31,7 +31,7 @@ class ASNERISSEO_Meta {
   public static function column_width() {
     $screen = get_current_screen();
     if ($screen && $screen->id === 'edit-page') {
-      echo '<style>.column-asneris_seo_title{width:250px!important}.column-asneris_seo_description{width:300px!important}</style>';
+      echo '<style>.column-asneris_seo_info{width:110px!important}</style>';
     }
   }
 
@@ -73,11 +73,14 @@ class ASNERISSEO_Meta {
   public static function add_seo_columns($columns) {
     $new_columns = [];
     foreach ($columns as $key => $title) {
+      // Skip the old individual columns if somehow present
+      if ($key === 'asneris_seo_title' || $key === 'asneris_seo_description') {
+        continue;
+      }
       $new_columns[$key] = $title;
-      // Add SEO columns after title column
-      if ($key === 'title') {
-        $new_columns['asneris_seo_title'] = '<span style="display:inline-block;width:250px;">' . __('SEO Title', 'asneris-seo-toolkit') . '</span>';
-        $new_columns['asneris_seo_description'] = '<span style="display:inline-block;width:300px;">' . __('SEO Description', 'asneris-seo-toolkit') . '</span>';
+      // Add single SEO Info column after the date column
+      if ($key === 'date') {
+        $new_columns['asneris_seo_info'] = __('SEO Info', 'asneris-seo-toolkit');
       }
     }
     return $new_columns;
@@ -87,22 +90,35 @@ class ASNERISSEO_Meta {
    * Render custom column content.
    */
   public static function render_seo_column( $column, $post_id ) {
-    if ( 'asneris_seo_title' === $column ) {
+    if ( 'asneris_seo_info' === $column ) {
       $seo_title = get_post_meta( $post_id, '_ASNERISSEO_title', true );
-      if ( ! empty( $seo_title ) ) {
-        echo '<div style="max-width:250px;line-height:1.4em;max-height:2.8em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-wrap:break-word;" title="' . esc_attr( $seo_title ) . '">' . esc_html( $seo_title ) . '</div>';
-      } else {
-        echo '<span style="color:#999;font-style:italic;">' . esc_html__( 'Auto-generated', 'asneris-seo-toolkit' ) . '</span>';
-      }
-    }
+      $seo_desc  = get_post_meta( $post_id, '_ASNERISSEO_description', true );
 
-    if ( 'asneris_seo_description' === $column ) {
-      $seo_desc = get_post_meta( $post_id, '_ASNERISSEO_description', true );
-      if ( ! empty( $seo_desc ) ) {
-        echo '<div style="max-width:300px;line-height:1.4em;max-height:2.8em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-wrap:break-word;" title="' . esc_attr( $seo_desc ) . '">' . esc_html( $seo_desc ) . '</div>';
-      } else {
-        echo '<span style="color:#999;font-style:italic;">' . esc_html__( 'Auto-generated', 'asneris-seo-toolkit' ) . '</span>';
-      }
+      $title_updated = ! empty( $seo_title );
+      $desc_updated  = ! empty( $seo_desc );
+
+      $blue  = '#2271b1';
+      $red   = '#d63638';
+      $dot   = 'display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle;flex-shrink:0;';
+
+      $title_color = $title_updated ? $blue : $red;
+      $desc_color  = $desc_updated ? $blue : $red;
+
+      echo '<div style="display:flex;flex-direction:column;gap:5px;min-width:100px;">';
+
+      // Title row
+      echo '<div style="display:flex;align-items:center;font-size:12px;">';
+      echo '<span style="' . esc_attr( $dot . 'background:' . $title_color . ';' ) . '" title="' . esc_attr( $title_updated ? __('SEO Title set', 'asneris-seo-toolkit') : __('No SEO Title', 'asneris-seo-toolkit') ) . '"></span>';
+      echo '<span style="color:#3c434a;">' . esc_html__( 'Title', 'asneris-seo-toolkit' ) . '</span>';
+      echo '</div>';
+
+      // Description row
+      echo '<div style="display:flex;align-items:center;font-size:12px;">';
+      echo '<span style="' . esc_attr( $dot . 'background:' . $desc_color . ';' ) . '" title="' . esc_attr( $desc_updated ? __('SEO Description set', 'asneris-seo-toolkit') : __('No SEO Description', 'asneris-seo-toolkit') ) . '"></span>';
+      echo '<span style="color:#3c434a;">' . esc_html__( 'Description', 'asneris-seo-toolkit' ) . '</span>';
+      echo '</div>';
+
+      echo '</div>';
     }
   }
 
