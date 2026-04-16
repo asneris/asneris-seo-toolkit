@@ -112,7 +112,7 @@ class ASNERISSEO_Help_Modal {
     <?php
     wp_add_inline_script(
       'asnerisseo-help-modal-js',
-      'if (typeof ASNERISSEOHelpModal !== "undefined") { ASNERISSEOHelpModal.setContent(' . wp_json_encode(self::$modals_to_render) . '); }'
+      'if (typeof ASNERISSEOHelpModal !== "undefined") { ASNERISSEOHelpModal.setContent(' . wp_json_encode(self::$modals_to_render, JSON_HEX_TAG | JSON_HEX_AMP) . '); }'
     );
   }
   

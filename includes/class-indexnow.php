@@ -77,7 +77,7 @@ class ASNERISSEO_IndexNow {
 
     $args = [
       'headers' => ['Content-Type' => 'application/json; charset=utf-8'],
-      'body' => wp_json_encode($payload),
+      'body' => wp_json_encode($payload, JSON_HEX_TAG | JSON_HEX_AMP),
       'timeout' => 5,
     ];
 

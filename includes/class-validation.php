@@ -89,7 +89,7 @@ class ASNERISSEO_Validation {
       "    \$.ajax({\n" .
       "      url: ajaxurl,\n" .
       "      method: 'POST',\n" .
-      "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . $nonce . "' },\n" .
+      "      data: { action: 'ASNERISSEO_http_test', url: url, nonce: '" . esc_js($nonce) . "' },\n" .
       "      success: function(response){\n" .
       "        if (response.success) {\n" .
       "          tbody.empty();\n" .

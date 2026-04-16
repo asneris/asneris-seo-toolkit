@@ -825,7 +825,7 @@ class ASNERISSEO_Diagnostics_Page {
                   // Format JSON for better readability
                   $decoded = json_decode($schema['raw'], true);
                   if ($decoded !== null) {
-                    echo esc_html(wp_json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                    echo esc_html(wp_json_encode($decoded, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP));
                   } else {
                     echo esc_html($schema['raw']);
                   }

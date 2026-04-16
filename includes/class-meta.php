@@ -31,7 +31,7 @@ class ASNERISSEO_Meta {
   public static function column_width() {
     $screen = get_current_screen();
     if ($screen && $screen->id === 'edit-page') {
-      echo '<style>.column-asneris_seo_info{width:110px!important}</style>';
+      wp_add_inline_style('asnerisseo-admin', '.column-asneris_seo_info{width:110px!important}');
     }
   }
 
