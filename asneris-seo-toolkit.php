@@ -136,7 +136,6 @@ class ASNERISSEO_Bootstrap {
     ASNERISSEO_Redirects::register_menu();
     ASNERISSEO_Robots::register_menu();
     ASNERISSEO_Bulk_Edit::register_menu();
-    ASNERISSEO_Help::register_menu();
   }
 
   /** Fires on 'admin_init'. */
