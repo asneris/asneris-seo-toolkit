@@ -3,6 +3,7 @@ Contributors: asneris, asiva
 Tags: seo, technical seo, indexnow, search console
 Requires at least: 5.8
 Tested up to: 6.9
+Requires PHP: 7.4
 Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -169,11 +170,3 @@ https://github.com/asneris/asneris-seo-toolkit
 
 The `/build/` directory is included in the release ZIP and is required for the plugin to function. Do not delete it.
 
-**Creating a WordPress.org submission ZIP (Windows):**
-
-Run the included PowerShell script from the plugin directory:
-
-  .\create-wordpress-org-package.ps1              # auto-reads version from PHP header
-  .\create-wordpress-org-package.ps1 -Version 1.0.0  # override version
-
-The script auto-detects the plugin slug from the PHP filename and the version from the plugin header.

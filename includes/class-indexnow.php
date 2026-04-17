@@ -107,9 +107,14 @@ class ASNERISSEO_IndexNow {
       return;
     }
 
-    $post_id = isset($_POST['post_id']) ? (int)$_POST['post_id'] : 0;
+    $post_id = isset($_POST['post_id']) ? absint(wp_unslash($_POST['post_id'])) : 0;
     if (!$post_id) {
       wp_send_json_error(['message' => __('Invalid post ID', 'asneris-seo-toolkit')]);
+      return;
+    }
+
+    if (!current_user_can('edit_post', $post_id)) {
+      wp_send_json_error(['message' => __('You do not have permission to edit this post.', 'asneris-seo-toolkit')]);
       return;
     }
 

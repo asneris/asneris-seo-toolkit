@@ -35,18 +35,26 @@ class ASNERISSEO_Meta {
     }
   }
 
+  /**
+   * Post types that expose the SEO meta box.
+   * Extend this list if the plugin is used with custom post types.
+   */
+  const SUPPORTED_POST_TYPES = [ 'post', 'page' ];
+
   public static function register_post_meta(): void {
-    foreach (self::KEYS as $key => $type) {
-      register_post_meta('', $key, [
-        'type' => $type,
-        'single' => true,
-        'show_in_rest' => true,
-        'auth_callback' => function () {
-          return current_user_can('edit_posts');
-        },
-        'sanitize_callback' => [__CLASS__, 'sanitize'],
-        'default' => self::default_for($key),
-      ]);
+    foreach ( self::SUPPORTED_POST_TYPES as $post_type ) {
+      foreach ( self::KEYS as $key => $type ) {
+        register_post_meta( $post_type, $key, [
+          'type'              => $type,
+          'single'            => true,
+          'show_in_rest'      => true,
+          'auth_callback'     => function ( $allowed, $meta_key, $object_id ) {
+            return current_user_can( 'edit_post', (int) $object_id );
+          },
+          'sanitize_callback' => [ __CLASS__, 'sanitize' ],
+          'default'           => self::default_for( $key ),
+        ] );
+      }
     }
   }
 

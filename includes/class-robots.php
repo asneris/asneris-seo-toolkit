@@ -80,6 +80,17 @@ class ASNERISSEO_Robots {
         
         // Check 2: HTTP 200 response
         $response = wp_remote_get(home_url('/robots.txt'));
+        if (is_wp_error($response)) {
+            $results['status'] = 'error';
+            $results['checks']['http_200'] = [
+                'status' => 'fail',
+                'label' => 'HTTP 200 response',
+                'message' => 'Could not fetch robots.txt: ' . $response->get_error_message()
+            ];
+            $results['errors'][] = 'Could not fetch robots.txt: ' . $response->get_error_message();
+            return $results;
+        }
+
         $status_code = wp_remote_retrieve_response_code($response);
         $is_200 = $status_code === 200;
         
@@ -158,20 +169,32 @@ class ASNERISSEO_Robots {
         if ($has_sitemap) {
             $sitemap_url = trim($matches[1]);
             $sitemap_response = wp_remote_get($sitemap_url);
-            $sitemap_status = wp_remote_retrieve_response_code($sitemap_response);
-            $sitemap_reachable = $sitemap_status === 200;
-            
-            $results['checks']['sitemap_reachable'] = [
-                'status' => $sitemap_reachable ? 'pass' : 'fail',
-                'label' => 'Sitemap reachable',
-                'message' => $sitemap_reachable ? 'Sitemap is accessible' : "Sitemap returns HTTP $sitemap_status"
-            ];
-            
-            if (!$sitemap_reachable) {
+            if (is_wp_error($sitemap_response)) {
+                $results['checks']['sitemap_reachable'] = [
+                    'status' => 'fail',
+                    'label' => 'Sitemap reachable',
+                    'message' => 'Could not fetch sitemap: ' . $sitemap_response->get_error_message()
+                ];
                 if ($results['status'] !== 'error') {
                     $results['status'] = 'warning';
                 }
-                $results['warnings'][] = "Declared sitemap is not accessible (HTTP $sitemap_status)";
+                $results['warnings'][] = 'Could not fetch sitemap: ' . $sitemap_response->get_error_message();
+            } else {
+                $sitemap_status = wp_remote_retrieve_response_code($sitemap_response);
+                $sitemap_reachable = $sitemap_status === 200;
+                
+                $results['checks']['sitemap_reachable'] = [
+                    'status' => $sitemap_reachable ? 'pass' : 'fail',
+                    'label' => 'Sitemap reachable',
+                    'message' => $sitemap_reachable ? 'Sitemap is accessible' : "Sitemap returns HTTP $sitemap_status"
+                ];
+                
+                if (!$sitemap_reachable) {
+                    if ($results['status'] !== 'error') {
+                        $results['status'] = 'warning';
+                    }
+                    $results['warnings'][] = "Declared sitemap is not accessible (HTTP $sitemap_status)";
+                }
             }
         }
         
@@ -198,11 +221,51 @@ class ASNERISSEO_Robots {
      * Check for conflicting rules
      */
     private static function check_conflicts($content) {
-        // Simple check: same path with both Allow and Disallow
-        preg_match_all('/(?:Allow|Disallow):\s*(.+)/i', $content, $matches);
-        if (count($matches[1]) !== count(array_unique($matches[1]))) {
-            return true;
+        $lines = preg_split('/\r\n|\r|\n/', (string) $content);
+        $current_user_agent = '*';
+        $rules_by_agent = [];
+
+        foreach ($lines as $line) {
+            $line = trim(preg_replace('/\s*#.*$/', '', $line));
+            if ($line === '') {
+                continue;
+            }
+
+            if (stripos($line, 'User-agent:') === 0) {
+                $ua = trim(substr($line, strlen('User-agent:')));
+                $current_user_agent = $ua !== '' ? strtolower($ua) : '*';
+                if (!isset($rules_by_agent[$current_user_agent])) {
+                    $rules_by_agent[$current_user_agent] = ['allow' => [], 'disallow' => []];
+                }
+                continue;
+            }
+
+            if (stripos($line, 'Allow:') === 0) {
+                $path = trim(substr($line, strlen('Allow:')));
+                if ($path !== '') {
+                    $rules_by_agent[$current_user_agent]['allow'][] = $path;
+                }
+                continue;
+            }
+
+            if (stripos($line, 'Disallow:') === 0) {
+                $path = trim(substr($line, strlen('Disallow:')));
+                if ($path !== '') {
+                    $rules_by_agent[$current_user_agent]['disallow'][] = $path;
+                }
+            }
         }
+
+        foreach ($rules_by_agent as $rules) {
+            $overlap = array_intersect(
+                array_unique($rules['allow']),
+                array_unique($rules['disallow'])
+            );
+            if (!empty($overlap)) {
+                return true;
+            }
+        }
+
         return false;
     }
     
@@ -217,7 +280,6 @@ class ASNERISSEO_Robots {
 
 User-agent: *
 Disallow: /wp-admin/
-Disallow: /wp-includes/
 Allow: /wp-admin/admin-ajax.php
 
 # Sitemap location

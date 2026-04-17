@@ -60,9 +60,28 @@ class ASNERISSEO_Redirects {
       return;
     }
     
-    // Get old and new permalinks
-    $old_url = str_replace(home_url(), '', get_permalink($post_before));
-    $new_url = str_replace(home_url(), '', get_permalink($post_after));
+    // Build stable old/new paths from the current permalink and slug delta.
+    $current_permalink = get_permalink($post_id);
+    if (!$current_permalink) {
+      return;
+    }
+
+    $parsed_current = wp_parse_url($current_permalink);
+    $new_path = isset($parsed_current['path']) ? $parsed_current['path'] : '';
+    if ($new_path === '') {
+      return;
+    }
+
+    $old_slug = sanitize_title($post_before->post_name);
+    $new_slug = sanitize_title($post_after->post_name);
+    $normalized_new_path = untrailingslashit($new_path);
+    $segments = explode('/', ltrim($normalized_new_path, '/'));
+    if (!empty($segments) && end($segments) === $new_slug) {
+      $segments[count($segments) - 1] = $old_slug;
+    }
+
+    $old_url = '/' . implode('/', array_filter($segments, 'strlen'));
+    $new_url = $new_path;
     
     if ($old_url === $new_url) {
       return;
@@ -98,7 +117,7 @@ class ASNERISSEO_Redirects {
         $from = $redirect['from'];
         $from_parsed = wp_parse_url($from);
         $from_path = self::normalize_redirect_path($from);
-        $from_query = isset($from_parsed['query']) ? $from_parsed['query'] : '';
+        $from_query = isset($from_parsed['query']) ? self::normalize_query_string($from_parsed['query']) : '';
         
         if (!empty($from_query)) {
           // Store redirects with query parameters separately
@@ -117,9 +136,14 @@ class ASNERISSEO_Redirects {
       }
     }
     
-    $request_uri = sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
+    $request_uri = isset($_SERVER['REQUEST_URI'])
+      ? wp_kses_no_null(wp_strip_all_tags(wp_unslash($_SERVER['REQUEST_URI'])))
+      : '/';
     $request_path = wp_parse_url($request_uri, PHP_URL_PATH);
-    $query_string = isset($_SERVER['QUERY_STRING']) ? sanitize_text_field(wp_unslash($_SERVER['QUERY_STRING'])) : '';
+    $query_string = isset($_SERVER['QUERY_STRING'])
+      ? wp_kses_no_null(wp_strip_all_tags(wp_unslash($_SERVER['QUERY_STRING'])))
+      : '';
+    $query_string = self::normalize_query_string($query_string);
     
     // Normalize request path consistently
     $normalized_path = self::normalize_redirect_path($request_path ?: '');
@@ -167,6 +191,100 @@ class ASNERISSEO_Redirects {
     
     return $normalized_path;
   }
+
+  /**
+   * Normalize query string so parameter order doesn't affect redirect matching.
+   */
+  private static function normalize_query_string($query) {
+    if (!is_string($query) || $query === '') {
+      return '';
+    }
+
+    parse_str($query, $params);
+    if (!is_array($params) || empty($params)) {
+      return '';
+    }
+
+    self::ksort_recursive($params);
+    return http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+  }
+
+  /**
+   * Recursively sort arrays by key for deterministic query string normalization.
+   */
+  private static function ksort_recursive(&$array) {
+    if (!is_array($array)) {
+      return;
+    }
+
+    foreach ($array as &$value) {
+      if (is_array($value)) {
+        self::ksort_recursive($value);
+      }
+    }
+    ksort($array);
+  }
+
+  /**
+   * Normalize and validate redirect source path (+ optional query).
+   */
+  private static function sanitize_redirect_source($from) {
+    $from = trim((string) $from);
+    if ($from === '') {
+      return '';
+    }
+
+    if (preg_match('/^https?:\/\//i', $from)) {
+      if (!wp_http_validate_url($from)) {
+        return '';
+      }
+      $parsed = wp_parse_url($from);
+    } else {
+      $from = '/' . ltrim($from, '/');
+      $parsed = wp_parse_url($from);
+    }
+
+    $path = isset($parsed['path']) ? self::normalize_redirect_path($parsed['path']) : '/';
+    if ($path === '') {
+      $path = '/';
+    }
+
+    $query = isset($parsed['query']) ? self::normalize_query_string($parsed['query']) : '';
+    return $query !== '' ? ($path . '?' . $query) : $path;
+  }
+
+  /**
+   * Normalize and validate redirect target.
+   * Allows internal relative paths or absolute HTTP(S) URLs.
+   */
+  private static function sanitize_redirect_target($to) {
+    $to = trim((string) $to);
+    if ($to === '') {
+      return '';
+    }
+
+    if (preg_match('/^(?:javascript|data|vbscript):/i', $to) || strpos($to, '//') === 0) {
+      return '';
+    }
+
+    if (preg_match('/^https?:\/\//i', $to)) {
+      $to = esc_url_raw($to);
+      if (!$to || !wp_http_validate_url($to)) {
+        return '';
+      }
+      return $to;
+    }
+
+    $to = '/' . ltrim($to, '/');
+    $parsed = wp_parse_url($to);
+    $path = isset($parsed['path']) ? self::normalize_redirect_path($parsed['path']) : '/';
+    if ($path === '') {
+      $path = '/';
+    }
+    $query = isset($parsed['query']) ? self::normalize_query_string($parsed['query']) : '';
+
+    return $query !== '' ? ($path . '?' . $query) : $path;
+  }
   
   /**
    * Get all redirects
@@ -181,6 +299,12 @@ class ASNERISSEO_Redirects {
    */
   public static function add_redirect($from, $to, $code = 301, $type = 'manual') {
     $redirects = self::get_redirects();
+
+    $from = self::sanitize_redirect_source($from);
+    $to = self::sanitize_redirect_target($to);
+    if ($from === '' || $to === '') {
+      return false;
+    }
     
     // Enforce 500 redirect limit to prevent performance issues
     if (count($redirects) >= 500) {
@@ -192,10 +316,6 @@ class ASNERISSEO_Redirects {
     
     // Normalize 'from' path to prevent duplicate redirects with/without trailing slash
     $from_normalized = $from;
-    if (strpos($from, '?') === false) {
-      // Only normalize if no query string
-      $from_normalized = self::normalize_redirect_path($from);
-    }
     
     // Remove existing redirect with same "from"
     $redirects = array_filter($redirects, function($r) use ($from_normalized) {
@@ -226,6 +346,12 @@ class ASNERISSEO_Redirects {
       return false;
     }
     
+    $from = self::sanitize_redirect_source($from);
+    $to = self::sanitize_redirect_target($to);
+    if ($from === '' || $to === '') {
+      return false;
+    }
+
     $redirects[$index]['from'] = $from;
     $redirects[$index]['to'] = $to;
     $redirects[$index]['code'] = $code;
@@ -306,13 +432,15 @@ class ASNERISSEO_Redirects {
       $code = isset($_POST['code']) ? (int) $_POST['code'] : 301;
       $code = in_array($code, [301, 302, 307], true) ? $code : 301;
       
-      // Strip domain from URLs to store only path + query
+      // Strip domain from source URL; target can be relative or absolute HTTP(S).
       $from = str_replace(home_url(), '', $from);
-      $to = str_replace(home_url(), '', $to);
       
       if (!empty($from) && !empty($to)) {
-        self::add_redirect($from, $to, $code, 'manual');
-        echo '<div class="notice notice-success"><p>' . esc_html__('Redirect added successfully!', 'asneris-seo-toolkit') . '</p></div>';
+        if (self::add_redirect($from, $to, $code, 'manual')) {
+          echo '<div class="notice notice-success"><p>' . esc_html__('Redirect added successfully!', 'asneris-seo-toolkit') . '</p></div>';
+        } else {
+          echo '<div class="notice notice-error"><p>' . esc_html__('Invalid redirect source or target URL.', 'asneris-seo-toolkit') . '</p></div>';
+        }
       }
     }
     

@@ -27,18 +27,18 @@ $ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) 
     <tbody>
       <tr>
         <td><strong>Sitemap URL</strong></td>
-        <td><?php echo $ASNERISSEO_sitemap_status['found'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
-        <td><?php echo $ASNERISSEO_sitemap_status['found'] ? 'Found: ' : 'Not Found: '; echo esc_html($ASNERISSEO_sitemap_status['url']); ?></td>
+        <td><?php echo wp_kses( $ASNERISSEO_sitemap_status['found'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>', array( 'span' => array( 'style' => array() ) ) ); ?></td>
+        <td><?php echo esc_html( $ASNERISSEO_sitemap_status['found'] ? 'Found: ' : 'Not Found: ' ); echo esc_html($ASNERISSEO_sitemap_status['url']); ?></td>
       </tr>
       <tr>
         <td><strong>HTTP Status</strong></td>
-        <td><?php echo $ASNERISSEO_sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo wp_kses( $ASNERISSEO_sitemap_status['http_status'] === 200 ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>', array( 'span' => array( 'style' => array() ) ) ); ?></td>
         <td><?php echo $ASNERISSEO_sitemap_status['http_status'] === 200 ? 'HTTP ' . esc_html($ASNERISSEO_sitemap_status['http_status']) . ' - ' . esc_html($ASNERISSEO_sitemap_status['http_message']) : 'Sitemap URL could not be checked'; ?></td>
       </tr>
       <tr>
         <td><strong>Robots.txt Reference</strong></td>
-        <td><?php echo $ASNERISSEO_sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #f0ad4e;">⚠ Warning</span>'; ?></td>
-        <td><?php echo $ASNERISSEO_sitemap_status['in_robots'] ? 'Referenced in robots.txt - ' : 'Not found in robots.txt - '; echo esc_html($ASNERISSEO_sitemap_status['robots_message']); ?></td>
+        <td><?php echo wp_kses( $ASNERISSEO_sitemap_status['in_robots'] ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #f0ad4e;">⚠ Warning</span>', array( 'span' => array( 'style' => array() ) ) ); ?></td>
+        <td><?php echo esc_html( $ASNERISSEO_sitemap_status['in_robots'] ? 'Referenced in robots.txt - ' : 'Not found in robots.txt - ' ); echo esc_html($ASNERISSEO_sitemap_status['robots_message']); ?></td>
       </tr>
       <tr>
         <td><strong>Controlled By</strong></td>
@@ -78,13 +78,13 @@ $ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) 
     <tbody>
       <tr>
         <td><strong>Active SEO Plugins</strong></td>
-        <td><?php echo empty($ASNERISSEO_duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+        <td><?php echo wp_kses( empty($ASNERISSEO_duplicate_status['active_plugins']) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>', array( 'span' => array( 'style' => array() ) ) ); ?></td>
         <td><?php echo empty($ASNERISSEO_duplicate_status['active_plugins']) ? 'Only this plugin - No conflicts' : 'Multiple detected: ' . esc_html(implode(', ', $ASNERISSEO_duplicate_status['active_plugins'])); ?></td>
       </tr>
       <?php foreach (['title', 'description', 'canonical', 'robots', 'schema'] as $type): ?>
         <tr>
           <td><strong><?php echo esc_html(ucfirst($type)); ?> Tags</strong></td>
-          <td><?php echo empty($ASNERISSEO_duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>'; ?></td>
+          <td><?php echo wp_kses( empty($ASNERISSEO_duplicate_status['duplicates'][$type]) ? '<span style="color: #46b450;">✓ Pass</span>' : '<span style="color: #dc3232;">✗ Issue</span>', array( 'span' => array( 'style' => array() ) ) ); ?></td>
           <td><?php echo empty($ASNERISSEO_duplicate_status['duplicates'][$type]) ? 'Single output - No duplicates' : 'Duplicate found: ' . esc_html($ASNERISSEO_duplicate_status['duplicates'][$type]); ?></td>
         </tr>
       <?php endforeach; ?>
@@ -120,7 +120,7 @@ $ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) 
   
   // 2. Check robots.txt for blocks affecting large sections
   $ASNERISSEO_robots_url = home_url('/robots.txt');
-  $ASNERISSEO_robots_response = wp_remote_get($ASNERISSEO_robots_url, ['timeout' => 5, 'sslverify' => false]);
+  $ASNERISSEO_robots_response = wp_remote_get($ASNERISSEO_robots_url, ['timeout' => 5, 'sslverify' => true]);
   if (!is_wp_error($ASNERISSEO_robots_response) && wp_remote_retrieve_response_code($ASNERISSEO_robots_response) === 200) {
     $ASNERISSEO_robots_content = wp_remote_retrieve_body($ASNERISSEO_robots_response);
     $ASNERISSEO_blocked_sections = [];
@@ -193,7 +193,7 @@ $ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) 
   
   $ASNERISSEO_redirect_chains = 0;
   foreach ($ASNERISSEO_test_urls as $ASNERISSEO_url) {
-    $ASNERISSEO_response = wp_remote_head($ASNERISSEO_url, ['timeout' => 5, 'redirection' => 0, 'sslverify' => false]);
+    $ASNERISSEO_response = wp_remote_head($ASNERISSEO_url, ['timeout' => 5, 'redirection' => 0, 'sslverify' => true]);
     if (!is_wp_error($ASNERISSEO_response)) {
       $ASNERISSEO_code = wp_remote_retrieve_response_code($ASNERISSEO_response);
       if (in_array($ASNERISSEO_code, [301, 302, 307, 308])) {
@@ -386,7 +386,7 @@ $ASNERISSEO_has_issues = !empty($ASNERISSEO_duplicate_status['active_plugins']) 
   $ASNERISSEO_redirected_canonicals = 0;
   $ASNERISSEO_sampled_urls = array_slice($ASNERISSEO_canonical_urls, 0, 10);
   foreach ($ASNERISSEO_sampled_urls as $ASNERISSEO_row) {
-    $ASNERISSEO_response = wp_remote_head($ASNERISSEO_row->canonical_url, ['timeout' => 3, 'redirection' => 0, 'sslverify' => false]);
+    $ASNERISSEO_response = wp_remote_head($ASNERISSEO_row->canonical_url, ['timeout' => 3, 'redirection' => 0, 'sslverify' => true]);
     if (!is_wp_error($ASNERISSEO_response)) {
       $ASNERISSEO_code = wp_remote_retrieve_response_code($ASNERISSEO_response);
       if (in_array($ASNERISSEO_code, [301, 302, 307, 308])) {

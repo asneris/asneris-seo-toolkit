@@ -1,4 +1,6 @@
 <?php
+if (!defined('ABSPATH')) exit;
+
 /**
  * Diagnostics - Read-only facts about what exists
  * 
@@ -12,8 +14,6 @@
  * - Social meta
  * - Verification tags
  */
-
-if (!defined('ABSPATH')) exit;
 
 class ASNERISSEO_Diagnostics_Page {
   
@@ -71,7 +71,9 @@ class ASNERISSEO_Diagnostics_Page {
     $response = wp_remote_get($url, [
       'timeout' => 15,
       'redirection' => 5,
-      'reject_unsafe_urls' => true
+      'sslverify' => true,
+      'reject_unsafe_urls' => true,
+      'user-agent'  => 'AsnerisBot/1.0 (WordPress SEO plugin; +https://asneris.com)',
     ]);
     
     if (is_wp_error($response)) {
@@ -128,7 +130,8 @@ class ASNERISSEO_Diagnostics_Page {
         $canon_response = wp_remote_head($href, [
           'timeout' => 5,
           'redirection' => 0,
-          'reject_unsafe_urls' => true
+          'sslverify' => true,
+          'reject_unsafe_urls' => true,
         ]);
         
         if (!is_wp_error($canon_response)) {
@@ -434,13 +437,20 @@ class ASNERISSEO_Diagnostics_Page {
                     <?php 
                     $input_normalized = untrailingslashit(strtolower($results['tested_url']));
                     $canon_normalized = untrailingslashit(strtolower($canon));
-                    echo $input_normalized === $canon_normalized 
-                      ? '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>' 
-                      : '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>'; 
+                    echo wp_kses(
+                      $input_normalized === $canon_normalized
+                        ? '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>'
+                        : '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>',
+                      array(
+                        'span' => array(
+                          'style' => array(),
+                        ),
+                      )
+                    );
                     ?>
                   </td>
                   <td>
-                    <?php echo $input_normalized === $canon_normalized ? 'Yes - Points to itself (recommended)' : 'No - Points to different URL'; ?>
+                    <?php echo esc_html( $input_normalized === $canon_normalized ? 'Yes - Points to itself (recommended)' : 'No - Points to different URL' ); ?>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -758,7 +768,7 @@ class ASNERISSEO_Diagnostics_Page {
           <p style="color: #646970;">Open Graph and Twitter Card tags for social sharing</p>
           
           <h3 style="margin-top: 0;">Open Graph (Facebook/LinkedIn)</h3>
-          <p><strong>Count:</strong> <?php echo count($results['og_tags']); ?></p>
+          <p><strong>Count:</strong> <?php echo esc_html( count($results['og_tags']) ); ?></p>
           <?php if (!empty($results['og_tags'])): ?>
             <table class="widefat striped">
               <thead><tr><th style="width: 200px;">Property</th><th>Content</th></tr></thead>
@@ -776,7 +786,7 @@ class ASNERISSEO_Diagnostics_Page {
           <?php endif; ?>
           
           <h3 style="margin-top: 20px;">Twitter Card</h3>
-          <p><strong>Count:</strong> <?php echo count($results['twitter_tags']); ?></p>
+          <p><strong>Count:</strong> <?php echo esc_html( count($results['twitter_tags']) ); ?></p>
           <?php if (!empty($results['twitter_tags'])): ?>
             <table class="widefat striped">
               <thead><tr><th style="width: 200px;">Name</th><th>Content</th></tr></thead>
@@ -802,7 +812,7 @@ class ASNERISSEO_Diagnostics_Page {
           </h2>
           <p style="color: #646970;">JSON-LD structured data blocks for this URL</p>
           
-          <p><strong>Schema Block Count:</strong> <?php echo count($results['schema_blocks']); ?></p>
+          <p><strong>Schema Block Count:</strong> <?php echo esc_html( count($results['schema_blocks']) ); ?></p>
           <?php if (!empty($results['schema_blocks'])): ?>
             <table class="widefat striped">
               <thead><tr><th style="width: 100px;">#</th><th style="width: 150px;">Valid JSON?</th><th>@type</th></tr></thead>
@@ -810,7 +820,7 @@ class ASNERISSEO_Diagnostics_Page {
                 <?php foreach ($results['schema_blocks'] as $i => $schema): ?>
                   <tr>
                     <td><?php echo esc_html($i + 1); ?></td>
-                    <td><?php echo $schema['valid'] ? '✅ Yes' : '❌ No'; ?></td>
+                    <td><?php echo esc_html( $schema['valid'] ? '✅ Yes' : '❌ No' ); ?></td>
                     <td><code><?php echo esc_html($schema['type']); ?></code></td>
                   </tr>
                 <?php endforeach; ?>

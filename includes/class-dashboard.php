@@ -244,8 +244,8 @@ class ASNERISSEO_Dashboard {
                 </h3>
                 <ul class="asnerisseo-checklist-list">
                   <?php foreach ($section['items'] as $item => $done): ?>
-                    <li class="<?php echo $done ? 'asnerisseo-checklist-done' : 'asnerisseo-checklist-pending'; ?>">
-                      <?php echo $done ? '✓' : '○'; ?> <?php echo esc_html($item); ?>
+                    <li class="<?php echo esc_attr( $done ? 'asnerisseo-checklist-done' : 'asnerisseo-checklist-pending' ); ?>">
+                      <?php echo esc_html( $done ? '✓' : '○' ); ?> <?php echo esc_html($item); ?>
                     </li>
                   <?php endforeach; ?>
                 </ul>

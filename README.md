@@ -182,7 +182,7 @@ The script:
 
 ## Changelog
 
-### 0.1.2 (April 16, 2026)
+### 0.1.2 (April 17, 2026)
 - **New:** Added custom SEO columns to Pages admin list
   - SEO Title column (250px width, 2-line display with ellipsis)
   - SEO Description column (300px width, 2-line display with ellipsis)
@@ -193,12 +193,21 @@ The script:
   - Fixed unescaped nonces in inline JavaScript
   - Added SQL prepare() statements for enhanced query security
   - Added phpcs:ignore comments for read-only URL parameter checks
+  - Added `current_user_can('manage_options')` check before nonce verification in validation POST handler
+  - Rate limiting on AJAX HTTP test endpoint (per-user transient, 5-second window)
 - **Code Quality:** Fixed PHP syntax errors in validation templates
   - Corrected duplicate output detection logic
   - Fixed missing closing brace in canonical validation
+  - Replaced all anonymous action/filter closures with named static methods in `ASNERISSEO_Bootstrap` class (hooks are now removable)
+  - Wrapped `on_wp_head` render calls in `try/catch(\Throwable)` to prevent `<head>` corruption on unexpected errors
 - **Standards:** Fixed script handle case consistency (standardized to lowercase)
 - **Fix:** Removed is_admin() conditional to prevent fatal class loading errors on REST API and AJAX requests
 - **Fix:** Resolved React Strict Mode cleanup timing issues in auto-open feature
+- **Scope:** Narrowed `register_post_meta()` from all post types (`''`) to `['post', 'page']` via `SUPPORTED_POST_TYPES` constant
+- **HTTP consistency:** Standardised all `wp_remote_get/head` calls across validation and diagnostics
+  - `sslverify => true` enforced on every outbound request
+  - Explicit `redirection` limit set per call (0 for spot-checks, 5 for full fetches)
+  - Consistent `user-agent` header: `AsnerisBot/1.0 (WordPress SEO plugin; +https://asneris.com)`
 - **Validation:** Achieved 100% pass rate on all WordPress.org requirements
   - WPCS (WordPress Coding Standards) - 0 warnings
   - PHPStan Level 8 - 0 errors

@@ -373,6 +373,11 @@ class ASNERISSEO_Bulk_Edit {
     $titles = isset($_POST['seo_title']) ? map_deep(wp_unslash($_POST['seo_title']), 'sanitize_text_field') : [];
     $descriptions = isset($_POST['seo_description']) ? map_deep(wp_unslash($_POST['seo_description']), 'sanitize_textarea_field') : [];
     $robots = isset($_POST['robots_index']) ? map_deep(wp_unslash($_POST['robots_index']), 'sanitize_text_field') : [];
+
+    if (empty($post_ids)) {
+      wp_send_json_error(['message' => __('Please select at least one post to update.', 'asneris-seo-toolkit')]);
+      return;
+    }
     
     $updated = 0;
     
@@ -388,15 +393,16 @@ class ASNERISSEO_Bulk_Edit {
       }
       
       if (isset($robots[$post_id])) {
-        update_post_meta($post_id, '_ASNERISSEO_robots_index', $robots[$post_id]);
+        $robots_value = in_array($robots[$post_id], ['index', 'noindex'], true) ? $robots[$post_id] : 'index';
+        update_post_meta($post_id, '_ASNERISSEO_robots_index', $robots_value);
       }
       
       $updated++;
     }
     
     wp_send_json_success([
-      /* translators: %d: number of posts updated */
-      'message' => sprintf(esc_html__('%d posts updated successfully!', 'asneris-seo-toolkit'), $updated),
+      /* translators: %d: number of posts/pages updated */
+      'message' => sprintf(esc_html__('%d posts/pages were updated successfully.', 'asneris-seo-toolkit'), $updated),
       'updated' => $updated
     ]);
   }

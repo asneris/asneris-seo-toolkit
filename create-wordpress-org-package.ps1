@@ -49,6 +49,35 @@ Write-Host "Source:  $sourceDir" -ForegroundColor Green
 Write-Host "Output:  $zipName" -ForegroundColor Green
 Write-Host ""
 
+# --- Pre-flight validation ---
+Write-Host "Running pre-flight checks..." -ForegroundColor Yellow
+
+# Validate required files exist before packaging
+$requiredFiles = @("readme.txt", "uninstall.php", "help-content.json")
+foreach ($file in $requiredFiles) {
+    if (-not (Test-Path "$sourceDir\$file")) {
+        Write-Host "ERROR: Missing required file: $file" -ForegroundColor Red
+        exit 1
+    }
+}
+
+# Validate build output exists (npm build must be run first)
+if (-not (Test-Path "$sourceDir\build\index.js")) {
+    Write-Host "ERROR: build/index.js missing. Run 'npm run build' first." -ForegroundColor Red
+    exit 1
+}
+
+# Validate readme.txt contains source/build disclosure (WordPress.org requirement)
+$readme = Get-Content "$sourceDir\readme.txt" -Raw
+if ($readme -notmatch "github\.com" -or $readme -notmatch "npm run build") {
+    Write-Host "ERROR: readme.txt is missing source repository URL or build instructions." -ForegroundColor Red
+    Write-Host "       WordPress.org requires disclosure of build process for minified assets." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "  Pre-flight checks passed." -ForegroundColor Green
+Write-Host ""
+
 # Clean all previous build artifacts
 Write-Host "Cleaning previous build artifacts..." -ForegroundColor Yellow
 if (Test-Path "$sourceDir\$zipName") {
@@ -67,8 +96,8 @@ New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null
 # Copy essential files
 Write-Host "Copying plugin files..." -ForegroundColor Yellow
 
-# Main files
-Copy-Item "$sourceDir\asneris-seo-toolkit.php" $pluginDir
+# Use detected main plugin file (not hardcoded filename)
+Copy-Item $mainFile.FullName $pluginDir
 Copy-Item "$sourceDir\readme.txt" $pluginDir
 Copy-Item "$sourceDir\uninstall.php" $pluginDir
 Copy-Item "$sourceDir\help-content.json" $pluginDir
@@ -81,10 +110,19 @@ Copy-Item "$sourceDir\build" $pluginDir -Recurse
 Copy-Item "$sourceDir\templates" $pluginDir -Recurse
 
 Write-Host "Files copied successfully!" -ForegroundColor Green
+
+# Remove unwanted files from the package (dev artifacts, git, logs)
+$excludePatterns = @("node_modules", ".git", ".vscode", "*.log", "*.ps1", ".DS_Store")
+Get-ChildItem $pluginDir -Recurse | Where-Object {
+    $item = $_
+    $excludePatterns | Where-Object { $item.FullName -like "*$_*" }
+} | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
 Write-Host ""
 
-# Convert to Unix paths for WSL
-$wslTempDir = $tempDir -replace '\\', '/' -replace 'D:', '/mnt/d'
+# Dynamic WSL path conversion (supports any drive letter, not just D:)
+$drive = $sourceDir.Substring(0, 1).ToLower()
+$wslTempDir = $tempDir -replace '\\', '/' -replace '^[A-Za-z]:', "/mnt/$drive"
 
 Write-Host "Creating Unix-compatible ZIP using WSL..." -ForegroundColor Yellow
 
@@ -104,6 +142,16 @@ Move-Item "$tempDir\$zipName" "$sourceDir\$zipName" -Force
 Write-Host "Cleaning up..." -ForegroundColor Yellow
 Remove-Item $tempDir -Recurse -Force
 
+# Validate ZIP is not suspiciously small (sanity check for broken builds)
+$zipPath = "$sourceDir\$zipName"
+$zipSize = (Get-Item $zipPath).Length
+if ($zipSize -lt 10000) {
+    Write-Host "ERROR: ZIP file is too small ($zipSize bytes). Build may be incomplete." -ForegroundColor Red
+    exit 1
+}
+$zipSizeKB = [math]::Round($zipSize / 1KB, 0)
+$zipSizeMB = [math]::Round($zipSize / 1MB, 2)
+
 Write-Host ""
 Write-Host "=== SUCCESS! ===" -ForegroundColor Green
 Write-Host ""
@@ -111,14 +159,20 @@ Write-Host "WordPress.org submission package created:" -ForegroundColor Cyan
 Write-Host "$sourceDir\$zipName" -ForegroundColor White
 Write-Host ""
 Write-Host "Package Contents:" -ForegroundColor Yellow
-Write-Host "  - asneris-seo-toolkit.php (main plugin file)" -ForegroundColor Gray
+Write-Host "  - $($mainFile.Name) (main plugin file)" -ForegroundColor Gray
 Write-Host "  - readme.txt (WordPress.org readme)" -ForegroundColor Gray
+Write-Host "  - uninstall.php (clean uninstall handler)" -ForegroundColor Gray
 Write-Host "  - help-content.json (help system content)" -ForegroundColor Gray
-Write-Host "  - includes/ (12 PHP class files)" -ForegroundColor Gray
+Write-Host "  - includes/ (PHP class files)" -ForegroundColor Gray
 Write-Host "  - languages/ (i18n directory)" -ForegroundColor Gray
 Write-Host "  - assets/ (CSS and JavaScript)" -ForegroundColor Gray
 Write-Host "  - build/ (compiled React components)" -ForegroundColor Gray
 Write-Host "  - templates/ (template files)" -ForegroundColor Gray
+if (Test-Path "$sourceDir\src") {
+    Write-Host "  - src/ (source files for reviewer transparency)" -ForegroundColor Gray
+}
+Write-Host ""
+Write-Host "Package size: $zipSizeMB MB ($zipSizeKB KB)" -ForegroundColor Green
 Write-Host ""
 Write-Host "Ready to upload to: https://wordpress.org/plugins/developers/add/" -ForegroundColor Yellow
 Write-Host ""

@@ -129,12 +129,12 @@ class ASNERISSEO_Validation {
     
     $response = wp_remote_get($url, [
       'timeout' => 15,
-      // sslverify disabled: self-request to validate the site's own pages
-      'sslverify' => false,
-      'reject_unsafe_urls' => false,
+      'sslverify' => true,
+      'reject_unsafe_urls' => true,
       'redirection' => 5,
       'blocking' => true,
       'httpversion' => '1.1',
+      'user-agent'  => 'AsnerisBot/1.0 (WordPress SEO plugin; +https://asneris.com)',
     ]);
     
     remove_filter('http_request_host_is_external', '__return_true');
@@ -267,7 +267,7 @@ class ASNERISSEO_Validation {
    */
   public static function analyze_sitemap() {
     $sitemap_url = home_url('/wp-sitemap.xml');
-    $response = wp_remote_get($sitemap_url, ['timeout' => 5]);
+    $response = wp_remote_get($sitemap_url, [ 'timeout' => 5, 'redirection' => 0, 'sslverify' => true ]);
     
     $result = [
       'url' => $sitemap_url,
@@ -292,7 +292,7 @@ class ASNERISSEO_Validation {
    */
   public static function analyze_robots_txt() {
     $robots_url = home_url('/robots.txt');
-    $response = wp_remote_get($robots_url, ['timeout' => 5]);
+    $response = wp_remote_get($robots_url, [ 'timeout' => 5, 'redirection' => 0, 'sslverify' => true ]);
     
     $result = [
       'url' => $robots_url,
@@ -413,7 +413,7 @@ class ASNERISSEO_Validation {
    * Get remote image file size
    */
   private static function get_remote_image_size($url) {
-    $response = wp_remote_head($url, ['timeout' => 5]);
+    $response = wp_remote_head($url, [ 'timeout' => 5, 'redirection' => 0, 'sslverify' => true ]);
     if (is_wp_error($response)) {
       return null;
     }
@@ -529,7 +529,9 @@ class ASNERISSEO_Validation {
     
     // Handle form submission
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
-    $run_test = isset($_POST['run_validation']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'ASNERISSEO_validation');
+    $run_test = isset($_POST['run_validation'])
+      && current_user_can('manage_options')
+      && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'ASNERISSEO_validation');
     
     $data['test_url'] = $test_url;
     
@@ -569,8 +571,7 @@ class ASNERISSEO_Validation {
         $data['indexnow'] = self::get_indexnow_status();
         
         // Analyze content
-        // sslverify disabled: self-request to analyze the site's own content
-        $response = wp_remote_get($test_url, ['timeout' => 10, 'sslverify' => false]);
+        $response = wp_remote_get( $test_url, [ 'timeout' => 10, 'redirection' => 5, 'sslverify' => true ] );
         if (!is_wp_error($response)) {
           $html = wp_remote_retrieve_body($response);
           $data['headings'] = self::analyze_heading_structure($html);
@@ -610,7 +611,7 @@ class ASNERISSEO_Validation {
     $checks['critical']['total'] = 0;
     
     // RECOMMENDED (30% weight) - Presentation & discovery
-    $checks['recommended']['total'] = 5;
+    $checks['recommended']['total'] = 6;
     if (count($results['title']) === 1) $checks['recommended']['passed']++;
     if (count($results['description']) === 1) $checks['recommended']['passed']++;
     if (count($results['canonical']) === 1) $checks['recommended']['passed']++;
@@ -700,8 +701,7 @@ class ASNERISSEO_Validation {
     
     // Check which sitemap exists
     foreach ($sitemap_urls as $url) {
-      // sslverify disabled: checking the site's own sitemap URLs
-      $response = wp_remote_head($url, ['timeout' => 5, 'sslverify' => false]);
+      $response = wp_remote_head( $url, [ 'timeout' => 5, 'redirection' => 0, 'sslverify' => true ] );
       if (!is_wp_error($response)) {
         $status = wp_remote_retrieve_response_code($response);
         if ($status === 200) {
@@ -717,8 +717,7 @@ class ASNERISSEO_Validation {
     // Check robots.txt
     if ($result['found']) {
       $robots_url = $site_url . '/robots.txt';
-      // sslverify disabled: self-request to read the site's own robots.txt
-      $robots_response = wp_remote_get($robots_url, ['timeout' => 5, 'sslverify' => false]);
+      $robots_response = wp_remote_get( $robots_url, [ 'timeout' => 5, 'redirection' => 0, 'sslverify' => true ] );
       if (!is_wp_error($robots_response)) {
         $robots_content = wp_remote_retrieve_body($robots_response);
         if (stripos($robots_content, 'sitemap:') !== false && stripos($robots_content, basename($result['url'])) !== false) {

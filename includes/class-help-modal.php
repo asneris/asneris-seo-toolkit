@@ -12,8 +12,6 @@ class ASNERISSEO_Help_Modal {
   
   private static $content_cache = null;
   
-  private static $modals_to_render = [];
-  
   /**
    * Initialize hooks
    */
@@ -36,68 +34,63 @@ class ASNERISSEO_Help_Modal {
   }
   
   /**
-   * Load content from local JSON file
+   * Load content from local JSON file.
+   *
+   * Uses file_get_contents() intentionally: WP_Filesystem requires credentials
+   * context (admin form submission or SSH/FTP setup) and can return an
+   * uninitialised object when called during admin_enqueue_scripts, causing
+   * silent empty reads. For a read-only, bundled plugin file this is safe.
    */
   private static function load_content() {
-    // Use cached content if available
-    if (self::$content_cache !== null) {
+    if ( self::$content_cache !== null ) {
       return self::$content_cache;
     }
-    
+
     $json_file = ASNERISSEO_DIR . 'help-content.json';
-    
-    if (!file_exists($json_file)) {
+
+    if ( ! file_exists( $json_file ) ) {
       return [];
     }
-    
-    global $wp_filesystem;
-    if (empty($wp_filesystem)) {
-      require_once ABSPATH . 'wp-admin/includes/file.php';
-      WP_Filesystem();
-    }
-    
-    $json_content = $wp_filesystem->get_contents($json_file);
-    $data = json_decode($json_content, true);
-    
-    if (!$data) {
+
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a bundled read-only plugin asset; WP_Filesystem is unreliable here
+    $json_content = file_get_contents( $json_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+    if ( $json_content === false ) {
       return [];
     }
-    
-    // Cache in memory for this request
+
+    $data = json_decode( $json_content, true );
+
+    if ( ! $data ) {
+      return [];
+    }
+
     self::$content_cache = $data;
-    
+
     return $data;
   }
   
   /**
-   * Render modal HTML and JavaScript
+   * Called by page renderers to signal that modal overlay should be present.
+   * With the localize_script approach the content is already embedded — this
+   * only needs to mark that this is a plugin page so the overlay is printed.
+   *
+   * @param string $page_id Unused — kept for backward-compatible call sites.
    */
-  public static function render_modals($page_id) {
-    $content = self::get($page_id);
-    
-    // Check for modals key directly or nested
-    if (isset($content['modals']) && !empty($content['modals'])) {
-      self::$modals_to_render = $content['modals'];
-    } elseif (empty($content)) {
-      return;
-    }
+  public static function render_modals( $page_id ) {
+    // No-op: content is now embedded via wp_localize_script in enqueue_assets().
+    // The overlay HTML is always rendered when assets are enqueued.
   }
   
   /**
-   * Render modal HTML in footer
+   * Render modal overlay HTML in footer (runs on every admin page where assets loaded).
    */
   public static function render_modal_html() {
-    // Skip rendering on non-plugin pages for performance
-    if (empty(self::$modals_to_render)) {
-      return;
-    }
-    
-    // Only render on plugin pages (check if our assets were enqueued)
-    if (!self::$assets_enqueued) {
+    if ( ! self::$assets_enqueued ) {
       return;
     }
     ?>
-    <!-- Help Modals -->
+    <!-- Asneris SEO Help Modal -->
     <div id="ASNERISSEO-help-modal-overlay" class="ASNERISSEO-modal-overlay" onclick="ASNERISSEOHelpModal.closeOnOverlay(event)">
       <div id="ASNERISSEO-help-modal" class="ASNERISSEO-modal">
         <div class="ASNERISSEO-modal-header">
@@ -110,14 +103,11 @@ class ASNERISSEO_Help_Modal {
       </div>
     </div>
     <?php
-    wp_add_inline_script(
-      'asnerisseo-help-modal-js',
-      'if (typeof ASNERISSEOHelpModal !== "undefined") { ASNERISSEOHelpModal.setContent(' . wp_json_encode(self::$modals_to_render, JSON_HEX_TAG | JSON_HEX_AMP) . '); }'
-    );
   }
   
   /**
-   * Enqueue modal scripts and styles
+   * Enqueue modal scripts and styles, and localize ALL modal content so JS can
+   * access it immediately without any footer-hook timing dependency.
    */
   public static function enqueue_assets() {
     if (self::$assets_enqueued) {
@@ -135,11 +125,27 @@ class ASNERISSEO_Help_Modal {
 
     // Register and enqueue modal JavaScript
     wp_register_script('asnerisseo-help-modal-js', false, [], ASNERISSEO_VERSION, true);
+
+    // Build a flat id→{title,body} map from every page's modals section.
+    // This is embedded via wp_localize_script so it is always available when
+    // the page loads — no footer-hook timing dependency.
+    $flat_modals = [];
+    $all_content = self::load_content();
+    foreach ( $all_content as $page_data ) {
+      if ( isset( $page_data['modals'] ) && is_array( $page_data['modals'] ) ) {
+        foreach ( $page_data['modals'] as $modal_id => $modal ) {
+          $flat_modals[ $modal_id ] = $modal;
+        }
+      }
+    }
+    // wp_localize_script outputs the data before the script tag — always in time.
+    wp_localize_script( 'asnerisseo-help-modal-js', 'asnerisseoModalContent', $flat_modals );
+
     // SECURITY NOTE: content.innerHTML assignment is safe because modal content comes from:
     // 1. help-content.json bundled with plugin (plugin-controlled, not user input)
-    // 2. JSON is parsed server-side via wp_json_encode() and passed via wp_add_inline_script()
+    // 2. JSON is parsed server-side via wp_localize_script() and output as a JS object literal
     // 3. No user-generated content is ever injected into modal body
-    $core_js = 'window.ASNERISSEOHelpModal={content:{},setContent:function(modals){this.content=modals;},open:function(contentId){var overlay=document.getElementById("ASNERISSEO-help-modal-overlay");var title=document.getElementById("ASNERISSEO-modal-title");var content=document.getElementById("ASNERISSEO-modal-content");if(!this.content||!this.content[contentId])return;title.textContent=this.content[contentId].title;content.innerHTML=this.content[contentId].body;overlay.classList.add("active");document.body.style.overflow="hidden";},close:function(){var overlay=document.getElementById("ASNERISSEO-help-modal-overlay");overlay.classList.remove("active");document.body.style.overflow="";},closeOnOverlay:function(e){if(e.target===document.getElementById("ASNERISSEO-help-modal-overlay")){this.close();}}};document.addEventListener("keydown",function(e){if(e.key==="Escape"){window.ASNERISSEOHelpModal.close();}});';
+    $core_js = 'window.ASNERISSEOHelpModal={open:function(contentId){var data=window.asnerisseoModalContent||{};if(!data[contentId])return;var overlay=document.getElementById("ASNERISSEO-help-modal-overlay");var title=document.getElementById("ASNERISSEO-modal-title");var content=document.getElementById("ASNERISSEO-modal-content");if(!overlay||!title||!content)return;title.textContent=data[contentId].title;content.innerHTML=data[contentId].body;overlay.classList.add("active");document.body.style.overflow="hidden";},close:function(){var overlay=document.getElementById("ASNERISSEO-help-modal-overlay");if(overlay){overlay.classList.remove("active");}document.body.style.overflow="";},closeOnOverlay:function(e){if(e.target===document.getElementById("ASNERISSEO-help-modal-overlay")){this.close();}}};document.addEventListener("keydown",function(e){if(e.key==="Escape"){window.ASNERISSEOHelpModal.close();}});';
     wp_add_inline_script('asnerisseo-help-modal-js', $core_js);
     wp_enqueue_script('asnerisseo-help-modal-js');
   }

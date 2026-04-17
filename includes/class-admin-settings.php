@@ -965,7 +965,9 @@ class ASNERISSEO_Admin_Settings {
       <div class="ASNERISSEO-info-box">
         <h3><span class="dashicons dashicons-info"></span> Plugin Information</h3>
         <p><strong>Version:</strong> <?php echo esc_html(ASNERISSEO_VERSION); ?></p>
-        <p><strong>Plugin Path:</strong> <code><?php echo esc_html(ASNERISSEO_DIR); ?></code></p>
+        <?php if (defined('WP_DEBUG') && WP_DEBUG) : ?>
+          <p><strong>Plugin Path:</strong> <code><?php echo esc_html(ASNERISSEO_DIR); ?></code></p>
+        <?php endif; ?>
       </div>
     </div>
     <?php
@@ -995,7 +997,17 @@ class ASNERISSEO_Admin_Settings {
       wp_send_json_error('Unauthorized');
     }
 
-    $settings = isset($_POST['settings']) ? map_deep(wp_unslash($_POST['settings']), 'sanitize_text_field') : [];
+    // Import payload is sanitized by self::sanitize() using field-specific rules.
+    $raw_settings = filter_input(INPUT_POST, 'settings', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+    if ($raw_settings === null) {
+      $raw_settings = filter_input(INPUT_POST, 'settings', FILTER_UNSAFE_RAW);
+    }
+    if (is_string($raw_settings)) {
+      $decoded = json_decode(wp_unslash($raw_settings), true);
+      $settings = is_array($decoded) ? $decoded : [];
+    } else {
+      $settings = is_array($raw_settings) ? $raw_settings : [];
+    }
     
     if (empty($settings)) {
       wp_send_json_error('No settings data provided');
