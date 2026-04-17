@@ -1,0 +1,102 @@
+# Spanish translation for Asneris SEO Toolkit
+# Copyright (C) 2026 Asneris SEO Toolkit
+msgid ""
+msgstr ""
+"Project-Id-Version: Asneris SEO Toolkit 0.1.0\n"
+"Report-Msgid-Bugs-To: https://asneris.com\n"
+"POT-Creation-Date: 2026-02-07 12:00+0000\n"
+"PO-Revision-Date: 2026-02-07 12:00+0000\n"
+"Last-Translator: Your Name <your@email.com>\n"
+"Language-Team: Spanish\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Asneris SEO Toolkit"
+msgstr "Kit de Herramientas SEO Asneris"
+
+msgid "Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI."
+msgstr "Configuración de SEO clara y simple para tu sitio WordPress."
+
+msgid "Settings saved successfully!"
+msgstr "¡Configuración guardada exitosamente!"
+
+msgid "Your changes have been saved and are now active."
+msgstr "Tus cambios han sido guardados y ahora están activos."
+
+msgid "Enter ONLY the code value:"
+msgstr "Ingresa SOLAMENTE el valor del código:"
+
+msgid "If Google gives you:"
+msgstr "Si Google te da:"
+
+msgid "Enter only:"
+msgstr "Ingresa solamente:"
+
+msgid "in the field above"
+msgstr "en el campo de arriba"
+
+msgid "What are Webmaster Tools?"
+msgstr "¿Qué son las Herramientas para Webmasters?"
+
+msgid "Webmaster Tools are free platforms provided by search engines where you can:"
+msgstr "Las Herramientas para Webmasters son plataformas gratuitas de buscadores donde puedes:"
+
+msgid "Monitor your site's search performance and rankings"
+msgstr "Monitorear el rendimiento de búsqueda y rankings de tu sitio"
+
+msgid "Submit sitemaps to help search engines discover your content"
+msgstr "Enviar sitemaps para ayudar a los buscadores a descubrir tu contenido"
+
+msgid "Check indexing status and fix crawling issues"
+msgstr "Verificar el estado de indexación y corregir problemas de rastreo"
+
+msgid "View search queries that bring visitors to your site"
+msgstr "Ver consultas de búsqueda que traen visitantes a tu sitio"
+
+msgid "Next Steps After Saving:"
+msgstr "Próximos Pasos Después de Guardar:"
+
+msgid "Click \"Save Settings\" below"
+msgstr "Haz clic en \"Guardar Configuración\" abajo"
+
+msgid "Google Search Console"
+msgstr "Google Search Console"
+
+msgid "Bing Webmaster Tools"
+msgstr "Herramientas para Webmasters de Bing"
+
+msgid "Site Diagnostics"
+msgstr "Diagnósticos del Sitio"
+
+msgid "Excellent"
+msgstr "Excelente"
+
+msgid "Good"
+msgstr "Bueno"
+
+msgid "Fair"
+msgstr "Regular"
+
+msgid "Needs Work"
+msgstr "Necesita Mejoras"
+
+msgid "Dashboard"
+msgstr "Panel de Control"
+
+msgid "Help"
+msgstr "Ayuda"
+
+msgid "Test Any Page"
+msgstr "Probar Cualquier Página"
+
+msgid "Test Homepage"
+msgstr "Probar Página de Inicio"
+
+msgid "Run Validation"
+msgstr "Ejecutar Validación"
+
+msgid "Overall SEO Score"
+msgstr "Puntuación SEO General"
