@@ -1,9 +1,10 @@
 === Asneris SEO Toolkit ===
 Contributors: asneris, asiva
 Tags: seo, technical seo, indexnow, search console
-Requires at least: 5.8
+Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.1.1
+Requires PHP: 7.4
+Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +78,21 @@ If you enable IndexNow, you may need to re-save permalinks once so WordPress reg
 
 == Changelog ==
 
+= 0.1.2 =
+* Fixed PHP syntax errors in admin tab file
+* Fixed nonce escaping (esc_attr on wp_create_nonce output)
+* Fixed script handle mismatch causing admin JS not to load
+* Added prepare() to all direct SQL queries
+* Fixed WPCS nonce verification warnings with inline phpcs:ignore
+* Redesigned Pages SEO column: two wide columns replaced by one compact 'SEO Info' column placed after Date
+* SEO Info column shows color-coded dots for Title and Description status (blue = set, red = missing)
+* Fixed WPCS OutputNotEscaped errors in column renderer
+* Fixed tooltip/help modal system: UTF-8 BOM removed from help-content.json (caused json_decode to return NULL)
+* Rewrote help modal asset loading to use wp_localize_script instead of WP_Filesystem (WP_Filesystem fails silently during admin_enqueue_scripts)
+* Fixed Help page content corruption: replaced raw emoji characters with WordPress dashicons
+* Removed dead code: class-help-content.php (all call sites were commented out)
+* Bumped minimum WordPress requirement from 5.8 to 6.0
+
 = 0.1.1 =
 * Improved nonce handling and input sanitization
 * Added uninstall cleanup for plugin data
@@ -124,19 +140,38 @@ All features are optional and configurable by the site administrator.
 
 == Build Instructions ==
 
-This plugin uses npm and webpack for building JavaScript assets.
+This plugin includes compiled JavaScript assets in the `/build/` directory (required for the Gutenberg sidebar panel). The source files are located in `/src/`.
+
+**Requirements:**
+
+* Node.js 18+ (https://nodejs.org/)
+* npm 9+
 
 **Source Code Repository:**
 https://github.com/asneris/asneris-seo-toolkit
 
-**Build from Source:**
+**Setup & Build:**
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Build production assets: `npm run build`
+1. Clone or download the repository
+2. Navigate to the plugin directory: `cd asneris-seo-toolkit`
+3. Install dependencies: `npm install`
+4. Build production assets: `npm run build`
+5. The compiled files will be output to `/build/index.js` and `/build/index.asset.php`
 
-The source files are in `/src/` directory and compiled output is in `/build/`.
+**Development Mode (auto-rebuild on save):**
 
-**Development Mode:**
+`npm run start`
 
-For development with auto-rebuild: `npm run start`
+**Build Output:**
+
+* `/build/index.js` — Compiled and minified Gutenberg sidebar panel
+* `/build/index.asset.php` — Auto-generated asset manifest with dependencies and version hash
+
+**Technology Stack:**
+
+* React 18 (loaded from WordPress core)
+* @wordpress/scripts (webpack config, babel)
+* @wordpress/plugins, @wordpress/edit-post, @wordpress/components
+
+The `/build/` directory is included in the release ZIP and is required for the plugin to function. Do not delete it.
+

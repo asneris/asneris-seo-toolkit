@@ -1,29 +1,87 @@
 # WordPress.org Submission Package Creator
 # Creates Unix-compatible ZIP for asneris-seo-toolkit
+#
+# Usage:
+#   .\create-wordpress-org-package.ps1                 # auto-reads version from PHP header
+#   .\create-wordpress-org-package.ps1 -Version 1.0.0  # override version
+
+param(
+    [string]$Version = ""
+)
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "=== WordPress.org Package Creator ===" -ForegroundColor Cyan
 Write-Host ""
 
-# Paths
-$sourceDir = "D:\Dev\sco\seo-clarity-first-plugin"
-$tempDir = "$sourceDir\temp-package"
-$pluginDir = "$tempDir\asneris-seo-toolkit"
+# Paths - auto-detected from script location (no hardcoded paths)
+$sourceDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$tempDir   = "$sourceDir\temp-package"
 
-# Check source exists
-if (-not (Test-Path $sourceDir)) {
-    Write-Host "ERROR: Source directory not found: $sourceDir" -ForegroundColor Red
+# Auto-detect main plugin file (first .php file with 'Plugin Name:' header)
+$mainFile = Get-ChildItem -Path $sourceDir -Filter "*.php" -File |
+    Where-Object { (Get-Content $_.FullName -TotalCount 10) -match "Plugin Name:" } |
+    Select-Object -First 1
+
+if (-not $mainFile) {
+    Write-Host "ERROR: Could not find main plugin PHP file in: $sourceDir" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "Source: $sourceDir" -ForegroundColor Green
+# Plugin slug from main PHP filename
+$pluginSlug = [System.IO.Path]::GetFileNameWithoutExtension($mainFile.Name)
+
+# Version: use -Version param if given, otherwise read from PHP plugin header
+if ($Version -ne "") {
+    $pluginVersion = $Version
+} else {
+    $versionLine   = Get-Content $mainFile.FullName | Select-String "^\s*\*\s*Version:\s*(.+)"
+    $pluginVersion = if ($versionLine) { $versionLine.Matches[0].Groups[1].Value.Trim() } else { "" }
+}
+
+# ZIP filename: with version if available
+$zipName   = if ($pluginVersion) { "$pluginSlug-$pluginVersion.zip" } else { "$pluginSlug.zip" }
+$pluginDir = "$tempDir\$pluginSlug"
+
+Write-Host "Plugin:  $pluginSlug" -ForegroundColor Green
+Write-Host "Version: $(if ($pluginVersion) { $pluginVersion } else { '(not found)' })" -ForegroundColor Green
+Write-Host "Source:  $sourceDir" -ForegroundColor Green
+Write-Host "Output:  $zipName" -ForegroundColor Green
+Write-Host ""
+
+# --- Pre-flight validation ---
+Write-Host "Running pre-flight checks..." -ForegroundColor Yellow
+
+# Validate required files exist before packaging
+$requiredFiles = @("readme.txt", "uninstall.php", "help-content.json")
+foreach ($file in $requiredFiles) {
+    if (-not (Test-Path "$sourceDir\$file")) {
+        Write-Host "ERROR: Missing required file: $file" -ForegroundColor Red
+        exit 1
+    }
+}
+
+# Validate build output exists (npm build must be run first)
+if (-not (Test-Path "$sourceDir\build\index.js")) {
+    Write-Host "ERROR: build/index.js missing. Run 'npm run build' first." -ForegroundColor Red
+    exit 1
+}
+
+# Validate readme.txt contains source/build disclosure (WordPress.org requirement)
+$readme = Get-Content "$sourceDir\readme.txt" -Raw
+if ($readme -notmatch "github\.com" -or $readme -notmatch "npm run build") {
+    Write-Host "ERROR: readme.txt is missing source repository URL or build instructions." -ForegroundColor Red
+    Write-Host "       WordPress.org requires disclosure of build process for minified assets." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "  Pre-flight checks passed." -ForegroundColor Green
 Write-Host ""
 
 # Clean all previous build artifacts
 Write-Host "Cleaning previous build artifacts..." -ForegroundColor Yellow
-if (Test-Path "$sourceDir\asneris-seo-toolkit-0.1.1.zip") {
-    Remove-Item "$sourceDir\asneris-seo-toolkit-0.1.1.zip" -Force
+if (Test-Path "$sourceDir\$zipName") {
+    Remove-Item "$sourceDir\$zipName" -Force
 }
 
 # Clean previous temp directory
@@ -38,8 +96,8 @@ New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null
 # Copy essential files
 Write-Host "Copying plugin files..." -ForegroundColor Yellow
 
-# Main files
-Copy-Item "$sourceDir\asneris-seo-toolkit.php" $pluginDir
+# Use detected main plugin file (not hardcoded filename)
+Copy-Item $mainFile.FullName $pluginDir
 Copy-Item "$sourceDir\readme.txt" $pluginDir
 Copy-Item "$sourceDir\uninstall.php" $pluginDir
 Copy-Item "$sourceDir\help-content.json" $pluginDir
@@ -52,15 +110,24 @@ Copy-Item "$sourceDir\build" $pluginDir -Recurse
 Copy-Item "$sourceDir\templates" $pluginDir -Recurse
 
 Write-Host "Files copied successfully!" -ForegroundColor Green
+
+# Remove unwanted files from the package (dev artifacts, git, logs)
+$excludePatterns = @("node_modules", ".git", ".vscode", "*.log", "*.ps1", ".DS_Store")
+Get-ChildItem $pluginDir -Recurse | Where-Object {
+    $item = $_
+    $excludePatterns | Where-Object { $item.FullName -like "*$_*" }
+} | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
 Write-Host ""
 
-# Convert to Unix paths for WSL
-$wslTempDir = $tempDir -replace '\\', '/' -replace 'D:', '/mnt/d'
+# Dynamic WSL path conversion (supports any drive letter, not just D:)
+$drive = $sourceDir.Substring(0, 1).ToLower()
+$wslTempDir = $tempDir -replace '\\', '/' -replace '^[A-Za-z]:', "/mnt/$drive"
 
 Write-Host "Creating Unix-compatible ZIP using WSL..." -ForegroundColor Yellow
 
 # Create ZIP using WSL
-$wslCommand = "cd '$wslTempDir' && zip -r asneris-seo-toolkit-0.1.1.zip asneris-seo-toolkit/"
+$wslCommand = "cd '$wslTempDir' && zip -r $zipName $pluginSlug/"
 wsl bash -c $wslCommand
 
 if ($LASTEXITCODE -ne 0) {
@@ -69,27 +136,43 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Move ZIP to source directory
-Move-Item "$tempDir\asneris-seo-toolkit-0.1.1.zip" "$sourceDir\asneris-seo-toolkit-0.1.1.zip" -Force
+Move-Item "$tempDir\$zipName" "$sourceDir\$zipName" -Force
 
 # Clean up temp directory
 Write-Host "Cleaning up..." -ForegroundColor Yellow
 Remove-Item $tempDir -Recurse -Force
 
+# Validate ZIP is not suspiciously small (sanity check for broken builds)
+$zipPath = "$sourceDir\$zipName"
+$zipSize = (Get-Item $zipPath).Length
+if ($zipSize -lt 10000) {
+    Write-Host "ERROR: ZIP file is too small ($zipSize bytes). Build may be incomplete." -ForegroundColor Red
+    exit 1
+}
+$zipSizeKB = [math]::Round($zipSize / 1KB, 0)
+$zipSizeMB = [math]::Round($zipSize / 1MB, 2)
+
 Write-Host ""
 Write-Host "=== SUCCESS! ===" -ForegroundColor Green
 Write-Host ""
 Write-Host "WordPress.org submission package created:" -ForegroundColor Cyan
-Write-Host "$sourceDir\asneris-seo-toolkit-0.1.1.zip" -ForegroundColor White
+Write-Host "$sourceDir\$zipName" -ForegroundColor White
 Write-Host ""
 Write-Host "Package Contents:" -ForegroundColor Yellow
-Write-Host "  - asneris-seo-toolkit.php (main plugin file)" -ForegroundColor Gray
+Write-Host "  - $($mainFile.Name) (main plugin file)" -ForegroundColor Gray
 Write-Host "  - readme.txt (WordPress.org readme)" -ForegroundColor Gray
+Write-Host "  - uninstall.php (clean uninstall handler)" -ForegroundColor Gray
 Write-Host "  - help-content.json (help system content)" -ForegroundColor Gray
-Write-Host "  - includes/ (12 PHP class files)" -ForegroundColor Gray
+Write-Host "  - includes/ (PHP class files)" -ForegroundColor Gray
 Write-Host "  - languages/ (i18n directory)" -ForegroundColor Gray
 Write-Host "  - assets/ (CSS and JavaScript)" -ForegroundColor Gray
 Write-Host "  - build/ (compiled React components)" -ForegroundColor Gray
 Write-Host "  - templates/ (template files)" -ForegroundColor Gray
+if (Test-Path "$sourceDir\src") {
+    Write-Host "  - src/ (source files for reviewer transparency)" -ForegroundColor Gray
+}
+Write-Host ""
+Write-Host "Package size: $zipSizeMB MB ($zipSizeKB KB)" -ForegroundColor Green
 Write-Host ""
 Write-Host "Ready to upload to: https://wordpress.org/plugins/developers/add/" -ForegroundColor Yellow
 Write-Host ""

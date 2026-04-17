@@ -322,8 +322,8 @@ if (!defined('ABSPATH')) exit;
       <!-- Duplicate Output Detector -->
       <div class="ASNERISSEO-validation-item">
         <?php
-        $ASNERISSEO_duplicate_data = esc_html(ASNERISSEO_Validation::detect_duplicate_outputs();
-        if (empty($ASNERISSEO_duplicate_data)) {
+        $ASNERISSEO_duplicate_data = ASNERISSEO_Validation::detect_duplicate_outputs();
+        if (empty($ASNERISSEO_duplicate_data['duplicates'])) {
           $ASNERISSEO_status = 'pass';
           $ASNERISSEO_icon = '✅';
           $ASNERISSEO_message = 'No duplicate SEO outputs detected';
@@ -440,7 +440,8 @@ if (!defined('ABSPATH')) exit;
               
               if ($ASNERISSEO_canonical_normalized !== $ASNERISSEO_current_normalized) {
                 $ASNERISSEO_canonical_warnings[] = 'Canonical URL points to a different page (may be intentional for duplicate content)';
-            }
+              }
+          }
         }
         
         if ($ASNERISSEO_canonical_consistent && empty($ASNERISSEO_canonical_warnings)) {

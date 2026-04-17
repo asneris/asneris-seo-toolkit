@@ -7,6 +7,8 @@ jQuery(document).ready(function($) {
     return new Promise(function(resolve) {
       $('#ASNERISSEO-confirm-message').text(message);
       $('#ASNERISSEO-confirm-modal').css('display', 'flex');
+      $('#ASNERISSEO-confirm-cancel').text('Cancel').show();
+      $('#ASNERISSEO-confirm-ok').text('Confirm');
       
       $('#ASNERISSEO-confirm-ok').off('click').on('click', function() {
         $('#ASNERISSEO-confirm-modal').hide();
@@ -20,21 +22,17 @@ jQuery(document).ready(function($) {
     });
   }
   
-  // Custom alert function (OK and Cancel)
+  // Custom alert function (informational: OK only)
   function customAlert(message) {
     return new Promise(function(resolve) {
       $('#ASNERISSEO-confirm-message').text(message);
       $('#ASNERISSEO-confirm-modal').css('display', 'flex');
-      $('#ASNERISSEO-confirm-cancel').text('Cancel').show();
+      $('#ASNERISSEO-confirm-cancel').hide();
+      $('#ASNERISSEO-confirm-ok').text('OK');
       
       $('#ASNERISSEO-confirm-ok').off('click').on('click', function() {
         $('#ASNERISSEO-confirm-modal').hide();
         resolve(true);
-      });
-      
-      $('#ASNERISSEO-confirm-cancel').off('click').on('click', function() {
-        $('#ASNERISSEO-confirm-modal').hide();
-        resolve(false);
       });
     });
   }
@@ -184,42 +182,56 @@ jQuery(document).ready(function($) {
       seo_description: {},
       robots_index: {}
     };
+
+    const checkedRows = $form.find('input[name="post_ids[]"]:checked');
+    if (checkedRows.length === 0) {
+      customAlert('Please select at least one post to update.');
+      return;
+    }
     
-    $form.find('input[name="post_ids[]"]').each(function() {
+    checkedRows.each(function() {
       const postId = $(this).val();
       data.post_ids.push(postId);
       data.seo_title[postId] = $('input[name="seo_title[' + postId + ']"]').val();
       data.seo_description[postId] = $('textarea[name="seo_description[' + postId + ']"]').val();
       data.robots_index[postId] = $('select[name="robots_index[' + postId + ']"]').val();
     });
-    
-    $button.prop('disabled', true).text('Saving...');
-    $status.empty().append($('<span>').css('color', '#666').text('Processing...'));
-    
-    $.ajax({
-      url: asnerisBulkEdit.ajaxUrl,
-      type: 'POST',
-      data: data,
-      success: function(response) {
-        if (response.success) {
-          hasUnsavedChanges = false;
-          $status.empty().append($('<span>').css('color', '#46b450').text('Success: ' + response.data.message));
-          customAlert(response.data.message).then(function(confirmed) {
-            if (confirmed) {
+
+    const confirmMessage = 'You are about to save SEO changes for ' + checkedRows.length +
+      ' selected post/page' + (checkedRows.length > 1 ? 's' : '') + '.\n\n' +
+      'Click Confirm to apply these updates now.';
+
+    customConfirm(confirmMessage).then(function(confirmed) {
+      if (!confirmed) {
+        return;
+      }
+
+      $button.prop('disabled', true).text('Saving...');
+      $status.empty().append($('<span>').css('color', '#666').text('Processing...'));
+
+      $.ajax({
+        url: asnerisBulkEdit.ajaxUrl,
+        type: 'POST',
+        data: data,
+        success: function(response) {
+          if (response.success) {
+            hasUnsavedChanges = false;
+            $status.empty().append($('<span>').css('color', '#46b450').text('Success: ' + response.data.message));
+            customAlert('Success! ' + response.data.message).then(function() {
               location.reload();
-            }
-          });
-        } else {
-          $status.empty().append($('<span>').css('color', '#d63638').text('Error: ' + response.data.message));
-          customAlert('Error: ' + response.data.message);
+            });
+          } else {
+            $status.empty().append($('<span>').css('color', '#d63638').text('Error: ' + response.data.message));
+            customAlert('Error: ' + response.data.message);
+            $button.prop('disabled', false).text('Save All Changes');
+          }
+        },
+        error: function() {
+          $status.empty().append($('<span>').css('color', '#d63638').text('Save failed. Please try again.'));
+          customAlert('Save failed. Please try again.');
           $button.prop('disabled', false).text('Save All Changes');
         }
-      },
-      error: function() {
-        $status.empty().append($('<span>').css('color', '#d63638').text('Save failed. Please try again.'));
-        customAlert('Save failed. Please try again.');
-        $button.prop('disabled', false).text('Save All Changes');
-      }
+      });
     });
   });
   

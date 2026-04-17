@@ -15,6 +15,14 @@ class ASNERISSEO_Diagnostics {
       return;
     }
 
+    // Rate limit: one outbound fetch per user per 5 seconds.
+    $rate_key = 'asnerisseo_http_test_' . get_current_user_id();
+    if ( get_transient( $rate_key ) ) {
+      wp_send_json_error( 'Too many requests. Please wait a moment before running another test.' );
+      return;
+    }
+    set_transient( $rate_key, 1, 5 );
+
     $url = isset($_POST['url']) ? esc_url_raw(wp_unslash($_POST['url'])) : '';
     
     if (empty($url)) {

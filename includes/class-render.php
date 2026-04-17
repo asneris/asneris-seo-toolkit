@@ -31,9 +31,15 @@ class ASNERISSEO_Render {
     // Get post meta
     $seo_title = get_post_meta($id, '_ASNERISSEO_title', true);
     $desc = get_post_meta($id, '_ASNERISSEO_description', true);
-    $canon = get_post_meta($id, '_ASNERISSEO_canonical', true) ?: get_permalink($id);
-    $robots_index = get_post_meta($id, '_ASNERISSEO_robots_index', true) ?: 'index';
-    $robots_follow = get_post_meta($id, '_ASNERISSEO_robots_follow', true) ?: 'follow';
+    $custom_canonical = get_post_meta($id, '_ASNERISSEO_canonical', true);
+    $canon = $custom_canonical;
+    if (!is_string($canon) || $canon === '') {
+      $canon = get_permalink($id);
+    }
+    $canon = esc_url_raw($canon);
+    if (!$canon || !wp_http_validate_url($canon)) {
+      $canon = get_permalink($id);
+    }
     
     // Open Graph meta
     $og_title = get_post_meta($id, '_ASNERISSEO_og_title', true);
@@ -69,13 +75,12 @@ class ASNERISSEO_Render {
       echo '<meta name="description" content="' . esc_attr($final_desc) . '">' . "\n";
     }
 
-    // Canonical
-    echo '<link rel="canonical" href="' . esc_url($canon) . '">' . "\n";
+    // Canonical: only output if explicitly overridden on this post.
+    // Otherwise keep WordPress core rel_canonical output.
+    if (!empty($custom_canonical)) {
+      echo '<link rel="canonical" href="' . esc_url($canon) . '">' . "\n";
+    }
     
-    // Robots with preview policies
-    $robots_parts = [$robots_index, $robots_follow, 'max-image-preview:large', 'max-snippet:-1', 'max-video-preview:-1'];
-    echo '<meta name="robots" content="' . esc_attr(implode(',', $robots_parts)) . '">' . "\n";
-
     // Open Graph tags
     echo '<meta property="og:title" content="' . esc_attr($final_og_title) . '">' . "\n";
     echo '<meta property="og:description" content="' . esc_attr($final_og_desc) . '">' . "\n";
@@ -87,13 +92,10 @@ class ASNERISSEO_Render {
     if ($final_og_image) {
       echo '<meta property="og:image" content="' . esc_url($final_og_image) . '">' . "\n";
       
-      // Get image dimensions if possible — use cached attachment ID to avoid expensive reverse-lookup
+      // Get image dimensions if possible (read-only during frontend rendering)
       $image_id = get_post_meta($id, '_ASNERISSEO_og_image_id', true);
       if (!$image_id && !empty($final_og_image)) {
         $image_id = attachment_url_to_postid($final_og_image);
-        if ($image_id) {
-          update_post_meta($id, '_ASNERISSEO_og_image_id', $image_id);
-        }
       }
       $image_id = (int) $image_id;
       if ($image_id) {
@@ -162,5 +164,30 @@ class ASNERISSEO_Render {
     if ($theme_color) {
       echo '<meta name="theme-color" content="' . esc_attr($theme_color) . '">' . "\n";
     }
+  }
+
+  public static function filter_wp_robots($robots) {
+    if (!is_singular()) {
+      return $robots;
+    }
+
+    $post_id = get_queried_object_id();
+    if (!$post_id) {
+      return $robots;
+    }
+
+    $raw_robots_index = get_post_meta($post_id, '_ASNERISSEO_robots_index', true);
+    $raw_robots_follow = get_post_meta($post_id, '_ASNERISSEO_robots_follow', true);
+
+    // Only override core robots when explicitly customized for this post.
+    if ($raw_robots_index !== '' && $raw_robots_index !== null) {
+      $robots['index'] = ($raw_robots_index === 'noindex') ? 'noindex' : 'index';
+    }
+
+    if ($raw_robots_follow !== '' && $raw_robots_follow !== null) {
+      $robots['follow'] = ($raw_robots_follow === 'nofollow') ? 'nofollow' : 'follow';
+    }
+
+    return $robots;
   }
 }
