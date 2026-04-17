@@ -87,6 +87,11 @@ If you enable IndexNow, you may need to re-save permalinks once so WordPress reg
 * Redesigned Pages SEO column: two wide columns replaced by one compact 'SEO Info' column placed after Date
 * SEO Info column shows color-coded dots for Title and Description status (blue = set, red = missing)
 * Fixed WPCS OutputNotEscaped errors in column renderer
+* Fixed tooltip/help modal system: UTF-8 BOM removed from help-content.json (caused json_decode to return NULL)
+* Rewrote help modal asset loading to use wp_localize_script instead of WP_Filesystem (WP_Filesystem fails silently during admin_enqueue_scripts)
+* Fixed Help page content corruption: replaced raw emoji characters with WordPress dashicons
+* Removed dead code: class-help-content.php (all call sites were commented out)
+* Bumped minimum WordPress requirement from 5.8 to 6.0
 
 = 0.1.1 =
 * Improved nonce handling and input sanitization

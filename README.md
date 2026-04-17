@@ -183,6 +183,12 @@ The script:
 ## Changelog
 
 ### 0.1.2 (April 17, 2026)
+- **Fix:** Removed UTF-8 BOM from `help-content.json` — `json_decode()` was returning NULL causing all tooltip modals to silently fail
+- **Fix:** Rewrote help modal loading to use `wp_localize_script` instead of `WP_Filesystem` (WP_Filesystem silently fails during `admin_enqueue_scripts`)
+- **Fix:** Help page content corruption resolved — replaced raw emoji characters (garbled in git) with WordPress dashicons
+- **Cleanup:** Removed dead code `class-help-content.php` (all call sites were commented out) and its `require_once` reference
+- **Requirement:** Bumped minimum WordPress version from 5.8 to 6.0
+
 - **New:** Added custom SEO columns to Pages admin list
   - SEO Title column (250px width, 2-line display with ellipsis)
   - SEO Description column (300px width, 2-line display with ellipsis)
