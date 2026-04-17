@@ -43,8 +43,6 @@ require_once ASNERISSEO_DIR . 'includes/class-templates.php';
 require_once ASNERISSEO_DIR . 'includes/class-bulk-edit.php';
 require_once ASNERISSEO_DIR . 'includes/class-validation.php';
 require_once ASNERISSEO_DIR . 'includes/class-diagnostics.php';
-require_once ASNERISSEO_DIR . 'includes/class-help.php';
-require_once ASNERISSEO_DIR . 'includes/class-help-content.php';
 
 
 
