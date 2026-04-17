@@ -71,12 +71,92 @@ asneris-seo-toolkit/
 
 ## Local development
 
-1. Clone the repo into `wp-content/plugins/asneris-seo-toolkit`
-2. Activate **Asneris SEO Toolkit** in WP Admin → Plugins
-3. Build editor assets (if you ship Gutenberg integration):
-   - `npm install`
-   - `npm run build`
-4. Confirm the plugin loads without PHP errors and the admin pages render.
+### Requirements
+
+| Tool | Version |
+|------|---------|
+| Node.js | 18+ |
+| npm | 9+ |
+| PHP | 7.4+ |
+| WordPress | 5.8+ |
+
+### Setup
+
+```bash
+# 1. Clone into your WordPress plugins directory
+cd wp-content/plugins/
+git clone https://github.com/asneris/asneris-seo-toolkit
+
+# 2. Install JavaScript dependencies
+cd asneris-seo-toolkit
+npm install
+
+# 3. Build production assets
+npm run build
+
+# 4. Activate in WP Admin → Plugins
+```
+
+### Available npm commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run build` | Compile and minify for production (outputs to `/build/`) |
+| `npm run start` | Watch mode — auto-rebuild on file save |
+| `npm run lint:js` | Lint JavaScript source files |
+
+### Build output
+
+```
+build/
+  index.js           # Compiled Gutenberg sidebar panel (React)
+  index.asset.php    # Auto-generated dependency manifest
+```
+
+The `/build/` directory **must be committed** and included in release ZIPs. It is required for the Gutenberg sidebar to load.
+
+### Source structure
+
+```
+src/
+  index.js           # Entry point — registers Gutenberg sidebar plugin
+  components/        # React components for the sidebar panel
+```
+
+### Technology stack
+
+- **React 18** — loaded from WordPress core (`window.React`)
+- **@wordpress/scripts** — webpack + babel configuration
+- **@wordpress/plugins** — Gutenberg plugin registration API
+
+---
+
+## Generating a WordPress.org submission ZIP
+
+> **Prerequisites:** Node.js 18+, npm 9+, WSL (Windows Subsystem for Linux)
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/asneris/asneris-seo-toolkit
+cd asneris-seo-toolkit
+
+# 2. Install JavaScript dependencies
+npm install
+
+# 3. Compile React/Gutenberg assets
+npm run build
+# Output: build/index.js and build/index.asset.php
+
+# 4. Generate the submission ZIP (Windows PowerShell)
+.\create-wordpress-org-package.ps1
+# Output: asneris-seo-toolkit-0.1.2.zip
+```
+
+The script:
+- Cleans any previous ZIP and temp files
+- Copies only distributable files (excludes `node_modules`, `src`, dev configs)
+- Creates a Unix-compatible ZIP via WSL (required by WordPress.org)
+- Places the final ZIP at the plugin root ready for upload
 
 ---
 
@@ -95,6 +175,70 @@ asneris-seo-toolkit/
 ## License
 
 **GPLv2 or later** (GPL‑2.0‑or‑later).
+
+---
+
+## Changelog
+
+### 0.1.2 (April 17, 2026)
+- **Fix:** Removed UTF-8 BOM from `help-content.json` — `json_decode()` was returning NULL causing all tooltip modals to silently fail
+- **Fix:** Rewrote help modal loading to use `wp_localize_script` instead of `WP_Filesystem` (WP_Filesystem silently fails during `admin_enqueue_scripts`)
+- **Fix:** Help page content corruption resolved — replaced raw emoji characters (garbled in git) with WordPress dashicons
+- **Cleanup:** Removed dead code `class-help-content.php` (all call sites were commented out) and its `require_once` reference
+- **Requirement:** Bumped minimum WordPress version from 5.8 to 6.0
+
+- **New:** Added custom SEO columns to Pages admin list
+  - SEO Title column (250px width, 2-line display with ellipsis)
+  - SEO Description column (300px width, 2-line display with ellipsis)
+  - Hover tooltips showing full content
+- **Performance:** Added SEO score caching infrastructure to post meta
+- **Enhancement:** Auto-open Gutenberg sidebar from Bulk Edit and Diagnostics links using sessionStorage
+- **Security:** WordPress.org submission compliance
+  - Fixed unescaped nonces in inline JavaScript
+  - Added SQL prepare() statements for enhanced query security
+  - Added phpcs:ignore comments for read-only URL parameter checks
+  - Added `current_user_can('manage_options')` check before nonce verification in validation POST handler
+  - Rate limiting on AJAX HTTP test endpoint (per-user transient, 5-second window)
+- **Code Quality:** Fixed PHP syntax errors in validation templates
+  - Corrected duplicate output detection logic
+  - Fixed missing closing brace in canonical validation
+  - Replaced all anonymous action/filter closures with named static methods in `ASNERISSEO_Bootstrap` class (hooks are now removable)
+  - Wrapped `on_wp_head` render calls in `try/catch(\Throwable)` to prevent `<head>` corruption on unexpected errors
+- **Standards:** Fixed script handle case consistency (standardized to lowercase)
+- **Fix:** Removed is_admin() conditional to prevent fatal class loading errors on REST API and AJAX requests
+- **Fix:** Resolved React Strict Mode cleanup timing issues in auto-open feature
+- **Scope:** Narrowed `register_post_meta()` from all post types (`''`) to `['post', 'page']` via `SUPPORTED_POST_TYPES` constant
+- **HTTP consistency:** Standardised all `wp_remote_get/head` calls across validation and diagnostics
+  - `sslverify => true` enforced on every outbound request
+  - Explicit `redirection` limit set per call (0 for spot-checks, 5 for full fetches)
+  - Consistent `user-agent` header: `AsnerisBot/1.0 (WordPress SEO plugin; +https://asneris.com)`
+- **Validation:** Achieved 100% pass rate on all WordPress.org requirements
+  - WPCS (WordPress Coding Standards) - 0 warnings
+  - PHPStan Level 8 - 0 errors
+  - PHP Compatibility 7.4-8.2 - 0 warnings
+  - Security pattern scans - all passed
+
+### 0.1.1
+- **Security:** Improved nonce handling and input sanitization
+- **Cleanup:** Added uninstall cleanup for plugin data
+- **Fix:** Fixed text domain consistency in JavaScript
+- **Enhancement:** Added activation hook for rewrite rule flushing
+- **Enhancement:** Robots.txt editor now uses WP_Filesystem API
+- **Cleanup:** Removed unused files
+- **Documentation:** Improved readme.txt with required WordPress.org sections
+
+### 0.1.0
+- Initial release
+- SEO titles, meta descriptions, and canonical URLs
+- Open Graph and Twitter Card support
+- JSON-LD schema output
+- IndexNow integration
+- Site and Page Diagnostics
+- Robots.txt editor and validator
+- Bulk Edit for SEO fields
+- Redirect management
+- Template system for titles and descriptions
+- Conflict detection for duplicate SEO plugins
 
 ---
 
