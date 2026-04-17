@@ -4,7 +4,7 @@
  * Plugin URI: https://asneris.com/asneris-seo-toolkit
  * Description: Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI.
  * Version: 0.1.2
- * Requires at least: 5.8
+ * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Asneris
  * Author URI: https://asneris.com
