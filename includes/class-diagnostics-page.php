@@ -1,4 +1,6 @@
 <?php
+if (!defined('ABSPATH')) exit;
+
 /**
  * Diagnostics - Read-only facts about what exists
  * 
@@ -12,8 +14,6 @@
  * - Social meta
  * - Verification tags
  */
-
-if (!defined('ABSPATH')) exit;
 
 class ASNERISSEO_Diagnostics_Page {
   
@@ -37,7 +37,7 @@ class ASNERISSEO_Diagnostics_Page {
   public static function enqueue_assets($hook) {
     // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-diagnostics') return;
-    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
     wp_enqueue_script('jquery');
     
     // Add inline CSS to prevent text overflow in diagnostics tables
@@ -46,7 +46,7 @@ class ASNERISSEO_Diagnostics_Page {
 .ASNERISSEO-admin-wrap table { table-layout: fixed; width: 100%; }
 .ASNERISSEO-admin-wrap table th:first-child, .ASNERISSEO-admin-wrap table td:first-child { width: 250px; }
 .ASNERISSEO-admin-wrap table th:nth-child(2), .ASNERISSEO-admin-wrap table td:nth-child(2) { width: 120px; }';
-    wp_add_inline_style('ASNERISSEO-admin', $inline_css);
+    wp_add_inline_style('asnerisseo-admin', $inline_css);
     
     $inline_js = "jQuery(function(\$){\n" .
       "  \$('#page_selector').on('change', function(){\n" .
@@ -71,7 +71,9 @@ class ASNERISSEO_Diagnostics_Page {
     $response = wp_remote_get($url, [
       'timeout' => 15,
       'redirection' => 5,
-      'reject_unsafe_urls' => true
+      'sslverify' => true,
+      'reject_unsafe_urls' => true,
+      'user-agent'  => 'AsnerisBot/1.0 (WordPress SEO plugin; +https://asneris.com)',
     ]);
     
     if (is_wp_error($response)) {
@@ -128,7 +130,8 @@ class ASNERISSEO_Diagnostics_Page {
         $canon_response = wp_remote_head($href, [
           'timeout' => 5,
           'redirection' => 0,
-          'reject_unsafe_urls' => true
+          'sslverify' => true,
+          'reject_unsafe_urls' => true,
         ]);
         
         if (!is_wp_error($canon_response)) {
@@ -201,9 +204,22 @@ class ASNERISSEO_Diagnostics_Page {
     
     $test_url = isset($_POST['test_url']) ? esc_url_raw(wp_unslash($_POST['test_url'])) : '';
     $results = null;
+    $post_id = null;
+    $custom_title = '';
+    $custom_description = '';
+    $custom_robots = '';
     
     if (!empty($test_url) && isset($_POST['run_diagnostics']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'ASNERISSEO_diagnostics')) {
       $results = self::analyze_url($test_url);
+      // Try to get post ID from URL
+      $post_id = url_to_postid($test_url);
+      
+      // Get custom meta values if post exists
+      if ($post_id) {
+        $custom_title = get_post_meta($post_id, '_ASNERISSEO_title', true);
+        $custom_description = get_post_meta($post_id, '_ASNERISSEO_description', true);
+        $custom_robots = get_post_meta($post_id, '_ASNERISSEO_robots_index', true);
+      }
     }
     ?>
     <div class="wrap ASNERISSEO-admin-wrap">
@@ -421,13 +437,20 @@ class ASNERISSEO_Diagnostics_Page {
                     <?php 
                     $input_normalized = untrailingslashit(strtolower($results['tested_url']));
                     $canon_normalized = untrailingslashit(strtolower($canon));
-                    echo $input_normalized === $canon_normalized 
-                      ? '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>' 
-                      : '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>'; 
+                    echo wp_kses(
+                      $input_normalized === $canon_normalized
+                        ? '<span style="color: #46b450; font-weight: 600;">✓ Pass</span>'
+                        : '<span style="color: #f0ad4e; font-weight: 600;">⚠ Warning</span>',
+                      array(
+                        'span' => array(
+                          'style' => array(),
+                        ),
+                      )
+                    );
                     ?>
                   </td>
                   <td>
-                    <?php echo $input_normalized === $canon_normalized ? 'Yes - Points to itself (recommended)' : 'No - Points to different URL'; ?>
+                    <?php echo esc_html( $input_normalized === $canon_normalized ? 'Yes - Points to itself (recommended)' : 'No - Points to different URL' ); ?>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -535,7 +558,11 @@ class ASNERISSEO_Diagnostics_Page {
                         echo '<div style="background: #fef8f8; border-left: 3px solid #d63638; padding: 10px; margin: 5px 0;">';
                         echo '<strong style="color: #d63638;">⚠ Page is set to "noindex" - Search engines will NOT index this page</strong><br>';
                         echo '<span style="color: #646970; font-size: 13px; margin-top: 5px; display: block;">To allow indexing: </span>';
-                        echo '<a href="' . esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')) . '" class="button button-small" style="margin-top: 5px;">Go to Bulk Edit</a>';
+                        if ($post_id) {
+                          echo '<a href="' . esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))) . '" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>';
+                        } else {
+                          echo '<a href="' . esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')) . '" class="button button-small" style="margin-top: 5px;">Go to Bulk Edit</a>';
+                        }
                         echo '</div>';
                         break;
                       }
@@ -623,7 +650,11 @@ class ASNERISSEO_Diagnostics_Page {
                     <?php endif; ?>
                   </span>
                   <?php if ($title_length < 30 || $title_length > 60): ?>
-                    <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Title in Bulk Edit</a>
+                    <?php if ($post_id): ?>
+                      <br><a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                    <?php else: ?>
+                      <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Title in Bulk Edit</a>
+                    <?php endif; ?>
                   <?php endif; ?>
                 <?php elseif ($title_count > 1): ?>
                   <strong style="color: #d63638;">Multiple title tags detected: <?php echo esc_html($title_count); ?></strong> (should be only 1)<br>
@@ -633,7 +664,17 @@ class ASNERISSEO_Diagnostics_Page {
                   <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-validation')); ?>" class="button button-small" style="margin-top: 5px;">Check Site Diagnostics</a>
                 <?php else: ?>
                   <strong style="color: #d63638;">No title tag found</strong><br>
-                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Title in Bulk Edit</a>
+                  <?php if ($post_id && empty($custom_title)): ?>
+                    <div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 8px; margin: 8px 0; font-size: 12px;">
+                      <strong style="color: #856404;">ℹ Note:</strong> This page uses automatic template title (Page Title | Site Name).<br>
+                      You can set a custom SEO title in the editor.
+                    </div>
+                  <?php endif; ?>
+                  <?php if ($post_id): ?>
+                    <a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                  <?php else: ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Title in Bulk Edit</a>
+                  <?php endif; ?>
                 <?php endif; ?>
               </td>
             </tr>
@@ -676,7 +717,11 @@ class ASNERISSEO_Diagnostics_Page {
                     <?php endif; ?>
                   </span>
                   <?php if ($desc_length < 120 || $desc_length > 160): ?>
-                    <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Description in Bulk Edit</a>
+                    <?php if ($post_id): ?>
+                      <br><a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                    <?php else: ?>
+                      <br><a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Edit Description in Bulk Edit</a>
+                    <?php endif; ?>
                   <?php endif; ?>
                 <?php elseif ($desc_count > 1): ?>
                   <strong style="color: #d63638;">Multiple meta descriptions detected: <?php echo esc_html($desc_count); ?></strong> (should be only 1)<br>
@@ -685,8 +730,20 @@ class ASNERISSEO_Diagnostics_Page {
                   <?php endforeach; ?>
                   <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-validation')); ?>" class="button button-small" style="margin-top: 5px;">Check Site Diagnostics</a>
                 <?php else: ?>
-                  <strong style="color: #f0ad4e;">No meta description found</strong> - Search engines will generate one<br>
-                  <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Description in Bulk Edit</a>
+                  <strong style="color: #f0ad4e;">No meta description found</strong><br>
+                  <?php if ($post_id && empty($custom_description)): ?>
+                    <div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 8px; margin: 8px 0; font-size: 12px;">
+                      <strong style="color: #856404;">ℹ Note:</strong> This page uses automatic template description (post excerpt).<br>
+                      You can set a custom meta description in the editor.
+                    </div>
+                  <?php elseif (!$post_id): ?>
+                    <span style="font-size: 12px;">Search engines will generate one</span><br>
+                  <?php endif; ?>
+                  <?php if ($post_id): ?>
+                    <a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small" style="margin-top: 5px;" target="_blank">Edit This Page</a>
+                  <?php else: ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-bulk-edit')); ?>" class="button button-small" style="margin-top: 5px;">Add Description in Bulk Edit</a>
+                  <?php endif; ?>
                 <?php endif; ?>
               </td>
             </tr>
@@ -711,7 +768,7 @@ class ASNERISSEO_Diagnostics_Page {
           <p style="color: #646970;">Open Graph and Twitter Card tags for social sharing</p>
           
           <h3 style="margin-top: 0;">Open Graph (Facebook/LinkedIn)</h3>
-          <p><strong>Count:</strong> <?php echo count($results['og_tags']); ?></p>
+          <p><strong>Count:</strong> <?php echo esc_html( count($results['og_tags']) ); ?></p>
           <?php if (!empty($results['og_tags'])): ?>
             <table class="widefat striped">
               <thead><tr><th style="width: 200px;">Property</th><th>Content</th></tr></thead>
@@ -729,7 +786,7 @@ class ASNERISSEO_Diagnostics_Page {
           <?php endif; ?>
           
           <h3 style="margin-top: 20px;">Twitter Card</h3>
-          <p><strong>Count:</strong> <?php echo count($results['twitter_tags']); ?></p>
+          <p><strong>Count:</strong> <?php echo esc_html( count($results['twitter_tags']) ); ?></p>
           <?php if (!empty($results['twitter_tags'])): ?>
             <table class="widefat striped">
               <thead><tr><th style="width: 200px;">Name</th><th>Content</th></tr></thead>
@@ -755,7 +812,7 @@ class ASNERISSEO_Diagnostics_Page {
           </h2>
           <p style="color: #646970;">JSON-LD structured data blocks for this URL</p>
           
-          <p><strong>Schema Block Count:</strong> <?php echo count($results['schema_blocks']); ?></p>
+          <p><strong>Schema Block Count:</strong> <?php echo esc_html( count($results['schema_blocks']) ); ?></p>
           <?php if (!empty($results['schema_blocks'])): ?>
             <table class="widefat striped">
               <thead><tr><th style="width: 100px;">#</th><th style="width: 150px;">Valid JSON?</th><th>@type</th></tr></thead>
@@ -763,7 +820,7 @@ class ASNERISSEO_Diagnostics_Page {
                 <?php foreach ($results['schema_blocks'] as $i => $schema): ?>
                   <tr>
                     <td><?php echo esc_html($i + 1); ?></td>
-                    <td><?php echo $schema['valid'] ? '✅ Yes' : '❌ No'; ?></td>
+                    <td><?php echo esc_html( $schema['valid'] ? '✅ Yes' : '❌ No' ); ?></td>
                     <td><code><?php echo esc_html($schema['type']); ?></code></td>
                   </tr>
                 <?php endforeach; ?>
@@ -778,7 +835,7 @@ class ASNERISSEO_Diagnostics_Page {
                   // Format JSON for better readability
                   $decoded = json_decode($schema['raw'], true);
                   if ($decoded !== null) {
-                    echo esc_html(wp_json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                    echo esc_html(wp_json_encode($decoded, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP));
                   } else {
                     echo esc_html($schema['raw']);
                   }

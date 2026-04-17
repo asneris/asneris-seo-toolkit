@@ -19,7 +19,7 @@ class ASNERISSEO_Dashboard {
     // WordPress uses sanitized menu TITLE (not slug) as parent identifier
     // Dashboard uses the main menu slug directly
     if ($hook !== 'toplevel_page_' . ASNERIS_MENU_SLUG) return;
-    wp_enqueue_style('ASNERISSEO-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
+    wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
   }
   
   /**
@@ -203,7 +203,7 @@ class ASNERISSEO_Dashboard {
     $completed_sections = count(array_filter($config_status, function($s) { return $s['completed']; }));
     $progress_percent = round(($completed_sections / $total_sections) * 100);
     ?>
-    <div class="wrap ASNERISSEO-admin-wrap" style="max-width: 1400px;">
+    <div class="wrap ASNERISSEO-admin-wrap asnerisseo-dashboard-wrap">
       <h1>
         <span class="dashicons dashicons-dashboard"></span>
         <?php esc_html_e('Dashboard', 'asneris-seo-toolkit'); ?>
@@ -213,39 +213,39 @@ class ASNERISSEO_Dashboard {
       </p>
       
       <!-- Configuration Status -->
-      <div class="ASNERISSEO-card" style="margin: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
-        <div style="padding: 20px;">
-          <h2 style="margin: 0 0 15px; color: white; display: flex; align-items: center; gap: 10px;">
-            <span class="dashicons dashicons-admin-settings" style="font-size: 24px;"></span>
+      <div class="ASNERISSEO-card asnerisseo-hero-card">
+        <div class="asnerisseo-hero-content">
+          <h2 class="asnerisseo-hero-title">
+            <span class="dashicons dashicons-admin-settings asnerisseo-hero-icon"></span>
             <?php esc_html_e('Configuration Status', 'asneris-seo-toolkit'); ?>
           </h2>
           
-          <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 20px; margin-bottom: 15px; overflow: hidden;">
-            <div style="background: #00a32a; height: 100%; width: <?php echo esc_attr($progress_percent); ?>%; transition: width 0.3s;"></div>
+          <div class="asnerisseo-progress-bar">
+            <div class="asnerisseo-progress-fill" style="width: <?php echo esc_attr($progress_percent); ?>%;"></div>
           </div>
           
-          <p style="margin: 0 0 20px; font-size: 16px; opacity: 0.95;">
+          <p class="asnerisseo-hero-text">
             <strong><?php echo esc_html($completed_sections); ?> <?php esc_html_e('of', 'asneris-seo-toolkit'); ?> <?php echo esc_html($total_sections); ?></strong> <?php esc_html_e('sections configured', 'asneris-seo-toolkit'); ?> 
             (<?php echo esc_html($progress_percent); ?>%)
-            <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings" style="color: white; text-decoration: underline; margin-left: 15px; opacity: 0.9;">→ <?php esc_html_e('Go to Settings', 'asneris-seo-toolkit'); ?></a>
+            <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings" class="asnerisseo-hero-link">→ <?php esc_html_e('Go to Settings', 'asneris-seo-toolkit'); ?></a>
           </p>
           
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+          <div class="asnerisseo-checklist-grid">
             <?php foreach ($config_status as $key => $section): ?>
-              <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 15px; backdrop-filter: blur(10px);">
-                <h3 style="margin: 0 0 10px; color: white; display: flex; align-items: center; gap: 8px; font-size: 14px;">
+              <div class="asnerisseo-checklist-item">
+                <h3 class="asnerisseo-checklist-title">
                   <span class="dashicons <?php echo esc_attr($section['icon']); ?>"></span>
                   <?php echo esc_html($section['label']); ?>
                   <?php if ($section['completed']): ?>
-                    <span class="dashicons dashicons-yes-alt" style="color: #00a32a; background: white; border-radius: 50%; font-size: 16px; width: 20px; height: 20px; line-height: 20px; margin-left: auto;"></span>
+                    <span class="dashicons dashicons-yes-alt asnerisseo-status-check"></span>
                   <?php else: ?>
-                    <span class="dashicons dashicons-warning" style="color: #ffc107; background: white; border-radius: 50%; font-size: 16px; width: 20px; height: 20px; line-height: 20px; margin-left: auto;"></span>
+                    <span class="dashicons dashicons-warning asnerisseo-status-warning"></span>
                   <?php endif; ?>
                 </h3>
-                <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; opacity: 0.9;">
+                <ul class="asnerisseo-checklist-list">
                   <?php foreach ($section['items'] as $item => $done): ?>
-                    <li style="<?php echo $done ? 'color: #c3ffd8;' : 'opacity: 0.6;'; ?>">
-                      <?php echo $done ? '✓' : '○'; ?> <?php echo esc_html($item); ?>
+                    <li class="<?php echo esc_attr( $done ? 'asnerisseo-checklist-done' : 'asnerisseo-checklist-pending' ); ?>">
+                      <?php echo esc_html( $done ? '✓' : '○' ); ?> <?php echo esc_html($item); ?>
                     </li>
                   <?php endforeach; ?>
                 </ul>
@@ -256,106 +256,106 @@ class ASNERISSEO_Dashboard {
       </div>
       
       <!-- Diagnostics Tools -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 30px;">
+      <div class="asnerisseo-features-grid">
         
         <!-- Site Diagnostics -->
-        <div class="ASNERISSEO-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-          <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-            <span class="dashicons dashicons-analytics" style="color: #2271b1; font-size: 24px;"></span>
+        <div class="ASNERISSEO-card asnerisseo-feature-card">
+          <h2 class="asnerisseo-feature-title">
+            <span class="dashicons dashicons-analytics asnerisseo-feature-icon"></span>
             Site Diagnostics
           </h2>
-          <p style="color: #646970; margin: 0 0 15px 0; line-height: 1.6;">
+          <p class="asnerisseo-feature-text">
             Check site-wide SEO configuration including sitemaps, robots.txt, verification codes, and plugin conflicts.
           </p>
-          <ul style="margin: 0 0 20px 20px; padding: 0; list-style: none; color: #50575e; line-height: 1.8;">
+          <ul class="asnerisseo-feature-list">
             <li>✓ Sitemap accessibility</li>
             <li>✓ Robots.txt validation</li>
             <li>✓ Search engine verification</li>
             <li>✓ Plugin conflict detection</li>
           </ul>
-          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-validation'); ?>" class="button button-primary button-large" style="width: 100%;">
-            <span class="dashicons dashicons-yes-alt" style="margin-top: 3px;"></span> 
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-validation'); ?>" class="button button-primary button-large asnerisseo-full-width-button">
+            <span class="dashicons dashicons-yes-alt asnerisseo-button-icon"></span> 
             Run Site Diagnostics
           </a>
         </div>
         
         <!-- Page Diagnostics -->
-        <div class="ASNERISSEO-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-          <h2 style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-            <span class="dashicons dashicons-search" style="color: #2271b1; font-size: 24px;"></span>
+        <div class="ASNERISSEO-card asnerisseo-feature-card">
+          <h2 class="asnerisseo-feature-title">
+            <span class="dashicons dashicons-search asnerisseo-feature-icon"></span>
             Page Diagnostics
           </h2>
-          <p style="color: #646970; margin: 0 0 15px 0; line-height: 1.6;">
+          <p class="asnerisseo-feature-text">
             Inspect what search engines see on individual pages including title tags, meta descriptions, and structured data.
           </p>
-          <ul style="margin: 0 0 20px 20px; padding: 0; list-style: none; color: #50575e; line-height: 1.8;">
+          <ul class="asnerisseo-feature-list">
             <li>✓ Title tags & meta descriptions</li>
             <li>✓ Canonical URLs & robots directives</li>
             <li>✓ Open Graph & Twitter cards</li>
             <li>✓ Schema markup validation</li>
           </ul>
-          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-diagnostics'); ?>" class="button button-primary button-large" style="width: 100%;">
-            <span class="dashicons dashicons-visibility" style="margin-top: 3px;"></span> 
+          <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-diagnostics'); ?>" class="button button-primary button-large asnerisseo-full-width-button">
+            <span class="dashicons dashicons-visibility asnerisseo-button-icon"></span> 
             Analyze a Page
           </a>
         </div>
         
       </div>
       
-      <div class="ASNERISSEO-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
+      <div class="asnerisseo-actions-grid">
         
         <!-- Quick Actions -->
-        <div class="ASNERISSEO-card" style="background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div class="ASNERISSEO-card asnerisseo-feature-card">
           <h2><span class="dashicons dashicons-admin-tools"></span> Quick Actions</h2>
-          <p style="color: #646970; margin-top: 5px;">Common SEO tasks you can do right now</p>
+          <p class="asnerisseo-action-subtitle">Common SEO tasks you can do right now</p>
           
-          <div style="margin-top: 20px;">
+          <div class="asnerisseo-actions-list">
             <!-- Action 1 -->
-            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
-              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
-                <span class="dashicons dashicons-edit" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+            <div class="asnerisseo-action-item">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-edit asnerisseo-action-icon"></span>
                 Bulk Edit Metadata
               </h3>
-              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+              <p class="asnerisseo-action-description">
                 Update titles and descriptions for multiple posts at once
               </p>
-              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-bulk-edit'); ?>" class="button">Edit Metadata</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-bulk-edit'); ?>" class="button button-primary button-large asnerisseo-action-button">Edit Metadata</a>
             </div>
             
             <!-- Action 3 -->
-            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
-              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
-                <span class="dashicons dashicons-location" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+            <div class="asnerisseo-action-item">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-location asnerisseo-action-icon"></span>
                 Google Business Profile
               </h3>
-              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+              <p class="asnerisseo-action-description">
                 Add your business details to appear in Google Maps and local search
               </p>
-              <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="button">Setup Local Business</a>
+              <a href="admin.php?page=<?php echo esc_attr(ASNERIS_MENU_SLUG); ?>-settings&tab=schema" class="button button-primary button-large asnerisseo-action-button">Setup Local Business</a>
             </div>
             
             <!-- Action 4 -->
-            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f1;">
-              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
-                <span class="dashicons dashicons-randomize" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+            <div class="asnerisseo-action-item">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-randomize asnerisseo-action-icon"></span>
                 Manage Redirects
               </h3>
-              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+              <p class="asnerisseo-action-description">
                 Guide visitors to correct pages when URLs change
               </p>
-              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-redirects'); ?>" class="button">Manage Redirects</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-redirects'); ?>" class="button button-primary button-large asnerisseo-action-button">Manage Redirects</a>
             </div>
             
             <!-- Action 5 -->
-            <div>
-              <h3 style="margin: 0 0 5px 0; font-size: 15px; font-weight: 600;">
-                <span class="dashicons dashicons-shield" style="color: #2271b1; font-size: 18px; vertical-align: middle;"></span>
+            <div class="asnerisseo-action-item" style="border-bottom: none;">
+              <h3 class="asnerisseo-action-title">
+                <span class="dashicons dashicons-shield asnerisseo-action-icon"></span>
                 Edit Robots.txt
               </h3>
-              <p style="margin: 0 0 10px 0; font-size: 13px; color: #646970; line-height: 1.5;">
+              <p class="asnerisseo-action-description">
                 Control which pages search engines can visit and read
               </p>
-              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-robots'); ?>" class="button">Edit Robots.txt</a>
+              <a href="?page=<?php echo esc_attr(ASNERIS_MENU_SLUG . '-robots'); ?>" class="button button-primary button-large asnerisseo-action-button">Edit Robots.txt</a>
             </div>
           </div>
         </div>
@@ -363,7 +363,7 @@ class ASNERISSEO_Dashboard {
       </div>
       
       <!-- Beta Notice -->
-      <div class="notice notice-info" style="margin-top: 30px;">
+      <div class="notice notice-info asnerisseo-notice-info">
         <p>
           <strong>🧪 Beta Software</strong> – 
           This plugin is in active development. 

@@ -28,10 +28,10 @@ class ASNERISSEO_Bulk_Edit {
     $css_version = ASNERISSEO_VERSION . '.' . filemtime(ASNERISSEO_DIR . 'assets/css/admin-style.css');
     $js_version  = ASNERISSEO_VERSION . '.' . filemtime(ASNERISSEO_DIR . 'assets/js/bulk-edit.js');
     
-    wp_enqueue_style('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/css/admin-style.css', [], $css_version);
-    wp_enqueue_script('ASNERISSEO-bulk-edit', ASNERISSEO_URL . 'assets/js/bulk-edit.js', ['jquery'], $js_version, true);
+    wp_enqueue_style('asnerisseo-bulk-edit', ASNERISSEO_URL . 'assets/css/admin-style.css', [], $css_version);
+    wp_enqueue_script('asnerisseo-bulk-edit', ASNERISSEO_URL . 'assets/js/bulk-edit.js', ['jquery'], $js_version, true);
     
-    wp_localize_script('ASNERISSEO-bulk-edit', 'asnerisBulkEdit', [
+    wp_localize_script('asnerisseo-bulk-edit', 'asnerisBulkEdit', [
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('ASNERISSEO_bulk_edit'),
     ]);
@@ -118,6 +118,12 @@ class ASNERISSEO_Bulk_Edit {
     }
     
     $posts_query = new WP_Query($args);
+    
+    // Pre-warm caches to avoid N+1 queries (Performance Audit M-3)
+    if ($posts_query->have_posts()) {
+      $post_ids = wp_list_pluck($posts_query->posts, 'ID');
+      update_postmeta_cache($post_ids);
+    }
     ?>
     <div class="wrap ASNERISSEO-admin-wrap">
       <h1>
@@ -293,7 +299,7 @@ class ASNERISSEO_Bulk_Edit {
                       </select>
                     </td>
                     <td class="col-actions">
-                      <a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" class="button button-small ASNERISSEO-edit-post-link" title="<?php esc_attr_e('Edit full post in WordPress editor', 'asneris-seo-toolkit'); ?>" target="_blank">
+                      <a href="<?php echo esc_url(add_query_arg('asneris-seo-open', '1', get_edit_post_link($post_id))); ?>" class="button button-small ASNERISSEO-edit-post-link" title="<?php esc_attr_e('Edit full post in WordPress editor', 'asneris-seo-toolkit'); ?>" target="_blank">
                         <span class="dashicons dashicons-external"></span>
                       </a>
                     </td>
@@ -367,6 +373,11 @@ class ASNERISSEO_Bulk_Edit {
     $titles = isset($_POST['seo_title']) ? map_deep(wp_unslash($_POST['seo_title']), 'sanitize_text_field') : [];
     $descriptions = isset($_POST['seo_description']) ? map_deep(wp_unslash($_POST['seo_description']), 'sanitize_textarea_field') : [];
     $robots = isset($_POST['robots_index']) ? map_deep(wp_unslash($_POST['robots_index']), 'sanitize_text_field') : [];
+
+    if (empty($post_ids)) {
+      wp_send_json_error(['message' => __('Please select at least one post to update.', 'asneris-seo-toolkit')]);
+      return;
+    }
     
     $updated = 0;
     
@@ -382,15 +393,16 @@ class ASNERISSEO_Bulk_Edit {
       }
       
       if (isset($robots[$post_id])) {
-        update_post_meta($post_id, '_ASNERISSEO_robots_index', $robots[$post_id]);
+        $robots_value = in_array($robots[$post_id], ['index', 'noindex'], true) ? $robots[$post_id] : 'index';
+        update_post_meta($post_id, '_ASNERISSEO_robots_index', $robots_value);
       }
       
       $updated++;
     }
     
     wp_send_json_success([
-      /* translators: %d: number of posts updated */
-      'message' => sprintf(esc_html__('%d posts updated successfully!', 'asneris-seo-toolkit'), $updated),
+      /* translators: %d: number of posts/pages updated */
+      'message' => sprintf(esc_html__('%d posts/pages were updated successfully.', 'asneris-seo-toolkit'), $updated),
       'updated' => $updated
     ]);
   }

@@ -42,6 +42,19 @@ $asnerisseo_meta_keys_to_delete = array(
 	'_ASNERISSEO_schema_enabled',
 	'_ASNERISSEO_schema_type',
 	'_ASNERISSEO_indexnow_last',
+	// Extended schema meta keys
+	'_ASNERISSEO_event_start_date',
+	'_ASNERISSEO_event_end_date',
+	'_ASNERISSEO_event_location_name',
+	'_ASNERISSEO_event_location_address',
+	'_ASNERISSEO_recipe_cook_time',
+	'_ASNERISSEO_recipe_prep_time',
+	'_ASNERISSEO_video_url',
+	'_ASNERISSEO_video_duration',
+	'_ASNERISSEO_faq_items',
+	'_ASNERISSEO_howto_steps',
+	'_ASNERISSEO_job_location',
+	'_ASNERISSEO_job_employment_type',
 );
 
 foreach ( $asnerisseo_meta_keys_to_delete as $asnerisseo_meta_key ) {
