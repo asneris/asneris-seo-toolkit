@@ -42,7 +42,7 @@ If you ship to the WordPress Plugin Directory, make sure your WP.org `readme.txt
 
 ## Requirements
 
-- WordPress **5.8+**
+- WordPress **6.0+**
 - PHP **7.4+**
 - Tested on WordPress **6.9**
 
@@ -78,7 +78,7 @@ asneris-seo-toolkit/
 | Node.js | 18+ |
 | npm | 9+ |
 | PHP | 7.4+ |
-| WordPress | 5.8+ |
+| WordPress | 6.0+ |
 
 ### Setup
 
