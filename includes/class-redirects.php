@@ -182,13 +182,23 @@ class ASNERISSEO_Redirects {
    */
   private static function normalize_redirect_path($path) {
     $parsed = wp_parse_url($path);
-    $normalized_path = isset($parsed['path']) ? $parsed['path'] : '';
-    
+    $normalized_path = isset($parsed['path']) ? sanitize_text_field($parsed['path']) : '';
+
+    // Prevent path traversal attacks
+    if (strpos($normalized_path, '..') !== false) {
+      return '/';
+    }
+
+    // Normalize empty path
+    if ($normalized_path === '') {
+      return '/';
+    }
+
     // Remove trailing slash except for root path
     if ($normalized_path !== '/' && substr($normalized_path, -1) === '/') {
       $normalized_path = rtrim($normalized_path, '/');
     }
-    
+
     return $normalized_path;
   }
 
@@ -201,11 +211,24 @@ class ASNERISSEO_Redirects {
     }
 
     parse_str($query, $params);
+
     if (!is_array($params) || empty($params)) {
       return '';
     }
 
+    // Sanitize keys (WordPress-safe alphanumeric + underscores)
+    $params = array_combine(
+      array_map('sanitize_key', array_keys($params)),
+      $params
+    );
+
+    // Sanitize values recursively (handles nested arrays)
+    array_walk_recursive($params, function (&$value) {
+      $value = sanitize_text_field($value);
+    });
+
     self::ksort_recursive($params);
+
     return http_build_query($params, '', '&', PHP_QUERY_RFC3986);
   }
 
@@ -239,6 +262,14 @@ class ASNERISSEO_Redirects {
         return '';
       }
       $parsed = wp_parse_url($from);
+      
+      // Security: Reject cross-domain redirect sources (only allow same-site redirects)
+      if (isset($parsed['host'])) {
+        $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+        if (strtolower($parsed['host']) !== strtolower($site_host)) {
+          return '';
+        }
+      }
     } else {
       $from = '/' . ltrim($from, '/');
       $parsed = wp_parse_url($from);
@@ -272,6 +303,15 @@ class ASNERISSEO_Redirects {
       if (!$to || !wp_http_validate_url($to)) {
         return '';
       }
+      
+      // Security: Prevent open redirect attacks - only allow same-host redirects
+      $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+      $target_host = wp_parse_url($to, PHP_URL_HOST);
+      
+      if ($target_host && strtolower($target_host) !== strtolower($site_host)) {
+        return '';
+      }
+      
       return $to;
     }
 

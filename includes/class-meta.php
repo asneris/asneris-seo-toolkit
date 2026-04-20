@@ -66,13 +66,42 @@ class ASNERISSEO_Meta {
   }
 
   public static function sanitize($value, $key) {
-    if (in_array($key, ['_ASNERISSEO_canonical','_ASNERISSEO_og_image'], true)) {
+    // URL fields: canonical and OG image
+    if (in_array($key, ['_ASNERISSEO_canonical', '_ASNERISSEO_og_image'], true)) {
+      $value = is_string($value) ? $value : '';
       return esc_url_raw($value);
     }
+    
+    // Boolean field: normalize to integer 1/0 for consistent database storage
+    // WordPress stores meta as strings, so 1/0 is more reliable than true/false
     if ($key === '_ASNERISSEO_schema_enabled') {
-      return (bool)$value;
+      return $value ? 1 : 0;
     }
-    return sanitize_text_field($value);
+    
+    // Robots index: whitelist validation
+    if ($key === '_ASNERISSEO_robots_index') {
+      $value = is_string($value) ? sanitize_text_field($value) : '';
+      return in_array($value, ['index', 'noindex'], true) ? $value : 'index';
+    }
+    
+    // Robots follow: whitelist validation
+    if ($key === '_ASNERISSEO_robots_follow') {
+      $value = is_string($value) ? sanitize_text_field($value) : '';
+      return in_array($value, ['follow', 'nofollow'], true) ? $value : 'follow';
+    }
+    
+    // Schema type: whitelist validation (Schema.org article types)
+    if ($key === '_ASNERISSEO_schema_type') {
+      $allowed_schema_types = [
+        'Article', 'NewsArticle', 'BlogPosting', 'WebPage', 'Product', 
+        'Review', 'Event', 'FAQPage', 'HowTo', 'Recipe'
+      ];
+      $value = is_string($value) ? sanitize_text_field($value) : '';
+      return in_array($value, $allowed_schema_types, true) ? $value : 'Article';
+    }
+    
+    // Default: text field sanitization with type check
+    return is_string($value) ? sanitize_text_field($value) : '';
   }
 
   /**

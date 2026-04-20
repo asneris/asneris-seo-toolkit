@@ -94,6 +94,62 @@ class ASNERISSEO_Admin_Settings {
     // Get existing options to preserve data from other tabs
     $existing = get_option(self::OPT, []);
     
+    // Define whitelists for validation (prevents invalid values)
+    $allowed_index = ['index', 'noindex'];
+    $allowed_follow = ['follow', 'nofollow'];
+    $allowed_price_range = ['', '$', '$$', '$$$', '$$$$'];
+    $allowed_separators = ['|', '-', '–', '—', '•', ':', '·'];
+    
+    // Track validation errors
+    $validation_errors = [];
+    
+    // Whitelist for Schema.org business types (must match dropdown options in render_schema_tab)
+    $allowed_business_types = [
+      'LocalBusiness', 'Restaurant', 'FastFoodRestaurant', 'Cafe', 'Bakery', 'BarOrPub', 'Winery',
+      'Store', 'ClothingStore', 'FurnitureStore', 'HardwareStore', 'JewelryStore', 'ShoeStore',
+      'SportsStore', 'ToyStore', 'ConvenienceStore', 'HealthAndBeautyBusiness', 'HairSalon',
+      'BeautySalon', 'DaySpa', 'NailSalon', 'TattooParlor', 'Dentist', 'Physician', 'MedicalClinic',
+      'Pharmacy', 'VeterinaryCare', 'ProfessionalService', 'Attorney', 'Accountant', 'RealEstateAgent',
+      'Notary', 'InsuranceAgency', 'HomeAndConstructionBusiness', 'Electrician', 'Plumber',
+      'HousePainter', 'Locksmith', 'MovingCompany', 'HVACBusiness', 'Roofing', 'AutomotiveBusiness',
+      'AutoRepair', 'AutoDealer', 'AutoPartsStore', 'AutoRental', 'AutoWash', 'GasStation',
+      'LodgingBusiness', 'Hotel', 'Motel', 'Resort', 'BedAndBreakfast', 'Hostel', 'Campground',
+      'SportsActivityLocation', 'FitnessCenter', 'GolfCourse', 'PublicSwimmingPool', 'TennisComplex',
+      'EntertainmentBusiness', 'MovieTheater', 'NightClub', 'AnimalShelter', 'ChildCare', 'SelfStorage'
+    ];
+    
+    // Validate and sanitize with whitelist checks
+    $robots_index = sanitize_text_field($opt['default_robots_index'] ?? $existing['default_robots_index'] ?? 'index');
+    $robots_index = in_array($robots_index, $allowed_index, true) ? $robots_index : 'index';
+    
+    $robots_follow = sanitize_text_field($opt['default_robots_follow'] ?? $existing['default_robots_follow'] ?? 'follow');
+    $robots_follow = in_array($robots_follow, $allowed_follow, true) ? $robots_follow : 'follow';
+    
+    $business_type = sanitize_text_field($opt['business_type'] ?? $existing['business_type'] ?? 'LocalBusiness');
+    $business_type = in_array($business_type, $allowed_business_types, true) ? $business_type : 'LocalBusiness';
+    
+    $price_range = sanitize_text_field($opt['price_range'] ?? $existing['price_range'] ?? '');
+    $price_range = in_array($price_range, $allowed_price_range, true) ? $price_range : '';
+    
+    $separator = sanitize_text_field($opt['title_separator'] ?? $existing['title_separator'] ?? '|');
+    if (isset($opt['title_separator']) && !in_array($separator, $allowed_separators, true)) {
+      $validation_errors[] = sprintf('Title separator "%s" is not allowed. Using default "|" instead. Allowed separators: %s', 
+        esc_html($separator), 
+        implode(', ', array_map('esc_html', $allowed_separators))
+      );
+      $separator = '|';
+    }
+    
+    // Validate and sanitize phone number (allow only phone-safe characters)
+    $phone = sanitize_text_field($opt['business_phone'] ?? $existing['business_phone'] ?? '');
+    $phone = preg_replace('/[^0-9+\-\s()ext.]/', '', $phone);
+    
+    // Validate IndexNow key format (alphanumeric, 32-128 chars, or empty to auto-generate)
+    $indexnow_key = sanitize_text_field($opt['indexnow_key'] ?? $existing['indexnow_key'] ?? '');
+    if ($indexnow_key !== '' && !preg_match('/^[a-zA-Z0-9]{32,128}$/', $indexnow_key)) {
+      $indexnow_key = ''; // Invalid format, will auto-generate if enabled
+    }
+    
     $clean = [
       'google_verification' => sanitize_text_field($opt['google_verification'] ?? $existing['google_verification'] ?? ''),
       'bing_verification'   => sanitize_text_field($opt['bing_verification'] ?? $existing['bing_verification'] ?? ''),
@@ -102,29 +158,39 @@ class ASNERISSEO_Admin_Settings {
       'org_name'            => sanitize_text_field($opt['org_name'] ?? $existing['org_name'] ?? ''),
       'org_logo'            => esc_url_raw($opt['org_logo'] ?? $existing['org_logo'] ?? ''),
       'indexnow_enabled'    => isset($opt['indexnow_enabled']) ? (!empty($opt['indexnow_enabled']) ? 1 : 0) : ($existing['indexnow_enabled'] ?? 0),
-      'indexnow_key'        => sanitize_text_field($opt['indexnow_key'] ?? $existing['indexnow_key'] ?? ''),
-      'twitter_username'    => sanitize_text_field($opt['twitter_username'] ?? $existing['twitter_username'] ?? ''),
+      'indexnow_key'        => $indexnow_key,
+      'twitter_username'    => ltrim(sanitize_text_field($opt['twitter_username'] ?? $existing['twitter_username'] ?? ''), '@'),
       'facebook_app_id'     => sanitize_text_field($opt['facebook_app_id'] ?? $existing['facebook_app_id'] ?? ''),
       'theme_color'         => sanitize_hex_color($opt['theme_color'] ?? $existing['theme_color'] ?? ''),
-      'default_robots_index' => sanitize_text_field($opt['default_robots_index'] ?? $existing['default_robots_index'] ?? 'index'),
-      'default_robots_follow' => sanitize_text_field($opt['default_robots_follow'] ?? $existing['default_robots_follow'] ?? 'follow'),
+      'default_robots_index' => $robots_index,
+      'default_robots_follow' => $robots_follow,
       'enable_breadcrumbs'  => isset($opt['enable_breadcrumbs']) ? (!empty($opt['enable_breadcrumbs']) ? 1 : 0) : ($existing['enable_breadcrumbs'] ?? 0),
       'enable_local_business' => isset($opt['enable_local_business']) ? (!empty($opt['enable_local_business']) ? 1 : 0) : ($existing['enable_local_business'] ?? 0),
-      'business_type'       => sanitize_text_field($opt['business_type'] ?? $existing['business_type'] ?? 'LocalBusiness'),
-      'business_phone'      => sanitize_text_field($opt['business_phone'] ?? $existing['business_phone'] ?? ''),
+      'business_type'       => $business_type,
+      'business_phone'      => $phone,
       'business_address'    => sanitize_textarea_field($opt['business_address'] ?? $existing['business_address'] ?? ''),
       'business_hours'      => sanitize_textarea_field($opt['business_hours'] ?? $existing['business_hours'] ?? ''),
       'service_area'        => sanitize_textarea_field($opt['service_area'] ?? $existing['service_area'] ?? ''),
-      'price_range'         => sanitize_text_field($opt['price_range'] ?? $existing['price_range'] ?? ''),
+      'price_range'         => $price_range,
       'payment_methods'     => sanitize_text_field($opt['payment_methods'] ?? $existing['payment_methods'] ?? ''),
       'languages_spoken'    => sanitize_text_field($opt['languages_spoken'] ?? $existing['languages_spoken'] ?? ''),
-      'title_separator'     => sanitize_text_field($opt['title_separator'] ?? $existing['title_separator'] ?? '|'),
-      'title_templates'     => isset($opt['title_templates']) && is_array($opt['title_templates']) ? array_map('sanitize_text_field', $opt['title_templates']) : ($existing['title_templates'] ?? []),
-      'description_templates' => isset($opt['description_templates']) && is_array($opt['description_templates']) ? array_map('sanitize_textarea_field', $opt['description_templates']) : ($existing['description_templates'] ?? []),
+      'title_separator'     => $separator,
+      // Sanitize templates even when using fallback values (prevents bad legacy data)
+      'title_templates'     => isset($opt['title_templates']) && is_array($opt['title_templates']) 
+        ? array_map('sanitize_text_field', $opt['title_templates']) 
+        : array_map('sanitize_text_field', $existing['title_templates'] ?? []),
+      'description_templates' => isset($opt['description_templates']) && is_array($opt['description_templates']) 
+        ? array_map('sanitize_textarea_field', $opt['description_templates']) 
+        : array_map('sanitize_textarea_field', $existing['description_templates'] ?? []),
     ];
 
     if ($clean['indexnow_enabled'] && $clean['indexnow_key'] === '') {
       $clean['indexnow_key'] = ASNERISSEO_IndexNow::generate_key();
+    }
+    
+    // Store validation errors as transient to display after redirect
+    if (!empty($validation_errors)) {
+      set_transient('asneris_settings_validation_errors', $validation_errors, 30);
     }
     
     return $clean;
@@ -156,6 +222,22 @@ class ASNERISSEO_Admin_Settings {
           <p><strong><?php esc_html_e('Settings saved successfully!', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'asneris-seo-toolkit'); ?></p>
         </div>
         <?php
+        
+        // Display validation warnings if any
+        $validation_errors = get_transient('asneris_settings_validation_errors');
+        if (!empty($validation_errors)) {
+          delete_transient('asneris_settings_validation_errors');
+          ?>
+          <div class="notice notice-warning is-dismissible" style="margin: 15px 0;">
+            <p><strong><?php esc_html_e('Some values were adjusted:', 'asneris-seo-toolkit'); ?></strong></p>
+            <ul style="margin: 5px 0 0 20px; list-style: disc;">
+              <?php foreach ($validation_errors as $error): ?>
+                <li><?php echo wp_kses_post($error); ?></li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+          <?php
+        }
       }
       ?>
 
@@ -1005,7 +1087,9 @@ class ASNERISSEO_Admin_Settings {
       wp_send_json_error('No settings data provided');
     }
 
-    // Apply field-specific sanitization rules
+    // Note: sanitize() will apply field-specific validation and additional sanitization rules
+    // (e.g., esc_url_raw for URLs, whitelist validation for dropdowns, etc.)
+    // The map_deep above is initial broad sanitization; sanitize() applies context-specific rules
     $clean_settings = self::sanitize($settings);
     update_option(self::OPT, $clean_settings);
     
