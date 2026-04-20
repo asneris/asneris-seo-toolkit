@@ -2,11 +2,13 @@
 # Creates Unix-compatible ZIP for asneris-seo-toolkit
 #
 # Usage:
-#   .\create-wordpress-org-package.ps1                 # auto-reads version from PHP header
-#   .\create-wordpress-org-package.ps1 -Version 1.0.0  # override version
+#   .\create-wordpress-org-package.ps1                      # auto-reads version from PHP header
+#   .\create-wordpress-org-package.ps1 -Version 1.0.0       # override version
+#   .\create-wordpress-org-package.ps1 -IncludeSource       # include src/ folder for source disclosure
 
 param(
-    [string]$Version = ""
+    [string]$Version = "",
+    [switch]$IncludeSource
 )
 
 $ErrorActionPreference = "Stop"
@@ -39,8 +41,8 @@ if ($Version -ne "") {
     $pluginVersion = if ($versionLine) { $versionLine.Matches[0].Groups[1].Value.Trim() } else { "" }
 }
 
-# ZIP filename: with version if available
-$zipName   = if ($pluginVersion) { "$pluginSlug-$pluginVersion.zip" } else { "$pluginSlug.zip" }
+# ZIP filename: WITHOUT version (WordPress.org requirement)
+$zipName   = "$pluginSlug.zip"
 $pluginDir = "$tempDir\$pluginSlug"
 
 Write-Host "Plugin:  $pluginSlug" -ForegroundColor Green
@@ -108,6 +110,12 @@ Copy-Item "$sourceDir\languages" $pluginDir -Recurse
 Copy-Item "$sourceDir\assets" $pluginDir -Recurse
 Copy-Item "$sourceDir\build" $pluginDir -Recurse
 Copy-Item "$sourceDir\templates" $pluginDir -Recurse
+
+# Optionally include source files for WordPress.org transparency
+if ($IncludeSource -and (Test-Path "$sourceDir\src")) {
+    Write-Host "  Including src/ folder for source transparency..." -ForegroundColor Cyan
+    Copy-Item "$sourceDir\src" $pluginDir -Recurse
+}
 
 Write-Host "Files copied successfully!" -ForegroundColor Green
 
