@@ -206,6 +206,12 @@ class ASNERISSEO_Admin_Settings {
         $validation_errors[] = 'Custom IndexNow key must be 8-128 alphanumeric characters.';
       }
     }
+
+    // If user switches from custom to auto mode, discard the old manual key.
+    // Auto mode should be system-managed and regenerate when enabled.
+    if ($indexnow_key_mode === 'auto' && $field_changed('indexnow_key_mode')) {
+      $indexnow_key = '';
+    }
     
     $clean = [
       'google_verification' => self::validate_verification_code($opt['google_verification'] ?? $existing['google_verification'] ?? '', $existing['google_verification'] ?? '', 'Google verification code', $max_lengths['google_verification'], $validation_errors, $field_changed('google_verification')),
@@ -227,7 +233,7 @@ class ASNERISSEO_Admin_Settings {
       'business_type'       => $business_type,
       'business_phone'      => $phone,
       'business_address'    => self::validate_textarea($opt['business_address'] ?? $existing['business_address'] ?? '', 'Business address', $max_lengths['business_address'], $validation_errors),
-      'business_hours'      => self::validate_textarea($opt['business_hours'] ?? $existing['business_hours'] ?? '', 'Business hours', $max_lengths['business_hours'], $validation_errors),
+      'business_hours'      => self::validate_business_hours($opt['business_hours'] ?? $existing['business_hours'] ?? '', 'Business hours', $max_lengths['business_hours'], $validation_errors),
       'service_area'        => self::validate_textarea($opt['service_area'] ?? $existing['service_area'] ?? '', 'Service area', $max_lengths['service_area'], $validation_errors),
       'price_range'         => $price_range,
       'payment_methods'     => self::validate_comma_list($opt['payment_methods'] ?? $existing['payment_methods'] ?? '', 'Payment methods', $max_lengths['payment_methods'], $validation_errors),
@@ -385,24 +391,7 @@ class ASNERISSEO_Admin_Settings {
         // Output hidden fields for all other tabs to preserve their data
         foreach ($all_settings as $key => $value) {
           if (!in_array($key, $current_tab_fields, true)) {
-            if (is_array($value)) {
-              foreach ($value as $subkey => $subvalue) {
-                printf(
-                  '<input type="hidden" name="%s[%s][%s]" value="%s" />',
-                  esc_attr(self::OPT),
-                  esc_attr($key),
-                  esc_attr($subkey),
-                  esc_attr($subvalue)
-                );
-              }
-            } else {
-              printf(
-                '<input type="hidden" name="%s[%s]" value="%s" />',
-                esc_attr(self::OPT),
-                esc_attr($key),
-                esc_attr($value)
-              );
-            }
+            self::render_hidden_field_recursive([self::OPT, $key], $value);
           }
         }
         ?>
@@ -1053,8 +1042,8 @@ class ASNERISSEO_Admin_Settings {
               <label for="business_hours">Opening Hours</label>
             </th>
             <td>
-              <textarea id="business_hours" class="large-text" rows="4" name="<?php echo esc_attr(self::OPT); ?>[business_hours]" placeholder="Monday-Friday: 9:00 AM - 5:00 PM&#10;Saturday: 10:00 AM - 2:00 PM&#10;Sunday: Closed"><?php echo esc_textarea(self::get('business_hours')); ?></textarea>
-              <p class="description">Business operating hours. One day per line (e.g., "Monday: 9:00 AM - 5:00 PM").</p>
+              <textarea id="business_hours" class="large-text" rows="6" name="<?php echo esc_attr(self::OPT); ?>[business_hours]" placeholder="Monday-Friday: 9:00 AM - 5:00 PM&#10;Saturday: 10:00 AM - 2:00 PM&#10;Sunday: Closed"><?php echo esc_textarea(self::format_business_hours_for_textarea(self::get('business_hours', []))); ?></textarea>
+              <p class="description">Use one line per day/day range. Examples: "Monday-Friday: 9:00 AM - 5:00 PM", "Saturday: Closed", "Sunday: 10:00-12:00, 13:00-16:00", "Monday: 24 Hours". Time format supports HH:MM AM/PM or 24-hour HH:MM. Overnight ranges are not supported. Saved as a structured schedule for schema output.</p>
             </td>
           </tr>
           <tr class="ASNERISSEO-conditional" data-depends="enable_local_business">
@@ -1360,6 +1349,399 @@ class ASNERISSEO_Admin_Settings {
     }
     
     return $value;
+  }
+
+  /**
+   * Render hidden inputs recursively (supports nested arrays in settings payload).
+   *
+   * @param array $name_parts Parts of the field name.
+   * @param mixed $value Scalar or array value.
+   */
+  private static function render_hidden_field_recursive($name_parts, $value) {
+    if (is_array($value)) {
+      foreach ($value as $subkey => $subvalue) {
+        $next_parts = $name_parts;
+        $next_parts[] = $subkey;
+        self::render_hidden_field_recursive($next_parts, $subvalue);
+      }
+      return;
+    }
+
+    $name = (string)array_shift($name_parts);
+    foreach ($name_parts as $part) {
+      $name .= '[' . $part . ']';
+    }
+
+    printf(
+      '<input type="hidden" name="%s" value="%s" />',
+      esc_attr($name),
+      esc_attr((string)$value)
+    );
+  }
+
+  /**
+   * Convert stored business hours to a textarea-friendly display.
+   *
+   * @param mixed $hours Stored business hours value (array or legacy string).
+   * @return string
+   */
+  public static function format_business_hours_for_textarea($hours) {
+    // Always normalize first so legacy/plain-text values are converted
+    // and displayed consistently (AM/PM + grouped day ranges).
+    $hours = self::get_structured_business_hours($hours);
+    if (!is_array($hours)) {
+      return '';
+    }
+
+    $day_labels = [
+      'monday' => 'Monday',
+      'tuesday' => 'Tuesday',
+      'wednesday' => 'Wednesday',
+      'thursday' => 'Thursday',
+      'friday' => 'Friday',
+      'saturday' => 'Saturday',
+      'sunday' => 'Sunday',
+    ];
+
+    // Normalize each day to a comparable string form first.
+    $normalized = [];
+    foreach ($day_labels as $day_key => $day_label) {
+      $slots = $hours[$day_key] ?? [];
+      $parts = [];
+
+      if (is_array($slots)) {
+        foreach ($slots as $slot) {
+          if (!is_array($slot) || !isset($slot['open'], $slot['close'])) {
+            continue;
+          }
+          $open_display = self::format_business_hour_display_time(sanitize_text_field($slot['open']));
+          $close_display = self::format_business_hour_display_time(sanitize_text_field($slot['close']));
+          $parts[] = $open_display . ' - ' . $close_display;
+        }
+      }
+
+      $normalized[] = [
+        'key' => $day_key,
+        'label' => $day_label,
+        'value' => !empty($parts) ? implode(', ', $parts) : 'Closed',
+      ];
+    }
+
+    // Group consecutive days with the same schedule into ranges (e.g., Monday-Friday).
+    $lines = [];
+    $start = 0;
+    $total = count($normalized);
+
+    while ($start < $total) {
+      $end = $start;
+      while ($end + 1 < $total && $normalized[$end + 1]['value'] === $normalized[$start]['value']) {
+        $end++;
+      }
+
+      $day_part = ($start === $end)
+        ? $normalized[$start]['label']
+        : $normalized[$start]['label'] . '-' . $normalized[$end]['label'];
+
+      $lines[] = $day_part . ': ' . $normalized[$start]['value'];
+      $start = $end + 1;
+    }
+
+    return implode("\n", $lines);
+  }
+
+  /**
+   * Format HH:MM (24-hour) into h:MM AM/PM for textarea display.
+   * Returns original value when format does not match expected input.
+   *
+   * @param string $time Time in HH:MM format.
+   * @return string
+   */
+  private static function format_business_hour_display_time($time) {
+    if (!preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $time, $matches)) {
+      return $time;
+    }
+
+    $hour = (int)$matches[1];
+    $minute = (int)$matches[2];
+    $ampm = ($hour >= 12) ? 'PM' : 'AM';
+    $hour12 = $hour % 12;
+    if ($hour12 === 0) {
+      $hour12 = 12;
+    }
+
+    return sprintf('%d:%02d %s', $hour12, $minute, $ampm);
+  }
+
+  /**
+   * Public helper used by schema generation to normalize legacy/string/array input.
+   *
+   * @param mixed $value Optional business hours value. Uses saved option when null.
+   * @return array Structured hours by day.
+   */
+  public static function get_structured_business_hours($value = null) {
+    $hours_value = $value;
+    if ($hours_value === null) {
+      $hours_value = self::get('business_hours', []);
+    }
+
+    $errors = [];
+    return self::normalize_business_hours($hours_value, $errors, false);
+  }
+
+  /**
+   * Validate and normalize business hours input.
+   *
+   * @param mixed $value Raw input value (textarea text or structured array)
+   * @param string $label Field label
+   * @param int $max_length Max input length for text mode
+   * @param array &$errors Validation errors
+   * @return array
+   */
+  private static function validate_business_hours($value, $label, $max_length, &$errors) {
+    return self::normalize_business_hours($value, $errors, true, $label, $max_length);
+  }
+
+  /**
+   * Normalize opening hours from text/array to structured day=>slots format.
+   *
+   * @param mixed $value Hours input
+   * @param array &$errors Validation errors
+   * @param bool $strict_validation Whether to push validation errors
+   * @param string $label Field label for errors
+   * @param int $max_length Max length for textarea input
+   * @return array
+   */
+  private static function normalize_business_hours($value, &$errors, $strict_validation = true, $label = 'Business hours', $max_length = 2000) {
+    $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    $output = array_fill_keys($days, []);
+
+    if ($value === '' || $value === null || $value === []) {
+      return $output;
+    }
+
+    if (is_string($value)) {
+      $original_value = $value;
+      $value = sanitize_textarea_field($value);
+
+      if ($strict_validation && self::contains_dangerous_patterns($original_value, $label, $errors)) {
+        return $output;
+      }
+
+      if (strlen($value) > $max_length) {
+        if ($strict_validation) {
+          $errors[] = sprintf('%s exceeds maximum length of %d characters.', esc_html($label), $max_length);
+        }
+        return $output;
+      }
+
+      $lines = preg_split('/\r\n|\r|\n/', $value);
+      foreach ($lines as $line_number => $line_raw) {
+        $line = trim($line_raw);
+        if ($line === '') {
+          continue;
+        }
+
+        if (!preg_match('/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(?:\s*-\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday))?\s*:\s*(.+)$/i', $line, $matches)) {
+          if ($strict_validation) {
+            $errors[] = sprintf('Business hours line %d is invalid. Use format like "Monday-Friday: 9:00 AM - 5:00 PM".', (int)$line_number + 1);
+          }
+          continue;
+        }
+
+        $start_day = strtolower($matches[1]);
+        $end_day = strtolower(!empty($matches[2]) ? $matches[2] : $matches[1]);
+        $time_part = trim($matches[3]);
+
+        $start_index = array_search($start_day, $days, true);
+        $end_index = array_search($end_day, $days, true);
+        if ($start_index === false || $end_index === false || $start_index > $end_index) {
+          if ($strict_validation) {
+            $errors[] = sprintf('Business hours line %d has an invalid day range.', (int)$line_number + 1);
+          }
+          continue;
+        }
+
+        $validated_slots = [];
+        if (preg_match('/^(closed|off)$/i', $time_part)) {
+          $validated_slots = [];
+        } elseif (preg_match('/^(24\s*hours|24hrs|24h)$/i', $time_part)) {
+          $validated_slots = [['open' => '00:00', 'close' => '23:59']];
+        } else {
+          $slot_texts = preg_split('/\s*[;,]\s*/', $time_part);
+          foreach ($slot_texts as $slot_text) {
+            if (!preg_match('/^(.+?)\s*-\s*(.+)$/', trim($slot_text), $slot_match)) {
+              if ($strict_validation) {
+                $errors[] = sprintf('Business hours line %d has an invalid time slot "%s".', (int)$line_number + 1, esc_html($slot_text));
+              }
+              continue;
+            }
+
+            $open = self::normalize_business_hour_time($slot_match[1]);
+            $close = self::normalize_business_hour_time($slot_match[2]);
+
+            if ($open === false || $close === false) {
+              if ($strict_validation) {
+                $errors[] = sprintf('Business hours line %d contains invalid time format. Use HH:MM or HH:MM AM/PM.', (int)$line_number + 1);
+              }
+              continue;
+            }
+
+            $open_minutes = self::business_hour_time_to_minutes($open);
+            $close_minutes = self::business_hour_time_to_minutes($close);
+
+            if ($open_minutes === $close_minutes || $open_minutes > $close_minutes) {
+              if ($strict_validation) {
+                $errors[] = sprintf('Business hours line %d has invalid range "%s-%s". Overnight ranges are not supported.', (int)$line_number + 1, esc_html($open), esc_html($close));
+              }
+              continue;
+            }
+
+            $validated_slots[] = ['open' => $open, 'close' => $close];
+          }
+
+          $validated_slots = self::remove_overlapping_business_hour_slots($validated_slots);
+        }
+
+        for ($i = $start_index; $i <= $end_index; $i++) {
+          $day_key = $days[$i];
+          if (empty($validated_slots)) {
+            $output[$day_key] = [];
+            continue;
+          }
+
+          $output[$day_key] = self::remove_overlapping_business_hour_slots(array_merge($output[$day_key], $validated_slots));
+        }
+      }
+
+      return $output;
+    }
+
+    if (!is_array($value)) {
+      return $output;
+    }
+
+    foreach ($days as $day) {
+      $slots = $value[$day] ?? [];
+      if ($slots === 'closed' || empty($slots)) {
+        $output[$day] = [];
+        continue;
+      }
+
+      if (!is_array($slots)) {
+        if ($strict_validation) {
+          $errors[] = sprintf('Business hours for %s must be an array of time slots.', esc_html(ucfirst($day)));
+        }
+        $output[$day] = [];
+        continue;
+      }
+
+      $validated_slots = [];
+      foreach ($slots as $slot) {
+        if (!is_array($slot)) {
+          continue;
+        }
+
+        $open = self::normalize_business_hour_time($slot['open'] ?? '');
+        $close = self::normalize_business_hour_time($slot['close'] ?? '');
+        if ($open === false || $close === false) {
+          continue;
+        }
+
+        $open_minutes = self::business_hour_time_to_minutes($open);
+        $close_minutes = self::business_hour_time_to_minutes($close);
+        if ($open_minutes === $close_minutes || $open_minutes > $close_minutes) {
+          continue;
+        }
+
+        $validated_slots[] = ['open' => $open, 'close' => $close];
+      }
+
+      $output[$day] = self::remove_overlapping_business_hour_slots($validated_slots);
+    }
+
+    return $output;
+  }
+
+  /**
+   * Normalize a time string to HH:MM (24-hour format).
+   *
+   * @param mixed $time Time input.
+   * @return string|false
+   */
+  private static function normalize_business_hour_time($time) {
+    $time = sanitize_text_field((string)$time);
+
+    if (preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $time, $matches)) {
+      return sprintf('%02d:%02d', (int)$matches[1], (int)$matches[2]);
+    }
+
+    if (preg_match('/^(1[0-2]|0?[1-9]):([0-5]\d)\s*(AM|PM)$/i', $time, $matches)) {
+      $hour = (int)$matches[1];
+      $minute = (int)$matches[2];
+      $ampm = strtoupper($matches[3]);
+
+      if ($ampm === 'PM' && $hour < 12) {
+        $hour += 12;
+      }
+      if ($ampm === 'AM' && $hour === 12) {
+        $hour = 0;
+      }
+
+      return sprintf('%02d:%02d', $hour, $minute);
+    }
+
+    return false;
+  }
+
+  /**
+   * Convert HH:MM to absolute minutes.
+   *
+   * @param string $time
+   * @return int
+   */
+  private static function business_hour_time_to_minutes($time) {
+    $parts = explode(':', $time);
+    if (count($parts) !== 2) {
+      return 0;
+    }
+    return ((int)$parts[0] * 60) + (int)$parts[1];
+  }
+
+  /**
+   * Remove overlapping time slots and return sorted schedule.
+   *
+   * @param array $slots
+   * @return array
+   */
+  private static function remove_overlapping_business_hour_slots($slots) {
+    if (empty($slots)) {
+      return [];
+    }
+
+    usort($slots, function($a, $b) {
+      return strcmp((string)($a['open'] ?? ''), (string)($b['open'] ?? ''));
+    });
+
+    $clean = [];
+    foreach ($slots as $slot) {
+      if (!isset($slot['open'], $slot['close'])) {
+        continue;
+      }
+
+      if (empty($clean)) {
+        $clean[] = ['open' => $slot['open'], 'close' => $slot['close']];
+        continue;
+      }
+
+      $last = $clean[count($clean) - 1];
+      if (self::business_hour_time_to_minutes($slot['open']) < self::business_hour_time_to_minutes($last['close'])) {
+        continue;
+      }
+
+      $clean[] = ['open' => $slot['open'], 'close' => $slot['close']];
+    }
+
+    return array_values($clean);
   }
   
   /**

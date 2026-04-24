@@ -59,23 +59,41 @@ class ASNERISSEO_Schema {
         ];
       }
       
-      // Opening Hours
-      $hours = ASNERISSEO_Admin_Settings::get('business_hours');
-      if ($hours) {
-        $hours_array = array_filter(array_map('trim', explode("\n", $hours)));
-        if (!empty($hours_array)) {
-          $opening_hours = [];
-          foreach ($hours_array as $line) {
-            // Parse lines like "Monday: 9:00 AM - 5:00 PM" or "Monday-Friday: 9:00 AM - 5:00 PM"
-            if (preg_match('/^([^:]+):\s*(.+)$/i', $line, $matches)) {
-              $opening_hours[] = trim($matches[1]) . ' ' . trim($matches[2]);
+      // Opening Hours (structured, validated schedule)
+      $hours = ASNERISSEO_Admin_Settings::get_structured_business_hours();
+      if (!empty($hours) && is_array($hours)) {
+        $day_map = [
+          'monday' => 'Monday',
+          'tuesday' => 'Tuesday',
+          'wednesday' => 'Wednesday',
+          'thursday' => 'Thursday',
+          'friday' => 'Friday',
+          'saturday' => 'Saturday',
+          'sunday' => 'Sunday',
+        ];
+
+        $opening_specs = [];
+        foreach ($hours as $day_key => $slots) {
+          if (empty($slots) || !isset($day_map[$day_key]) || !is_array($slots)) {
+            continue;
+          }
+
+          foreach ($slots as $slot) {
+            if (!is_array($slot) || empty($slot['open']) || empty($slot['close'])) {
+              continue;
             }
+
+            $opening_specs[] = [
+              '@type' => 'OpeningHoursSpecification',
+              'dayOfWeek' => $day_map[$day_key],
+              'opens' => sanitize_text_field($slot['open']),
+              'closes' => sanitize_text_field($slot['close']),
+            ];
           }
-          if (!empty($opening_hours)) {
-            $business['openingHoursSpecification'] = array_map(function($spec) {
-              return ['@type' => 'OpeningHoursSpecification', 'description' => $spec];
-            }, $opening_hours);
-          }
+        }
+
+        if (!empty($opening_specs)) {
+          $business['openingHoursSpecification'] = $opening_specs;
         }
       }
       
