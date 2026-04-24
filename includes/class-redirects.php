@@ -272,6 +272,13 @@ class ASNERISSEO_Redirects {
       }
     } else {
       $from = '/' . ltrim($from, '/');
+      
+      // Reject paths that look like domain names (e.g., /www.google.com, /example.com)
+      // These are technically valid paths but confusing and likely user errors
+      if (preg_match('#^/+([a-z0-9-]+\.)+[a-z]{2,}(/|$)#i', $from)) {
+        return '';
+      }
+      
       $parsed = wp_parse_url($from);
     }
 

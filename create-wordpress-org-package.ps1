@@ -2,9 +2,10 @@
 # Creates Unix-compatible ZIP for asneris-seo-toolkit
 #
 # Usage:
-#   .\create-wordpress-org-package.ps1                      # auto-reads version from PHP header
+#   .\create-wordpress-org-package.ps1                      # runs npm build + packages (auto-reads version)
 #   .\create-wordpress-org-package.ps1 -Version 1.0.0       # override version
 #   .\create-wordpress-org-package.ps1 -IncludeSource       # include src/ folder for source disclosure
+# Note: npm run build is always executed automatically before packaging.
 
 param(
     [string]$Version = "",
@@ -63,9 +64,23 @@ foreach ($file in $requiredFiles) {
     }
 }
 
-# Validate build output exists (npm build must be run first)
+# Run npm build automatically before packaging
+Write-Host "  Running npm run build..." -ForegroundColor Yellow
+Push-Location $sourceDir
+try {
+    npm run build
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: npm run build failed (exit code $LASTEXITCODE). Fix build errors before packaging." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "  npm build completed." -ForegroundColor Green
+} finally {
+    Pop-Location
+}
+
+# Validate build output exists
 if (-not (Test-Path "$sourceDir\build\index.js")) {
-    Write-Host "ERROR: build/index.js missing. Run 'npm run build' first." -ForegroundColor Red
+    Write-Host "ERROR: build/index.js missing after npm run build." -ForegroundColor Red
     exit 1
 }
 

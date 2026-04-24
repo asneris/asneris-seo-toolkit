@@ -16,10 +16,14 @@ class ASNERISSEO_Meta {
   ];
 
   public static function init() {
-    // Add custom columns to Pages list only
+    // Add custom columns to Pages and Posts list
     add_filter( 'manage_page_posts_columns', array( __CLASS__, 'add_seo_columns' ) );
     add_action( 'manage_page_posts_custom_column', array( __CLASS__, 'render_seo_column' ), 10, 2 );
     add_filter( 'manage_edit-page_sortable_columns', array( __CLASS__, 'make_columns_sortable' ) );
+    
+    add_filter( 'manage_post_posts_columns', array( __CLASS__, 'add_seo_columns' ) );
+    add_action( 'manage_post_posts_custom_column', array( __CLASS__, 'render_seo_column' ), 10, 2 );
+    add_filter( 'manage_edit-post_sortable_columns', array( __CLASS__, 'make_columns_sortable' ) );
     
     // Register column widths
     add_action('admin_head', [__CLASS__, 'column_width']);
@@ -30,7 +34,7 @@ class ASNERISSEO_Meta {
    */
   public static function column_width() {
     $screen = get_current_screen();
-    if ($screen && $screen->id === 'edit-page') {
+    if ($screen && ($screen->id === 'edit-page' || $screen->id === 'edit-post')) {
       wp_add_inline_style('asnerisseo-admin', '.column-asneris_seo_info{width:110px!important}');
     }
   }
@@ -66,10 +70,40 @@ class ASNERISSEO_Meta {
   }
 
   public static function sanitize($value, $key) {
-    // URL fields: canonical and OG image
+    // URL fields: canonical and OG image - strict validation
     if (in_array($key, ['_ASNERISSEO_canonical', '_ASNERISSEO_og_image'], true)) {
-      $value = is_string($value) ? $value : '';
-      return esc_url_raw($value);
+      $value = is_string($value) ? trim($value) : '';
+      
+      // Empty is allowed
+      if ($value === '') {
+        return '';
+      }
+      
+      // Sanitize and validate URL format
+      // esc_url_raw() already blocks dangerous protocols (javascript:, data:, vbscript:, etc.)
+      $sanitized = esc_url_raw($value, ['http', 'https']);
+      if (!filter_var($sanitized, FILTER_VALIDATE_URL)) {
+        return '';
+      }
+      
+      // Parse and validate protocol
+      $parsed = wp_parse_url($sanitized);
+      if (!isset($parsed['scheme']) || !in_array($parsed['scheme'], ['http', 'https'], true)) {
+        return '';
+      }
+      
+      // Additional validation for OG image: must be an image file
+      if ($key === '_ASNERISSEO_og_image') {
+        $path = isset($parsed['path']) ? $parsed['path'] : '';
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        
+        if (empty($extension) || !in_array($extension, $allowed_extensions, true)) {
+          return '';
+        }
+      }
+      
+      return $sanitized;
     }
     
     // Boolean field: normalize to integer 1/0 for consistent database storage
@@ -78,30 +112,45 @@ class ASNERISSEO_Meta {
       return $value ? 1 : 0;
     }
     
-    // Robots index: whitelist validation
+    // Robots index: strict whitelist validation
     if ($key === '_ASNERISSEO_robots_index') {
       $value = is_string($value) ? sanitize_text_field($value) : '';
-      return in_array($value, ['index', 'noindex'], true) ? $value : 'index';
+      if (!in_array($value, ['index', 'noindex'], true)) {
+        // Return default value instead of WP_Error
+        return 'index';
+      }
+      return $value;
     }
     
-    // Robots follow: whitelist validation
+    // Robots follow: strict whitelist validation
     if ($key === '_ASNERISSEO_robots_follow') {
       $value = is_string($value) ? sanitize_text_field($value) : '';
-      return in_array($value, ['follow', 'nofollow'], true) ? $value : 'follow';
+      if (!in_array($value, ['follow', 'nofollow'], true)) {
+        // Return default value instead of WP_Error
+        return 'follow';
+      }
+      return $value;
     }
     
-    // Schema type: whitelist validation (Schema.org article types)
+    // Schema type: strict whitelist validation (Schema.org article types)
     if ($key === '_ASNERISSEO_schema_type') {
       $allowed_schema_types = [
         'Article', 'NewsArticle', 'BlogPosting', 'WebPage', 'Product', 
         'Review', 'Event', 'FAQPage', 'HowTo', 'Recipe'
       ];
       $value = is_string($value) ? sanitize_text_field($value) : '';
-      return in_array($value, $allowed_schema_types, true) ? $value : 'Article';
+      if (!in_array($value, $allowed_schema_types, true)) {
+        // Return empty string instead of WP_Error
+        return '';
+      }
+      return $value;
     }
     
-    // Default: text field sanitization with type check
-    return is_string($value) ? sanitize_text_field($value) : '';
+    // Default: text field sanitization
+    // sanitize_text_field() already strips ALL HTML tags and dangerous content
+    $value = is_string($value) ? sanitize_text_field($value) : '';
+    
+    return $value;
   }
 
   /**

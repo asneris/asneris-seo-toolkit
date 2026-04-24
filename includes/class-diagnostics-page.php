@@ -68,19 +68,12 @@ class ASNERISSEO_Diagnostics_Page {
       return ['error' => 'Invalid URL provided'];
     }
     
-    // Security: Prevent SSRF attacks - block localhost and private IP ranges
+    // SSRF Protection: Only allow URLs from this site
     $host = wp_parse_url($url, PHP_URL_HOST);
-    if (!$host) {
-      return ['error' => 'Invalid host'];
-    }
+    $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
     
-    // Block localhost and private/reserved IP ranges
-    if (
-      $host === 'localhost' ||
-      (filter_var($host, FILTER_VALIDATE_IP) &&
-       !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
-    ) {
-      return ['error' => 'Internal URLs are blocked for security'];
+    if (!$host || !$site_host || strtolower($host) !== strtolower($site_host)) {
+      return ['error' => 'Security: Only URLs from this site can be analyzed'];
     }
     
     // Rate limiting: Prevent spam requests

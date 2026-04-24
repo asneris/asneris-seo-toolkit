@@ -143,11 +143,8 @@ cd asneris-seo-toolkit
 # 2. Install JavaScript dependencies
 npm install
 
-# 3. Compile React/Gutenberg assets
-npm run build
-# Output: build/index.js and build/index.asset.php
-
-# 4. Generate the submission ZIP (Windows PowerShell)
+# 3. Generate the submission ZIP (Windows PowerShell)
+# Note: npm run build runs automatically inside the script
 .\create-wordpress-org-package.ps1
 # Output: asneris-seo-toolkit.zip
 ```

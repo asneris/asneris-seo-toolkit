@@ -124,8 +124,24 @@ class ASNERISSEO_Validation {
    * Analyze a URL for SEO validation
    */
   public static function analyze_url($url) {
-    // Allow WordPress to make requests to itself
-    add_filter('http_request_host_is_external', '__return_true');
+    $url = esc_url_raw(trim((string) $url));
+    
+    if (empty($url) || !wp_http_validate_url($url)) {
+      return [
+        'error' => __('Invalid URL provided.', 'asneris-seo-toolkit'),
+        'url' => $url,
+      ];
+    }
+    
+    $host = wp_parse_url($url, PHP_URL_HOST);
+    $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+    
+    if (!$host || !$site_host || strtolower($host) !== strtolower($site_host)) {
+      return [
+        'error' => __('Only URLs from this site can be analyzed.', 'asneris-seo-toolkit'),
+        'url' => $url,
+      ];
+    }
     
     $response = wp_remote_get($url, [
       'timeout' => 15,
@@ -134,19 +150,31 @@ class ASNERISSEO_Validation {
       'redirection' => 5,
       'blocking' => true,
       'httpversion' => '1.1',
-      'user-agent'  => 'AsnerisBot/1.0 (WordPress SEO plugin; +https://asneris.com)',
+      'user-agent' => 'AsnerisBot/1.0 (WordPress SEO plugin; +https://asneris.com)',
     ]);
-    
-    remove_filter('http_request_host_is_external', '__return_true');
     
     if (is_wp_error($response)) {
       return [
         'error' => $response->get_error_message(),
-        'url' => $url
+        'url' => $url,
+      ];
+    }
+    
+    $content_type = wp_remote_retrieve_header($response, 'content-type');
+    if (!is_string($content_type) || stripos($content_type, 'text/html') === false) {
+      return [
+        'error' => __('The URL did not return an HTML document.', 'asneris-seo-toolkit'),
+        'url' => $url,
       ];
     }
     
     $html = wp_remote_retrieve_body($response);
+    if (strlen($html) > 2 * 1024 * 1024) {
+      return [
+        'error' => __('The response is too large to analyze safely.', 'asneris-seo-toolkit'),
+        'url' => $url,
+      ];
+    }
     
     $results = [
       'url' => $url,
@@ -163,7 +191,7 @@ class ASNERISSEO_Validation {
     // Parse HTML
     libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    @$dom->loadHTML($html);
+    $dom->loadHTML($html);
     libxml_clear_errors();
     
     $xpath = new DOMXPath($dom);
@@ -324,8 +352,10 @@ class ASNERISSEO_Validation {
    * Analyze heading structure
    */
   public static function analyze_heading_structure($html) {
+    libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    @$dom->loadHTML($html);
+    $dom->loadHTML($html);
+    libxml_clear_errors();
     $xpath = new DOMXPath($dom);
     
     $result = [
@@ -368,8 +398,10 @@ class ASNERISSEO_Validation {
    * Analyze images for alt text and size
    */
   public static function analyze_images($html, $og_image = '', $twitter_image = '') {
+    libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    @$dom->loadHTML($html);
+    $dom->loadHTML($html);
+    libxml_clear_errors();
     $xpath = new DOMXPath($dom);
     
     $result = [
@@ -426,8 +458,10 @@ class ASNERISSEO_Validation {
    * Analyze internal links
    */
   public static function analyze_internal_links($html, $base_url) {
+    libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    @$dom->loadHTML($html);
+    $dom->loadHTML($html);
+    libxml_clear_errors();
     $xpath = new DOMXPath($dom);
     
     $result = [
@@ -570,15 +604,28 @@ class ASNERISSEO_Validation {
         $data['schema_check'] = !empty($results['schema']) ? self::validate_schema_blocks($results['schema']) : ['status' => 'fail', 'message' => 'No schema found'];
         $data['indexnow'] = self::get_indexnow_status();
         
-        // Analyze content
-        $response = wp_remote_get( $test_url, [ 'timeout' => 10, 'redirection' => 5, 'sslverify' => true ] );
-        if (!is_wp_error($response)) {
-          $html = wp_remote_retrieve_body($response);
-          $data['headings'] = self::analyze_heading_structure($html);
-          $og_img = !empty($og_image) ? $og_image[0] : null;
-          $tw_img = !empty($twitter_image) ? $twitter_image[0] : null;
-          $data['images'] = self::analyze_images($html, $og_img, $tw_img);
-          $data['links'] = self::analyze_internal_links($html, $test_url);
+        // Analyze content using already-fetched HTML from analyze_url()
+        // Note: analyze_url() already validated and fetched the HTML, so we request it again
+        // to ensure fresh data for content analysis (headings, images, links)
+        $content_response = wp_remote_get($test_url, [
+          'timeout' => 10,
+          'redirection' => 5,
+          'sslverify' => true,
+          'reject_unsafe_urls' => true,
+        ]);
+        
+        if (!is_wp_error($content_response)) {
+          $content_type = wp_remote_retrieve_header($content_response, 'content-type');
+          if (is_string($content_type) && stripos($content_type, 'text/html') !== false) {
+            $html = wp_remote_retrieve_body($content_response);
+            if (strlen($html) <= 2 * 1024 * 1024) {
+              $data['headings'] = self::analyze_heading_structure($html);
+              $og_img = !empty($og_image) ? $og_image[0] : null;
+              $tw_img = !empty($twitter_image) ? $twitter_image[0] : null;
+              $data['images'] = self::analyze_images($html, $og_img, $tw_img);
+              $data['links'] = self::analyze_internal_links($html, $test_url);
+            }
+          }
         }
         
         $data['results'] = $results;
@@ -810,8 +857,8 @@ class ASNERISSEO_Validation {
     update_option('ASNERISSEO_validation_summary', $summary);
     
     // Cache the score for the validated URL's post if it's a single post/page
-    if (isset($data['url']) && isset($data['score']['percentage'])) {
-      $post_id = url_to_postid($data['url']);
+    if (isset($data['test_url']) && isset($data['score']['percentage'])) {
+      $post_id = url_to_postid($data['test_url']);
       if ($post_id > 0) {
         update_post_meta($post_id, '_asneris_seo_score_cache', intval($data['score']['percentage']));
         update_post_meta($post_id, '_asneris_seo_score_timestamp', time());

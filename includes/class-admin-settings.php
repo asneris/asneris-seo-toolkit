@@ -94,6 +94,19 @@ class ASNERISSEO_Admin_Settings {
     // Get existing options to preserve data from other tabs
     $existing = get_option(self::OPT, []);
     
+    // Detect which fields are actually being submitted (changed from existing)
+    // This prevents validation errors when saving one tab while other tabs have empty/unchanged fields
+    $field_changed = function($field_name) use ($opt, $existing) {
+      // Field is changed if it's in POST and different from existing value
+      if (!isset($opt[$field_name])) {
+        return false; // Field not in submission
+      }
+      $new_value = $opt[$field_name];
+      $old_value = $existing[$field_name] ?? '';
+      // Normalize for comparison (empty string vs null vs unset)
+      return (string)$new_value !== (string)$old_value;
+    };
+    
     // Define whitelists for validation (prevents invalid values)
     $allowed_index = ['index', 'noindex'];
     $allowed_follow = ['follow', 'nofollow'];
@@ -102,6 +115,24 @@ class ASNERISSEO_Admin_Settings {
     
     // Track validation errors
     $validation_errors = [];
+    
+    // Define maximum lengths for fields
+    $max_lengths = [
+      'google_verification' => 100,
+      'bing_verification' => 100,
+      'yandex_verification' => 100,
+      'org_name' => 200,
+      'twitter_username' => 50,
+      'facebook_app_id' => 50,
+      'payment_methods' => 500,
+      'languages_spoken' => 500,
+      'business_address' => 1000,
+      'business_hours' => 2000,
+      'service_area' => 1000,
+    ];
+    
+    // Valid template variables
+    $valid_variables = ['{title}', '{site}', '{excerpt}', '{date}', '{author}', '{category}', '{separator}'];
     
     // Whitelist for Schema.org business types (must match dropdown options in render_schema_tab)
     $allowed_business_types = [
@@ -120,16 +151,28 @@ class ASNERISSEO_Admin_Settings {
     
     // Validate and sanitize with whitelist checks
     $robots_index = sanitize_text_field($opt['default_robots_index'] ?? $existing['default_robots_index'] ?? 'index');
-    $robots_index = in_array($robots_index, $allowed_index, true) ? $robots_index : 'index';
+    if (isset($opt['default_robots_index']) && !in_array($robots_index, $allowed_index, true)) {
+      $validation_errors[] = sprintf('Default indexing value "%s" is not allowed. Using "index" instead.', esc_html($robots_index));
+      $robots_index = 'index';
+    }
     
     $robots_follow = sanitize_text_field($opt['default_robots_follow'] ?? $existing['default_robots_follow'] ?? 'follow');
-    $robots_follow = in_array($robots_follow, $allowed_follow, true) ? $robots_follow : 'follow';
+    if (isset($opt['default_robots_follow']) && !in_array($robots_follow, $allowed_follow, true)) {
+      $validation_errors[] = sprintf('Default following value "%s" is not allowed. Using "follow" instead.', esc_html($robots_follow));
+      $robots_follow = 'follow';
+    }
     
     $business_type = sanitize_text_field($opt['business_type'] ?? $existing['business_type'] ?? 'LocalBusiness');
-    $business_type = in_array($business_type, $allowed_business_types, true) ? $business_type : 'LocalBusiness';
+    if (isset($opt['business_type']) && !in_array($business_type, $allowed_business_types, true)) {
+      $validation_errors[] = sprintf('Business type "%s" is not a valid Schema.org type. Using "LocalBusiness" instead.', esc_html($business_type));
+      $business_type = 'LocalBusiness';
+    }
     
     $price_range = sanitize_text_field($opt['price_range'] ?? $existing['price_range'] ?? '');
-    $price_range = in_array($price_range, $allowed_price_range, true) ? $price_range : '';
+    if (isset($opt['price_range']) && !in_array($price_range, $allowed_price_range, true)) {
+      $validation_errors[] = sprintf('Price range "%s" is not allowed. Allowed values: empty, $, $$, $$$, $$$$.', esc_html($price_range));
+      $price_range = '';
+    }
     
     $separator = sanitize_text_field($opt['title_separator'] ?? $existing['title_separator'] ?? '|');
     if (isset($opt['title_separator']) && !in_array($separator, $allowed_separators, true)) {
@@ -142,56 +185,81 @@ class ASNERISSEO_Admin_Settings {
     
     // Validate and sanitize phone number (allow only phone-safe characters)
     $phone = sanitize_text_field($opt['business_phone'] ?? $existing['business_phone'] ?? '');
-    $phone = preg_replace('/[^0-9+\-\s()ext.]/', '', $phone);
+    if (!empty($phone) && !preg_match('/^\+?[0-9\s\-\(\)\.ext]+$/', $phone)) {
+      $validation_errors[] = sprintf('Phone number "%s" contains invalid characters. Only numbers, spaces, +, -, (), ., and "ext" are allowed.', esc_html($phone));
+      $phone = '';
+    }
     
-    // Validate IndexNow key format (alphanumeric, 32-128 chars, or empty to auto-generate)
+    // IndexNow key management mode: auto (system-generated) or custom (manual)
+    $indexnow_key_mode = sanitize_key($opt['indexnow_key_mode'] ?? $existing['indexnow_key_mode'] ?? 'auto');
+    if (!in_array($indexnow_key_mode, ['auto', 'custom'], true)) {
+      $indexnow_key_mode = 'auto';
+    }
+
+    // Validate IndexNow key based on selected mode.
+    // Rule requested: alphanumeric 8-128 chars for custom keys.
     $indexnow_key = sanitize_text_field($opt['indexnow_key'] ?? $existing['indexnow_key'] ?? '');
-    if ($indexnow_key !== '' && !preg_match('/^[a-zA-Z0-9]{32,128}$/', $indexnow_key)) {
-      $indexnow_key = ''; // Invalid format, will auto-generate if enabled
+    if ($indexnow_key_mode === 'custom') {
+      if (trim($indexnow_key) === '') {
+        $validation_errors[] = 'Custom IndexNow key is required when "Use custom key" is selected.';
+      } elseif (($field_changed('indexnow_key') || $field_changed('indexnow_key_mode')) && !preg_match('/^[A-Za-z0-9]{8,128}$/', $indexnow_key)) {
+        $validation_errors[] = 'Custom IndexNow key must be 8-128 alphanumeric characters.';
+      }
     }
     
     $clean = [
-      'google_verification' => sanitize_text_field($opt['google_verification'] ?? $existing['google_verification'] ?? ''),
-      'bing_verification'   => sanitize_text_field($opt['bing_verification'] ?? $existing['bing_verification'] ?? ''),
-      'yandex_verification' => sanitize_text_field($opt['yandex_verification'] ?? $existing['yandex_verification'] ?? ''),
-      'default_og_image'    => esc_url_raw($opt['default_og_image'] ?? $existing['default_og_image'] ?? ''),
-      'org_name'            => sanitize_text_field($opt['org_name'] ?? $existing['org_name'] ?? ''),
-      'org_logo'            => esc_url_raw($opt['org_logo'] ?? $existing['org_logo'] ?? ''),
+      'google_verification' => self::validate_verification_code($opt['google_verification'] ?? $existing['google_verification'] ?? '', $existing['google_verification'] ?? '', 'Google verification code', $max_lengths['google_verification'], $validation_errors, $field_changed('google_verification')),
+      'bing_verification'   => self::validate_verification_code($opt['bing_verification'] ?? $existing['bing_verification'] ?? '', $existing['bing_verification'] ?? '', 'Bing verification code', $max_lengths['bing_verification'], $validation_errors, $field_changed('bing_verification')),
+      'yandex_verification' => self::validate_verification_code($opt['yandex_verification'] ?? $existing['yandex_verification'] ?? '', $existing['yandex_verification'] ?? '', 'Yandex verification code', $max_lengths['yandex_verification'], $validation_errors, $field_changed('yandex_verification')),
+      'default_og_image'    => self::validate_url($opt['default_og_image'] ?? $existing['default_og_image'] ?? '', 'Default OG image', $validation_errors, true),
+      'org_name'            => self::validate_text_field($opt['org_name'] ?? $existing['org_name'] ?? '', 'Organization name', $max_lengths['org_name'], $validation_errors),
+      'org_logo'            => self::validate_url($opt['org_logo'] ?? $existing['org_logo'] ?? '', 'Organization logo', $validation_errors, true),
       'indexnow_enabled'    => isset($opt['indexnow_enabled']) ? (!empty($opt['indexnow_enabled']) ? 1 : 0) : ($existing['indexnow_enabled'] ?? 0),
+      'indexnow_key_mode'   => $indexnow_key_mode,
       'indexnow_key'        => $indexnow_key,
-      'twitter_username'    => ltrim(sanitize_text_field($opt['twitter_username'] ?? $existing['twitter_username'] ?? ''), '@'),
-      'facebook_app_id'     => sanitize_text_field($opt['facebook_app_id'] ?? $existing['facebook_app_id'] ?? ''),
-      'theme_color'         => sanitize_hex_color($opt['theme_color'] ?? $existing['theme_color'] ?? ''),
+      'twitter_username'    => self::validate_text_field(ltrim(sanitize_text_field($opt['twitter_username'] ?? $existing['twitter_username'] ?? ''), '@'), 'Twitter username', $max_lengths['twitter_username'], $validation_errors),
+      'facebook_app_id'     => self::validate_text_field($opt['facebook_app_id'] ?? $existing['facebook_app_id'] ?? '', 'Facebook App ID', $max_lengths['facebook_app_id'], $validation_errors),
+      'theme_color'         => self::validate_color($opt['theme_color'] ?? $existing['theme_color'] ?? '', $validation_errors),
       'default_robots_index' => $robots_index,
       'default_robots_follow' => $robots_follow,
       'enable_breadcrumbs'  => isset($opt['enable_breadcrumbs']) ? (!empty($opt['enable_breadcrumbs']) ? 1 : 0) : ($existing['enable_breadcrumbs'] ?? 0),
       'enable_local_business' => isset($opt['enable_local_business']) ? (!empty($opt['enable_local_business']) ? 1 : 0) : ($existing['enable_local_business'] ?? 0),
       'business_type'       => $business_type,
       'business_phone'      => $phone,
-      'business_address'    => sanitize_textarea_field($opt['business_address'] ?? $existing['business_address'] ?? ''),
-      'business_hours'      => sanitize_textarea_field($opt['business_hours'] ?? $existing['business_hours'] ?? ''),
-      'service_area'        => sanitize_textarea_field($opt['service_area'] ?? $existing['service_area'] ?? ''),
+      'business_address'    => self::validate_textarea($opt['business_address'] ?? $existing['business_address'] ?? '', 'Business address', $max_lengths['business_address'], $validation_errors),
+      'business_hours'      => self::validate_textarea($opt['business_hours'] ?? $existing['business_hours'] ?? '', 'Business hours', $max_lengths['business_hours'], $validation_errors),
+      'service_area'        => self::validate_textarea($opt['service_area'] ?? $existing['service_area'] ?? '', 'Service area', $max_lengths['service_area'], $validation_errors),
       'price_range'         => $price_range,
-      'payment_methods'     => sanitize_text_field($opt['payment_methods'] ?? $existing['payment_methods'] ?? ''),
-      'languages_spoken'    => sanitize_text_field($opt['languages_spoken'] ?? $existing['languages_spoken'] ?? ''),
+      'payment_methods'     => self::validate_comma_list($opt['payment_methods'] ?? $existing['payment_methods'] ?? '', 'Payment methods', $max_lengths['payment_methods'], $validation_errors),
+      'languages_spoken'    => self::validate_comma_list($opt['languages_spoken'] ?? $existing['languages_spoken'] ?? '', 'Languages spoken', $max_lengths['languages_spoken'], $validation_errors),
       'title_separator'     => $separator,
       // Sanitize templates even when using fallback values (prevents bad legacy data)
       'title_templates'     => isset($opt['title_templates']) && is_array($opt['title_templates']) 
-        ? array_map('sanitize_text_field', $opt['title_templates']) 
-        : array_map('sanitize_text_field', $existing['title_templates'] ?? []),
+        ? self::validate_templates($opt['title_templates'], 'title', $valid_variables, $validation_errors)
+        : self::validate_templates($existing['title_templates'] ?? [], 'title', $valid_variables, $validation_errors),
       'description_templates' => isset($opt['description_templates']) && is_array($opt['description_templates']) 
-        ? array_map('sanitize_textarea_field', $opt['description_templates']) 
-        : array_map('sanitize_textarea_field', $existing['description_templates'] ?? []),
+        ? self::validate_templates($opt['description_templates'], 'description', $valid_variables, $validation_errors)
+        : self::validate_templates($existing['description_templates'] ?? [], 'description', $valid_variables, $validation_errors),
     ];
 
-    if ($clean['indexnow_enabled'] && $clean['indexnow_key'] === '') {
+    if ($clean['indexnow_enabled'] && $clean['indexnow_key_mode'] === 'auto' && $clean['indexnow_key'] === '') {
       $clean['indexnow_key'] = ASNERISSEO_IndexNow::generate_key();
     }
     
     // Store validation errors as transient to display after redirect
     if (!empty($validation_errors)) {
       set_transient('asneris_settings_validation_errors', $validation_errors, 30);
+      // Log validation errors for debugging (only in development)
+      if (defined('WP_DEBUG') && WP_DEBUG) {
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only active when WP_DEBUG is enabled
+        error_log('ASNERIS SEO: Validation failed with ' . count($validation_errors) . ' errors: ' . implode('; ', $validation_errors));
+      }
+      // Strict validation: block save if ANY validation errors exist
+      return $existing;
     }
+    
+    // Clear any old validation errors on successful save
+    delete_transient('asneris_settings_validation_errors');
     
     return $clean;
   }
@@ -214,27 +282,38 @@ class ASNERISSEO_Admin_Settings {
       <p class="ASNERISSEO-subtitle"><?php esc_html_e('Clear and simple SEO configuration for your WordPress site.', 'asneris-seo-toolkit'); ?></p>
 
       <?php
-      // Display success message after settings saved
+      // Check for validation errors first
+      $validation_errors = get_transient('asneris_settings_validation_errors');
+      
+      // Log for debugging (only in development)
+      if (!empty($validation_errors) && defined('WP_DEBUG') && WP_DEBUG) {
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only active when WP_DEBUG is enabled
+        error_log('ASNERIS SEO: Displaying ' . count($validation_errors) . ' validation errors to user');
+      }
+      
+      // Display error or success message after settings form submission
       // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display check set by WordPress core after options.php redirect
       if ( isset( $_GET['settings-updated'] ) && sanitize_key( $_GET['settings-updated'] ) === 'true' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        ?>
-        <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
-          <p><strong><?php esc_html_e('Settings saved successfully!', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'asneris-seo-toolkit'); ?></p>
-        </div>
-        <?php
         
-        // Display validation warnings if any
-        $validation_errors = get_transient('asneris_settings_validation_errors');
         if (!empty($validation_errors)) {
+          // Show error message when validation failed (save was blocked)
           delete_transient('asneris_settings_validation_errors');
           ?>
-          <div class="notice notice-warning is-dismissible" style="margin: 15px 0;">
-            <p><strong><?php esc_html_e('Some values were adjusted:', 'asneris-seo-toolkit'); ?></strong></p>
+          <div class="notice notice-error is-dismissible" style="margin: 15px 0; border-left-color: #dc3232;">
+            <p><strong><?php esc_html_e('Settings could not be saved due to validation errors:', 'asneris-seo-toolkit'); ?></strong></p>
             <ul style="margin: 5px 0 0 20px; list-style: disc;">
               <?php foreach ($validation_errors as $error): ?>
                 <li><?php echo wp_kses_post($error); ?></li>
               <?php endforeach; ?>
             </ul>
+            <p><?php esc_html_e('Please correct the errors above and try again. No changes were saved.', 'asneris-seo-toolkit'); ?></p>
+          </div>
+          <?php
+        } else {
+          // Show success message only when no validation errors
+          ?>
+          <div class="notice notice-success is-dismissible" style="margin: 15px 0;">
+            <p><strong><?php esc_html_e('Settings saved successfully!', 'asneris-seo-toolkit'); ?></strong> <?php esc_html_e('Your changes have been saved and are now active.', 'asneris-seo-toolkit'); ?></p>
           </div>
           <?php
         }
@@ -271,22 +350,62 @@ class ASNERISSEO_Admin_Settings {
         <?php settings_fields(self::OPT); ?>
         <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr(add_query_arg('tab', $current_tab, admin_url('admin.php?page=' . ASNERIS_MENU_SLUG . '-settings'))); ?>" />
 
+        <?php 
+        // Include all settings as hidden fields to preserve data from inactive tabs
+        // This ensures validation runs on ALL fields, not just the current tab
+        $all_settings = get_option(self::OPT, []);
+        $current_tab_fields = []; // Will be populated by render functions
+        ?>
+
         <?php if ($current_tab === 'general'): ?>
           <?php self::render_general_tab(); ?>
+          <?php $current_tab_fields = ['org_name', 'org_logo', 'default_robots_index', 'default_robots_follow', 'enable_breadcrumbs', 'title_separator']; ?>
         <?php elseif ($current_tab === 'verification'): ?>
           <?php self::render_verification_tab(); ?>
+          <?php $current_tab_fields = ['google_verification', 'bing_verification', 'yandex_verification']; ?>
         <?php elseif ($current_tab === 'indexnow'): ?>
           <?php self::render_indexnow_tab($indexnow_key, $key_url); ?>
+          <?php $current_tab_fields = ['indexnow_enabled', 'indexnow_key_mode', 'indexnow_key']; ?>
         <?php elseif ($current_tab === 'social'): ?>
           <?php self::render_social_tab(); ?>
+          <?php $current_tab_fields = ['default_og_image', 'twitter_username', 'facebook_app_id', 'theme_color']; ?>
         <?php elseif ($current_tab === 'schema'): ?>
           <?php self::render_schema_tab(); ?>
+          <?php $current_tab_fields = ['enable_local_business', 'business_type', 'business_phone', 'business_address', 'business_hours', 'service_area', 'price_range', 'payment_methods', 'languages_spoken']; ?>
         <?php elseif ($current_tab === 'templates'): ?>
           <?php self::render_templates_tab(); ?>
+          <?php $current_tab_fields = ['title_templates', 'description_templates']; ?>
         <?php elseif ($current_tab === 'maintenance'): ?>
           <?php self::render_advanced_tab(); ?>
+          <?php $current_tab_fields = []; // Advanced tab doesn't have settings ?>
 
         <?php endif; ?>
+
+        <?php 
+        // Output hidden fields for all other tabs to preserve their data
+        foreach ($all_settings as $key => $value) {
+          if (!in_array($key, $current_tab_fields, true)) {
+            if (is_array($value)) {
+              foreach ($value as $subkey => $subvalue) {
+                printf(
+                  '<input type="hidden" name="%s[%s][%s]" value="%s" />',
+                  esc_attr(self::OPT),
+                  esc_attr($key),
+                  esc_attr($subkey),
+                  esc_attr($subvalue)
+                );
+              }
+            } else {
+              printf(
+                '<input type="hidden" name="%s[%s]" value="%s" />',
+                esc_attr(self::OPT),
+                esc_attr($key),
+                esc_attr($value)
+              );
+            }
+          }
+        }
+        ?>
 
         <?php submit_button('Save Settings', 'primary large'); ?>
       </form>
@@ -335,7 +454,7 @@ class ASNERISSEO_Admin_Settings {
                   <?php endif; ?>
                 </div>
               </div>
-              <p class="description">Recommended: 600x60px for best display across platforms.</p>
+              <p class="description">Recommended: 600x60px for best display across platforms. Allowed formats: jpg, jpeg, png, gif, webp, svg, bmp, ico.</p>
             </td>
           </tr>
         </table>
@@ -496,6 +615,11 @@ class ASNERISSEO_Admin_Settings {
   }
 
   private static function render_indexnow_tab($indexnow_key, $key_url) {
+    $indexnow_key_mode = self::get('indexnow_key_mode', 'auto');
+    if (!in_array($indexnow_key_mode, ['auto', 'custom'], true)) {
+      $indexnow_key_mode = 'auto';
+    }
+    $is_custom_key_mode = ($indexnow_key_mode === 'custom');
     ?>
     <div class="ASNERISSEO-tab-content">
       <div class="ASNERISSEO-card">
@@ -521,10 +645,34 @@ class ASNERISSEO_Admin_Settings {
           </tr>
           <tr>
             <th scope="row">
+              <label>Key Management</label>
+            </th>
+            <td>
+              <label style="display:block; margin-bottom: 8px;">
+                <input type="radio" name="<?php echo esc_attr(self::OPT); ?>[indexnow_key_mode]" value="auto" <?php checked($indexnow_key_mode, 'auto'); ?>>
+                Auto-generate IndexNow key
+              </label>
+              <label style="display:block; margin-bottom: 8px;">
+                <input type="radio" name="<?php echo esc_attr(self::OPT); ?>[indexnow_key_mode]" value="custom" <?php checked($indexnow_key_mode, 'custom'); ?>>
+                Use custom key
+              </label>
+              <p class="description">Use auto mode for most sites. Use custom mode if you need key reuse across environments or controlled migration.</p>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">
               <label for="indexnow_key">API Key</label>
             </th>
             <td>
-              <input type="text" id="indexnow_key" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[indexnow_key]" value="<?php echo esc_attr($indexnow_key); ?>" placeholder="Auto-generated when enabled">
+              <input type="text" id="indexnow_key" class="large-text code" name="<?php echo esc_attr(self::OPT); ?>[indexnow_key]" value="<?php echo esc_attr($indexnow_key); ?>" data-initial-value="<?php echo esc_attr($indexnow_key); ?>" placeholder="Auto-generated when enabled" <?php echo $is_custom_key_mode ? '' : 'readonly disabled'; ?>>
+              <?php if ($is_custom_key_mode): ?>
+                <p class="description">Custom key validation: alphanumeric only, 8-128 characters.</p>
+              <?php else: ?>
+                <p class="description">This key is system-managed. Switch to “Use custom key” to edit manually.</p>
+              <?php endif; ?>
+              <p id="indexnow-key-modified-warning" class="description" style="display:none; color:#d63638; font-weight:600;">
+                You have modified the manual IndexNow key. Save settings to apply this change.
+              </p>
               <?php if ($key_url): ?>
                 <p class="description">
                   <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> 
@@ -538,6 +686,73 @@ class ASNERISSEO_Admin_Settings {
           </tr>
         </table>
       </div>
+
+      <script>
+      (function() {
+        var autoRadio = document.querySelector('input[name="<?php echo esc_js(self::OPT); ?>[indexnow_key_mode]"][value="auto"]');
+        var customRadio = document.querySelector('input[name="<?php echo esc_js(self::OPT); ?>[indexnow_key_mode]"][value="custom"]');
+        var keyInput = document.getElementById('indexnow_key');
+        var modifiedWarning = document.getElementById('indexnow-key-modified-warning');
+        if (!autoRadio || !customRadio || !keyInput || !modifiedWarning) {
+          return;
+        }
+
+        var initialMode = autoRadio.checked ? 'auto' : 'custom';
+        var initialKey = keyInput.getAttribute('data-initial-value') || '';
+        var hasShownModifyAlert = false;
+
+        var syncReadonly = function() {
+          var isAuto = autoRadio.checked;
+          keyInput.readOnly = isAuto;
+          keyInput.disabled = isAuto;
+        };
+
+        var updateModifiedWarning = function() {
+          if (!customRadio.checked) {
+            modifiedWarning.style.display = 'none';
+            return;
+          }
+
+          var changed = keyInput.value !== initialKey;
+          modifiedWarning.style.display = changed ? 'block' : 'none';
+
+          if (changed && !hasShownModifyAlert) {
+            hasShownModifyAlert = true;
+            window.alert('You have modified the manual IndexNow key. Save settings to apply this change.');
+          }
+        };
+
+        var confirmModeSwitch = function(targetMode) {
+          var hasExistingKey = (initialKey.trim() !== '');
+          if (!hasExistingKey || targetMode === initialMode) {
+            return true;
+          }
+
+          return window.confirm('An IndexNow key already exists. Switching key mode may change how this key is managed. Continue?');
+        };
+
+        autoRadio.addEventListener('change', function() {
+          if (!confirmModeSwitch('auto')) {
+            customRadio.checked = true;
+          }
+          syncReadonly();
+          updateModifiedWarning();
+        });
+
+        customRadio.addEventListener('change', function() {
+          if (!confirmModeSwitch('custom')) {
+            autoRadio.checked = true;
+          }
+          syncReadonly();
+          updateModifiedWarning();
+        });
+
+        keyInput.addEventListener('input', updateModifiedWarning);
+
+        syncReadonly();
+        updateModifiedWarning();
+      })();
+      </script>
 
       <?php if (self::get('indexnow_enabled')): ?>
       <div class="ASNERISSEO-info-box ASNERISSEO-success-box">
@@ -575,7 +790,7 @@ class ASNERISSEO_Admin_Settings {
                   <?php endif; ?>
                 </div>
               </div>
-              <p class="description">Used when individual posts don't have a featured image. Recommended: 1200x630px.</p>
+              <p class="description">Used when individual posts don't have a featured image. Recommended: 1200x630px. Allowed formats: jpg, jpeg, png, gif, webp, svg, bmp, ico.</p>
             </td>
           </tr>
         </table>
@@ -1079,18 +1294,28 @@ class ASNERISSEO_Admin_Settings {
       wp_send_json_error('Unauthorized');
     }
 
-    // Sanitize early: WordPress security best practice
-    // Use map_deep to recursively sanitize all nested array values immediately upon input
-    $settings = isset($_POST['settings']) ? map_deep(wp_unslash($_POST['settings']), 'sanitize_text_field') : [];
+    // Get raw settings data WITHOUT pre-sanitization to allow proper validation
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Intentionally accessing raw values to detect dangerous patterns before sanitization strips them
+    $settings = isset($_POST['settings']) ? wp_unslash($_POST['settings']) : [];
     
-    if (empty($settings)) {
+    if (empty($settings) || !is_array($settings)) {
       wp_send_json_error('No settings data provided');
     }
 
-    // Note: sanitize() will apply field-specific validation and additional sanitization rules
-    // (e.g., esc_url_raw for URLs, whitelist validation for dropdowns, etc.)
-    // The map_deep above is initial broad sanitization; sanitize() applies context-specific rules
+    // IMPORTANT: Pass raw data to sanitize() so validation can detect dangerous patterns
+    // before sanitization strips them. The sanitize() method will handle all validation
+    // and sanitization with proper error detection.
     $clean_settings = self::sanitize($settings);
+    
+    // Check if sanitize() returned an error (validation failed)
+    // Note: sanitize() may have added validation errors to transient
+    $validation_errors = get_transient('asneris_settings_validation_errors');
+    if (!empty($validation_errors)) {
+      delete_transient('asneris_settings_validation_errors');
+      wp_send_json_error('Import validation failed: ' . implode(', ', $validation_errors));
+      return;
+    }
+    
     update_option(self::OPT, $clean_settings);
     
     wp_send_json_success('Settings imported successfully');
@@ -1108,5 +1333,318 @@ class ASNERISSEO_Admin_Settings {
 
     delete_option(self::OPT);
     wp_send_json_success('Settings reset successfully');
+  }
+  
+  /**
+   * Validate text field with length limit and dangerous pattern detection
+   * 
+   * @param string $value The value to validate
+   * @param string $label The field label for error messages
+   * @param int $max_length Maximum allowed length
+   * @param array &$errors Reference to errors array
+   * @return string Sanitized and validated value or empty string on validation failure
+   */
+  private static function validate_text_field($value, $label, $max_length, &$errors) {
+    $original_value = $value;
+    $value = sanitize_text_field($value);
+    
+    // Check for dangerous patterns in ORIGINAL value (before sanitization removes tags)
+    if (self::contains_dangerous_patterns($original_value, $label, $errors)) {
+      return ''; // Return empty - will trigger block when errors exist
+    }
+    
+    // Check length limit
+    if (strlen($value) > $max_length) {
+      $errors[] = sprintf('%s exceeds maximum length of %d characters.', esc_html($label), $max_length);
+      return ''; // Return empty - will trigger block when errors exist
+    }
+    
+    return $value;
+  }
+  
+  /**
+   * Validate textarea field with length limit and dangerous pattern detection
+   * 
+   * @param string $value The value to validate
+   * @param string $label The field label for error messages
+   * @param int $max_length Maximum allowed length
+   * @param array &$errors Reference to errors array
+   * @return string Sanitized and validated value or empty string on validation failure
+   */
+  private static function validate_textarea($value, $label, $max_length, &$errors) {
+    $original_value = $value;
+    $value = sanitize_textarea_field($value);
+    
+    // Check for dangerous patterns in ORIGINAL value (before sanitization)
+    if (self::contains_dangerous_patterns($original_value, $label, $errors)) {
+      return ''; // Return empty - will trigger block when errors exist
+    }
+    
+    // Check length limit
+    if (strlen($value) > $max_length) {
+      $errors[] = sprintf('%s exceeds maximum length of %d characters.', esc_html($label), $max_length);
+      return ''; // Return empty - will trigger block when errors exist
+    }
+    
+    return $value;
+  }
+  
+  /**
+   * Validate URL with format and protocol checks
+   * 
+   * @param string $value The URL to validate
+   * @param string $label The field label for error messages
+   * @param array &$errors Reference to errors array
+   * @param bool $require_image Whether to validate that URL points to an image file
+   * @return string Sanitized and validated URL
+   */
+  private static function validate_url($value, $label, &$errors, $require_image = false) {
+    if (empty($value)) {
+      return '';
+    }
+    
+    $value = esc_url_raw($value);
+    
+    // Validate URL format
+    if (!filter_var($value, FILTER_VALIDATE_URL)) {
+      $errors[] = sprintf('%s is not a valid URL format. Field has been cleared.', esc_html($label));
+      return '';
+    }
+    
+    // Check protocol
+    $parsed = wp_parse_url($value);
+    if (!isset($parsed['scheme']) || !in_array($parsed['scheme'], ['http', 'https'], true)) {
+      $errors[] = sprintf('%s must use http:// or https:// protocol. Field has been cleared.', esc_html($label));
+      return '';
+    }
+    
+    // Validate image file extension if required
+    if ($require_image) {
+      $path = isset($parsed['path']) ? $parsed['path'] : '';
+      $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+      $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+      
+      if (empty($extension) || !in_array($extension, $allowed_extensions, true)) {
+        $errors[] = sprintf(
+          '%s must be a valid image URL (allowed extensions: %s). Field has been cleared.',
+          esc_html($label),
+          implode(', ', $allowed_extensions)
+        );
+        return '';
+      }
+      
+      // Verify the URL returns an image by checking Content-Type
+      $response = wp_remote_head($value, ['timeout' => 5, 'sslverify' => false]);
+      if (!is_wp_error($response)) {
+        $content_type = wp_remote_retrieve_header($response, 'content-type');
+        $allowed_mimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp', 'image/x-icon', 'image/vnd.microsoft.icon'];
+        
+        if (!empty($content_type)) {
+          // Extract base content type (remove charset if present)
+          $content_type = strtolower(trim(explode(';', $content_type)[0]));
+          
+          if (!in_array($content_type, $allowed_mimes, true)) {
+            $errors[] = sprintf(
+              '%s does not return a valid image. Content-Type: %s. Field has been cleared.',
+              esc_html($label),
+              esc_html($content_type)
+            );
+            return '';
+          }
+        }
+      }
+      // If HTTP request fails, we still allow it (might be temp network issue)
+      // Extension validation already passed, so we trust that
+    }
+    
+    return $value;
+  }
+  
+  /**
+   * Validate verification code field (Google, Bing, Yandex)
+   * Verification codes are alphanumeric strings with optional hyphens/underscores
+   * 
+   * @param string $value The verification code to validate
+   * @param string $old_value The existing/previous value
+   * @param string $label The field label for error messages
+   * @param int $max_length Maximum allowed length
+   * @param array &$errors Reference to errors array
+   * @return string Sanitized and validated verification code
+   */
+  private static function validate_verification_code($value, $old_value, $label, $max_length, &$errors, $field_changed = true) {
+    $original_value = $value;
+    $value = sanitize_text_field($value);
+    
+    // If empty after sanitization, check if dangerous content was stripped
+    if (empty($value)) {
+      if ($field_changed && !empty($original_value) && trim($original_value) !== '') {
+        $errors[] = sprintf('%s contains invalid or suspicious content and was rejected.', esc_html($label));
+        return $old_value;
+      }
+      return ''; // Empty is valid
+    }
+    
+    // Only validate format if the field was actually changed (not just falling back to existing)
+    if (!$field_changed) {
+      return $value; // Return existing value without validation
+    }
+    
+    // Verification codes should be alphanumeric with optional hyphens, underscores, or dots
+    // Check if value contains only valid characters
+    if (!preg_match('/^[a-zA-Z0-9_\-.]+$/', $value)) {
+      $errors[] = sprintf('%s contains invalid characters. Only letters, numbers, hyphens, underscores, and dots are allowed.', esc_html($label));
+      return $old_value; // Keep the old value instead of trying to fix it
+    }
+    
+    // Check length limit
+    if (strlen($value) > $max_length) {
+      $errors[] = sprintf('%s exceeds maximum length of %d characters.', esc_html($label), $max_length);
+      return $old_value; // Keep the old value instead of truncating
+    }
+    
+    return $value;
+  }
+  
+  /**
+   * Validate color field
+   * 
+   * @param string $value The color value to validate
+   * @param array &$errors Reference to errors array
+   * @return string Sanitized and validated color
+   */
+  private static function validate_color($value, &$errors) {
+    $sanitized = sanitize_hex_color($value);
+    
+    if (!empty($value) && empty($sanitized)) {
+      $errors[] = sprintf('Theme color "%s" is not a valid hex color code. Field has been cleared.', esc_html($value));
+      return '';
+    }
+    
+    return $sanitized;
+  }
+  
+  /**
+   * Validate template arrays with variable validation and dangerous pattern detection
+   * 
+   * @param array $templates The template array to validate
+   * @param string $type 'title' or 'description' for context
+   * @param array $valid_variables List of allowed template variables
+   * @param array &$errors Reference to errors array
+   * @return array Sanitized and validated templates
+   */
+  private static function validate_templates($templates, $type, $valid_variables, &$errors) {
+    if (!is_array($templates)) {
+      return [];
+    }
+    
+    $validated = [];
+    $sanitize_func = ($type === 'description') ? 'sanitize_textarea_field' : 'sanitize_text_field';
+    
+    foreach ($templates as $key => $template) {
+      // Store original value BEFORE sanitization to check for dangerous patterns
+      $original_template = $template;
+      $template = $sanitize_func($template);
+      
+      // Check for dangerous patterns in ORIGINAL value before sanitization strips them
+      if (self::contains_dangerous_patterns($original_template, ucfirst($type) . ' template', $errors)) {
+        continue; // Skip this template - don't add it to validated array
+      }
+      
+      // Extract and validate template variables
+      if (preg_match_all('/\{([^}]+)\}/', $template, $matches)) {
+        foreach ($matches[1] as $var) {
+          $full_var = '{' . $var . '}';
+          if (!in_array($full_var, $valid_variables, true)) {
+            $errors[] = sprintf(
+              '%s template contains invalid variable %s. Valid variables: %s',
+              ucfirst($type),
+              esc_html($full_var),
+              esc_html(implode(', ', $valid_variables))
+            );
+          }
+        }
+      }
+      
+      $validated[$key] = $template;
+    }
+    
+    return $validated;
+  }
+  
+  /**
+   * Validate comma-separated list (e.g., "Cash, Credit Card, PayPal")
+   * 
+   * @param string $value The comma-separated list to validate
+   * @param string $label The field label for error messages
+   * @param int $max_length Maximum allowed length for the entire string
+   * @param array &$errors Reference to errors array
+   * @return string Sanitized and validated comma-separated list
+   */
+  private static function validate_comma_list($value, $label, $max_length, &$errors) {
+    $original_value = $value;
+    
+    // Check for dangerous patterns in ORIGINAL value (before sanitization)
+    if (self::contains_dangerous_patterns($original_value, $label, $errors)) {
+      return ''; // Return empty - will trigger block when errors exist
+    }
+    
+    // Split by comma, trim whitespace from each item, and sanitize each item
+    $items = array_map('trim', explode(',', $value));
+    $items = array_map('sanitize_text_field', $items);
+    
+    // Filter out empty items
+    $items = array_filter($items, function($item) {
+      return $item !== '';
+    });
+    
+    // Rejoin into comma-separated string
+    $value = implode(', ', $items);
+    
+    // Check length limit on the final string
+    if (strlen($value) > $max_length) {
+      $errors[] = sprintf('%s exceeds maximum length of %d characters.', esc_html($label), $max_length);
+      return ''; // Return empty - will trigger block when errors exist
+    }
+    
+    return $value;
+  }
+  
+  /**
+   * Check for dangerous patterns in user input
+   * 
+   * @param string $value The value to check
+   * @param string $label The field label for error messages
+   * @param array &$errors Reference to errors array
+   * @return bool True if dangerous patterns found
+   */
+  private static function contains_dangerous_patterns($value, $label, &$errors) {
+    $dangerous_patterns = [
+      '/\.ps1\b/i'        => 'PowerShell script',
+      '/\.exe\b/i'        => 'executable file',
+      '/\.bat\b/i'        => 'batch file',
+      '/\.cmd\b/i'        => 'command file',
+      '/\.sh\b/i'         => 'shell script',
+      '/<script/i'        => 'script tag',
+      '/<iframe/i'        => 'iframe tag',
+      '/<object/i'        => 'object tag',
+      '/<embed/i'         => 'embed tag',
+      '/<\?php/i'         => 'PHP code',
+      '/javascript:/i'    => 'JavaScript protocol',
+      '/data:text\/html/i' => 'data URL',
+      '/on\w+\s*=/i'      => 'event handler',
+    ];
+    
+    foreach ($dangerous_patterns as $pattern => $description) {
+      if (preg_match($pattern, $value)) {
+        $errors[] = sprintf(
+          '%s contains suspicious content (%s). This has been removed for security.',
+          esc_html($label),
+          esc_html($description)
+        );
+        return true;
+      }
+    }
+    
+    return false;
   }
 }
