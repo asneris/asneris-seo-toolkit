@@ -297,7 +297,64 @@ Sitemap: {$sitemap_url}
             wp_die('Unauthorized');
         }
         
-        $content = isset($_POST['robots_content']) ? sanitize_textarea_field(wp_unslash($_POST['robots_content'])) : '';
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Intentionally accessing raw value to detect dangerous patterns before sanitization strips them
+        $content = isset($_POST['robots_content']) ? wp_unslash($_POST['robots_content']) : '';
+        
+        // Validation: Check for dangerous patterns BEFORE sanitization
+        $validation_errors = [];
+        
+        // Check for script tags and PHP code
+        if (preg_match('/<script|<\?php|javascript:/i', $content)) {
+            $validation_errors[] = 'Invalid content: Script tags and code are not allowed in robots.txt';
+        }
+        
+        // Check for executable file extensions
+        if (preg_match('/\.(ps1|exe|bat|cmd|sh)\b/i', $content)) {
+            $validation_errors[] = 'Invalid content: Executable file references are not allowed';
+        }
+        
+        // Check for HTML tags (robots.txt should be plain text only)
+        if (preg_match('/<[a-z][\s\S]*>/i', $content)) {
+            $validation_errors[] = 'Invalid content: HTML tags are not allowed in robots.txt';
+        }
+        
+        // Validate robots.txt syntax (strict directive check)
+        $lines = explode("\n", $content);
+        foreach ($lines as $line_number => $line) {
+            $line = trim($line);
+            
+            // Skip empty lines and comments
+            if (empty($line) || $line[0] === '#') {
+                continue;
+            }
+            
+            // Strict directive validation: every non-empty, non-comment line must be a known valid directive
+            if (!preg_match('/^(User-agent|Allow|Disallow|Sitemap|Crawl-delay)\s*:\s*.+$/i', $line)) {
+                $validation_errors[] = sprintf(
+                    'Line %d is not a valid robots.txt directive: "%s". Allowed directives: User-agent, Allow, Disallow, Sitemap, Crawl-delay.',
+                    $line_number + 1,
+                    strlen($line) > 80 ? substr($line, 0, 80) . '…' : $line
+                );
+            }
+            
+            // Check for suspicious URLs (non-standard protocols)
+            if (preg_match('/\b(file|ftp|data|tel|javascript):/i', $line)) {
+                $validation_errors[] = 'Line ' . ($line_number + 1) . ' contains suspicious protocol - only http/https URLs are recommended';
+            }
+        }
+        
+        // Block save if validation errors exist
+        if (!empty($validation_errors)) {
+            wp_safe_redirect(add_query_arg([
+                'page' => ASNERIS_MENU_SLUG . '-robots',
+                'validation_error' => '1',
+                'error_msg' => urlencode(implode(' | ', $validation_errors))
+            ], admin_url('admin.php')));
+            exit;
+        }
+        
+        // Sanitize content after validation (removes any remaining unwanted characters)
+        $content = sanitize_textarea_field($content);
         
         // Save to file using WP_Filesystem
         global $wp_filesystem;
@@ -346,6 +403,10 @@ Sitemap: {$sitemap_url}
         $saved = isset( $_GET['saved'] ) && sanitize_key( $_GET['saved'] ) === '1';
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of status flags set after nonce-verified save_robots action
         $error = isset( $_GET['error'] ) && sanitize_key( $_GET['error'] ) === '1';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of validation errors from nonce-verified save
+        $validation_error = isset( $_GET['validation_error'] ) && sanitize_key( $_GET['validation_error'] ) === '1';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of error message from nonce-verified save
+        $error_msg = isset( $_GET['error_msg'] ) ? urldecode( sanitize_text_field( wp_unslash( $_GET['error_msg'] ) ) ) : '';
         
         ?>
         <div class="wrap ASNERISSEO-admin-wrap">
@@ -358,6 +419,14 @@ Sitemap: {$sitemap_url}
             <?php if ($saved): ?>
                 <div class="notice notice-success is-dismissible">
                     <p><?php esc_html_e('robots.txt saved successfully!', 'asneris-seo-toolkit'); ?></p>
+                </div>
+            <?php endif; ?>
+            
+            <?php if ($validation_error): ?>
+                <div class="notice notice-error is-dismissible" style="border-left-color: #dc3232;">
+                    <p><strong><?php esc_html_e('Validation Error:', 'asneris-seo-toolkit'); ?></strong></p>
+                    <p><?php echo esc_html($error_msg); ?></p>
+                    <p><em><?php esc_html_e('No changes were saved.', 'asneris-seo-toolkit'); ?></em></p>
                 </div>
             <?php endif; ?>
             

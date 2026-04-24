@@ -30,9 +30,18 @@ class ASNERISSEO_Diagnostics {
       return;
     }
     
-    // Validate URL
+    // Validate URL format
     if (!wp_http_validate_url($url)) {
       wp_send_json_error('Invalid URL provided');
+      return;
+    }
+
+    // SSRF Protection: Only allow URLs from this site
+    $host = wp_parse_url($url, PHP_URL_HOST);
+    $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+    
+    if (!$host || !$site_host || strtolower($host) !== strtolower($site_host)) {
+      wp_send_json_error('Security: Only URLs from this site can be analyzed');
       return;
     }
 

@@ -370,29 +370,100 @@ class ASNERISSEO_Bulk_Edit {
     }
     
     $post_ids = isset($_POST['post_ids']) ? array_map('intval', $_POST['post_ids']) : [];
-    $titles = isset($_POST['seo_title']) ? map_deep(wp_unslash($_POST['seo_title']), 'sanitize_text_field') : [];
-    $descriptions = isset($_POST['seo_description']) ? map_deep(wp_unslash($_POST['seo_description']), 'sanitize_textarea_field') : [];
-    $robots = isset($_POST['robots_index']) ? map_deep(wp_unslash($_POST['robots_index']), 'sanitize_text_field') : [];
+    
+    // Get ORIGINAL values before any sanitization for validation
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Intentionally accessing raw values to detect dangerous patterns before sanitization strips them
+    $titles_raw = isset($_POST['seo_title']) ? map_deep(wp_unslash($_POST['seo_title']), 'strval') : [];
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Intentionally accessing raw values to detect dangerous patterns before sanitization strips them
+    $descriptions_raw = isset($_POST['seo_description']) ? map_deep(wp_unslash($_POST['seo_description']), 'strval') : [];
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Intentionally accessing raw values to detect dangerous patterns before sanitization strips them
+    $robots_raw = isset($_POST['robots_index']) ? map_deep(wp_unslash($_POST['robots_index']), 'strval') : [];
 
     if (empty($post_ids)) {
       wp_send_json_error(['message' => __('Please select at least one post to update.', 'asneris-seo-toolkit')]);
       return;
     }
     
+    // Validate all inputs BEFORE sanitization to detect dangerous patterns
+    $validation_errors = [];
+    
+    foreach ($post_ids as $post_id) {
+      if (!current_user_can('edit_post', $post_id)) continue;
+      
+      $post_title = get_the_title($post_id);
+      $post_label = !empty($post_title) ? $post_title : "Post ID $post_id";
+      
+      // Validate SEO title
+      if (isset($titles_raw[$post_id]) && !empty($titles_raw[$post_id])) {
+        $original_title = $titles_raw[$post_id];
+        
+        // Check length (sanitize_text_field() will strip dangerous content automatically)
+        if (strlen($original_title) > 100) {
+          $validation_errors[] = sprintf(
+            /* translators: %s: post title or ID */
+            __('SEO Title for "%s" exceeds maximum length of 100 characters.', 'asneris-seo-toolkit'),
+            esc_html($post_label)
+          );
+        }
+      }
+      
+      // Validate SEO description
+      if (isset($descriptions_raw[$post_id]) && !empty($descriptions_raw[$post_id])) {
+        $original_desc = $descriptions_raw[$post_id];
+        
+        // Check length (sanitize_text_field() will strip dangerous content automatically)
+        if (strlen($original_desc) > 320) {
+          $validation_errors[] = sprintf(
+            /* translators: %s: post title or ID */
+            __('SEO Description for "%s" exceeds maximum length of 320 characters.', 'asneris-seo-toolkit'),
+            esc_html($post_label)
+          );
+        }
+      }
+      
+      // Validate robots index
+      if (isset($robots_raw[$post_id]) && !empty($robots_raw[$post_id])) {
+        $original_robots = $robots_raw[$post_id];
+        
+        if (!in_array($original_robots, ['index', 'noindex'], true)) {
+          $validation_errors[] = sprintf(
+            /* translators: 1: post title or ID, 2: invalid robots value */
+            __('Robots Index for "%1$s" has invalid value "%2$s". Only "index" or "noindex" allowed.', 'asneris-seo-toolkit'),
+            esc_html($post_label),
+            esc_html($original_robots)
+          );
+        }
+      }
+    }
+    
+    // Block save if validation errors exist
+    if (!empty($validation_errors)) {
+      wp_send_json_error([
+        'message' => __('Validation failed. No changes were saved.', 'asneris-seo-toolkit'),
+        'errors' => $validation_errors
+      ]);
+      return;
+    }
+    
+    // All validation passed - now sanitize and save
+    $titles = isset($_POST['seo_title']) ? map_deep(wp_unslash($_POST['seo_title']), 'sanitize_text_field') : [];
+    $descriptions = isset($_POST['seo_description']) ? map_deep(wp_unslash($_POST['seo_description']), 'sanitize_textarea_field') : [];
+    $robots = isset($_POST['robots_index']) ? map_deep(wp_unslash($_POST['robots_index']), 'sanitize_text_field') : [];
+    
     $updated = 0;
     
     foreach ($post_ids as $post_id) {
       if (!current_user_can('edit_post', $post_id)) continue;
       
-      if (isset($titles[$post_id])) {
+      if (isset($titles[$post_id]) && !empty($titles[$post_id])) {
         update_post_meta($post_id, '_ASNERISSEO_title', $titles[$post_id]);
       }
       
-      if (isset($descriptions[$post_id])) {
+      if (isset($descriptions[$post_id]) && !empty($descriptions[$post_id])) {
         update_post_meta($post_id, '_ASNERISSEO_description', $descriptions[$post_id]);
       }
       
-      if (isset($robots[$post_id])) {
+      if (isset($robots[$post_id]) && !empty($robots[$post_id])) {
         $robots_value = in_array($robots[$post_id], ['index', 'noindex'], true) ? $robots[$post_id] : 'index';
         update_post_meta($post_id, '_ASNERISSEO_robots_index', $robots_value);
       }
@@ -402,7 +473,7 @@ class ASNERISSEO_Bulk_Edit {
     
     wp_send_json_success([
       /* translators: %d: number of posts/pages updated */
-      'message' => sprintf(esc_html__('%d posts/pages were updated successfully.', 'asneris-seo-toolkit'), $updated),
+      'message' => sprintf(esc_html__('%d post/page(s) were updated successfully.', 'asneris-seo-toolkit'), $updated),
       'updated' => $updated
     ]);
   }
