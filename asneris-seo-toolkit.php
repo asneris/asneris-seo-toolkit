@@ -3,7 +3,7 @@
  * Plugin Name: Asneris SEO Toolkit
  * Plugin URI: https://asneris.com/asneris-seo-toolkit
  * Description: Asneris: The Systematic SEO Toolkit for WordPress with intuitive UI.
- * Version: 0.1.2
+ * Version: 0.1.3
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Asneris
@@ -19,7 +19,7 @@
 if (!defined('ABSPATH')) exit;
 
 // Plugin constants
-define('ASNERISSEO_VERSION', '0.1.2');
+define('ASNERISSEO_VERSION', '0.1.3');
 define('ASNERISSEO_DIR', plugin_dir_path(__FILE__));
 define('ASNERISSEO_URL', plugin_dir_url(__FILE__));
 define('ASNERISSEO_BASENAME', plugin_basename(__FILE__));
@@ -171,6 +171,46 @@ class ASNERISSEO_Bootstrap {
     }
     $asset = include $asset_path;
 
+    // Ensure react-jsx-runtime is available (WordPress 6.0+)
+    // Some WordPress versions don't automatically register this
+    if (!wp_script_is('react-jsx-runtime', 'registered')) {
+      wp_register_script(
+        'react-jsx-runtime',
+        false,
+        array('react'),
+        ASNERISSEO_VERSION,
+        true
+      );
+      // Polyfill for JSX runtime - provides jsx, jsxs, and Fragment functions with correct signature
+      wp_add_inline_script('react-jsx-runtime', '
+        window.ReactJSXRuntime = {
+          jsx: function(type, props, key) {
+            var args = [type, props];
+            if (props && props.children !== undefined) {
+              if (Array.isArray(props.children)) {
+                args = args.concat(props.children);
+              } else {
+                args.push(props.children);
+              }
+            }
+            return React.createElement.apply(React, args);
+          },
+          jsxs: function(type, props, key) {
+            var args = [type, props];
+            if (props && props.children !== undefined) {
+              if (Array.isArray(props.children)) {
+                args = args.concat(props.children);
+              } else {
+                args.push(props.children);
+              }
+            }
+            return React.createElement.apply(React, args);
+          },
+          Fragment: window.React.Fragment
+        };
+      ');
+    }
+
     wp_enqueue_script(
       'ASNERISSEO-editor',
       ASNERISSEO_URL . 'build/index.js',
@@ -179,15 +219,29 @@ class ASNERISSEO_Bootstrap {
       true
     );
 
+    $editor_settings = get_option( ASNERISSEO_Admin_Settings::OPT, [] );
+    $editor_title_templates = isset( $editor_settings['title_templates'] ) && is_array( $editor_settings['title_templates'] )
+      ? $editor_settings['title_templates']
+      : [];
+    $editor_description_templates = isset( $editor_settings['description_templates'] ) && is_array( $editor_settings['description_templates'] )
+      ? $editor_settings['description_templates']
+      : [];
+    $editor_title_separator = isset( $editor_settings['title_separator'] )
+      ? sanitize_text_field( $editor_settings['title_separator'] )
+      : '|';
+
     wp_localize_script( 'ASNERISSEO-editor', 'asnerisseoData', [
       'ajaxurl'       => admin_url( 'admin-ajax.php' ),
       'indexnowNonce' => wp_create_nonce( 'ASNERISSEO_manual_indexnow' ),
       'siteName'      => get_bloginfo( 'name' ),
+      'titleSeparator' => $editor_title_separator,
+      'titleTemplates' => $editor_title_templates,
+      'descriptionTemplates' => $editor_description_templates,
     ] );
 
     // Check if auto-open parameter is present and inject sessionStorage flag
     // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only URL parameter for UX feature, no data modification
-    if ( isset( $_GET['asneris-seo-open'] ) && $_GET['asneris-seo-open'] === '1' ) {
+    if ( isset( $_GET['asneris-seo-open'] ) && sanitize_text_field( wp_unslash( $_GET['asneris-seo-open'] ) ) === '1' ) {
       wp_add_inline_script(
         'ASNERISSEO-editor',
         'sessionStorage.setItem("asneris-seo-open", "1");',

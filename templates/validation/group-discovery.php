@@ -110,7 +110,7 @@ if ($results['http_status'] === 200) $ASNERISSEO_discovery_pass++;
         <?php echo wp_kses_post(ASNERISSEO_Validation::get_status_badge($results['http_status'] === 200 ? 1 : 0)); ?>
       </div>
       <div class="ASNERISSEO-check-details">
-        <code><?php echo esc_html($results['http_status']); ?> <?php echo $results['http_status'] === 200 ? 'OK' : 'Error'; ?></code>
+        <code><?php echo esc_html($results['http_status']); ?> <?php echo esc_html($results['http_status'] === 200 ? 'OK' : 'Error'); ?></code>
         <?php if ($results['http_status'] === 200): ?>
           <p class="description">✓ <?php esc_html_e('Page is accessible', 'asneris-seo-toolkit'); ?></p>
         <?php else: ?>

@@ -42,7 +42,7 @@ If you ship to the WordPress Plugin Directory, make sure your WP.org `readme.txt
 
 ## Requirements
 
-- WordPress **5.8+**
+- WordPress **6.0+**
 - PHP **7.4+**
 - Tested on WordPress **6.9**
 
@@ -78,7 +78,7 @@ asneris-seo-toolkit/
 | Node.js | 18+ |
 | npm | 9+ |
 | PHP | 7.4+ |
-| WordPress | 5.8+ |
+| WordPress | 6.0+ |
 
 ### Setup
 
@@ -143,13 +143,10 @@ cd asneris-seo-toolkit
 # 2. Install JavaScript dependencies
 npm install
 
-# 3. Compile React/Gutenberg assets
-npm run build
-# Output: build/index.js and build/index.asset.php
-
-# 4. Generate the submission ZIP (Windows PowerShell)
+# 3. Generate the submission ZIP (Windows PowerShell)
+# Note: npm run build runs automatically inside the script
 .\create-wordpress-org-package.ps1
-# Output: asneris-seo-toolkit-0.1.2.zip
+# Output: asneris-seo-toolkit.zip
 ```
 
 The script:
@@ -181,6 +178,12 @@ The script:
 ---
 
 ## Changelog
+
+### 0.1.3 (April 2026)
+- **Security:** Fixed WordPress.org compliance — replaced `FILTER_DEFAULT`/`FILTER_UNSAFE_RAW` with `map_deep()` + `sanitize_text_field()` following "Sanitize Early" best practice
+- **Fix:** Corrected ZIP package filename (removed version suffix per WordPress.org requirements)
+- **Enhancement:** Added `-IncludeSource` parameter to packaging script for transparent source code disclosure
+- **Validation:** All 45 critical WordPress.org compliance checks passing
 
 ### 0.1.2 (April 17, 2026)
 - **Fix:** Removed UTF-8 BOM from `help-content.json` — `json_decode()` was returning NULL causing all tooltip modals to silently fail
