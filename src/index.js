@@ -5,16 +5,37 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 
-// Debug: Verify file is loading
-console.log('🔍 Asneris SEO: index.js file loaded');
+// Template resolver helper (mirrors PHP parse behavior for sidebar preview only)
+const resolveTemplate = (template, context = {}) => {
+  if (!template) {
+    return '';
+  }
 
-// Template resolver helper
-const getTemplateValues = (postTitle, siteName, metaValue, separator = '|') => {
-  if (metaValue) return null; // Manual override exists
-  
-  // Simulate template resolution (matches class-render.php logic)
-  const resolvedTitle = `${postTitle || 'Untitled'} ${separator} ${siteName || 'Site'}`;
-  return resolvedTitle;
+  let output = template;
+  Object.entries(context).forEach(([key, value]) => {
+    output = output.split(`{${key}}`).join(value || '');
+  });
+
+  // Remove unreplaced variables and normalize spaces (same behavior as PHP parser)
+  output = output.replace(/\{[^}]+\}/g, '');
+  output = output.replace(/\s+/g, ' ').trim();
+
+  return output;
+};
+
+const getResolvedTemplateByMetaKey = (metaKey, postType, context) => {
+  const titleTemplates = window.asnerisseoData?.titleTemplates || {};
+  const descriptionTemplates = window.asnerisseoData?.descriptionTemplates || {};
+
+  if (metaKey === '_ASNERISSEO_title') {
+    return resolveTemplate(titleTemplates[postType] || '', context);
+  }
+
+  if (metaKey === '_ASNERISSEO_description') {
+    return resolveTemplate(descriptionTemplates[postType] || '', context);
+  }
+
+  return '';
 };
 
 const IndexNowSubmit = () => {
@@ -100,19 +121,98 @@ const MetaField = ({ label, metaKey, help, type = 'text', placeholder = '' }) =>
     [metaKey]
   );
   const { editPost } = useDispatch('core/editor');
+  const [validationError, setValidationError] = useState('');
   
   // Get template preview
   const postTitle = useSelect(select => select('core/editor').getEditedPostAttribute('title'));
+  const postType = useSelect(select => select('core/editor').getCurrentPostType());
   const siteName = window.asnerisseoData?.siteName || 'Site';
+  const titleSeparator = window.asnerisseoData?.titleSeparator || '|';
   
   let templatePreview = null;
   if (!value && (metaKey === '_ASNERISSEO_title' || metaKey === '_ASNERISSEO_description')) {
-    if (metaKey === '_ASNERISSEO_title') {
-      templatePreview = getTemplateValues(postTitle, siteName, value);
+    const context = {
+      title: postTitle || '',
+      site: siteName || '',
+      separator: titleSeparator,
+      post_type: postType || '',
+      category: '',
+      tag: '',
+      author: '',
+      date: '',
+      year: '',
+      month: '',
+      excerpt: '',
+    };
+
+    const resolved = getResolvedTemplateByMetaKey(metaKey, postType, context);
+
+    if (resolved) {
+      templatePreview = resolved;
     } else if (metaKey === '_ASNERISSEO_description') {
       templatePreview = 'Auto: Generated from post content excerpt';
     }
   }
+  
+  const validateInput = (inputValue) => {
+    // Clear error if empty (empty is always valid)
+    if (!inputValue || inputValue.trim() === '') {
+      setValidationError('');
+      return true;
+    }
+    
+    // Check for dangerous patterns first (applies to all fields)
+    if (/<script|<\/script|javascript:|onerror=|onload=|<iframe|eval\(|data:text\/html/i.test(inputValue)) {
+      setValidationError(__('Content contains potentially dangerous patterns', 'asneris-seo-toolkit'));
+      return false;
+    }
+    
+    // Validate URLs for canonical and OG image
+    if (metaKey === '_ASNERISSEO_canonical' || metaKey === '_ASNERISSEO_og_image') {
+      // Additional URL-specific security checks
+      if (/script|javascript|data:|vbscript:|file:|about:/i.test(inputValue)) {
+        setValidationError(__('URL contains potentially dangerous protocols or content', 'asneris-seo-toolkit'));
+        return false;
+      }
+      
+      try {
+        const urlObj = new URL(inputValue);
+        
+        // Only allow http and https protocols
+        if (!['http:', 'https:'].includes(urlObj.protocol)) {
+          setValidationError(__('Only HTTP and HTTPS URLs are allowed', 'asneris-seo-toolkit'));
+          return false;
+        }
+        
+        // Additional validation for OG image
+        if (metaKey === '_ASNERISSEO_og_image') {
+          const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+          const pathname = urlObj.pathname;
+          const extension = pathname.split('.').pop().toLowerCase().split('?')[0].split('#')[0];
+          
+          if (!allowedExtensions.includes(extension)) {
+            setValidationError(__('Image URL must have a valid image extension (jpg, png, gif, webp, svg)', 'asneris-seo-toolkit'));
+            return false;
+          }
+        }
+        
+        setValidationError('');
+        return true;
+      } catch (e) {
+        const label = metaKey === '_ASNERISSEO_canonical' ? __('Canonical URL', 'asneris-seo-toolkit') : __('OG Image URL', 'asneris-seo-toolkit');
+        setValidationError(__(`${label} must be a valid URL (e.g., https://example.com/page)`, 'asneris-seo-toolkit'));
+        return false;
+      }
+    }
+    
+    setValidationError('');
+    return true;
+  };
+  
+  const handleChange = (inputValue) => {
+    validateInput(inputValue);
+    editPost({ meta: { [metaKey]: inputValue } });
+  };
   
   const Component = type === 'textarea' ? TextareaControl : TextControl;
   
@@ -121,11 +221,17 @@ const MetaField = ({ label, metaKey, help, type = 'text', placeholder = '' }) =>
       <Component
         label={label}
         value={value}
-        onChange={(v) => editPost({ meta: { [metaKey]: v } })}
+        onChange={handleChange}
         help={help}
         placeholder={placeholder}
+        className={validationError ? 'has-error' : ''}
       />
-      {templatePreview && (
+      {validationError && (
+        <Notice status="error" isDismissible={false} style={{ margin: '-12px 0 12px 0', padding: '8px 12px' }}>
+          {validationError}
+        </Notice>
+      )}
+      {templatePreview && !validationError && (
         <div style={{ 
           fontSize: '12px', 
           color: '#646970', 
@@ -190,7 +296,9 @@ const SEOScore = () => {
   const meta = useSelect(select => select('core/editor').getEditedPostAttribute('meta'));
   const title = useSelect(select => select('core/editor').getEditedPostAttribute('title'));
   const postTitle = useSelect(select => select('core/editor').getEditedPostAttribute('title'));
+  const postType = useSelect(select => select('core/editor').getCurrentPostType());
   const siteName = window.asnerisseoData?.siteName || 'Site';
+  const titleSeparator = window.asnerisseoData?.titleSeparator || '|';
   
   const [score, setScore] = useState(0);
   const [suggestions, setSuggestions] = useState([]);
@@ -199,8 +307,25 @@ const SEOScore = () => {
     let points = 0;
     const tips = [];
     
-    // Title check - factor in template-generated value if no manual override
-    const effectiveTitle = meta._ASNERISSEO_title || getTemplateValues(postTitle, siteName, meta._ASNERISSEO_title);
+    const context = {
+      title: postTitle || '',
+      site: siteName || '',
+      separator: titleSeparator,
+      post_type: postType || '',
+      category: '',
+      tag: '',
+      author: '',
+      date: '',
+      year: '',
+      month: '',
+      excerpt: '',
+    };
+
+    const templateTitle = getResolvedTemplateByMetaKey('_ASNERISSEO_title', postType, context);
+    const templateDesc = getResolvedTemplateByMetaKey('_ASNERISSEO_description', postType, context);
+
+    // Title check - factor in actual configured title template if no manual override
+    const effectiveTitle = meta._ASNERISSEO_title || templateTitle || title;
     if (effectiveTitle && effectiveTitle.length >= 30 && effectiveTitle.length <= 60) {
       points += 20;
     } else if (!effectiveTitle || effectiveTitle.length < 30) {
@@ -209,8 +334,8 @@ const SEOScore = () => {
       tips.push('SEO title is too long (max 60 characters)');
     }
     
-    // Description check - factor in auto-generated if no manual override
-    const effectiveDesc = meta._ASNERISSEO_description;
+    // Description check - factor in actual configured description template if no manual override
+    const effectiveDesc = meta._ASNERISSEO_description || templateDesc;
     if (effectiveDesc && effectiveDesc.length >= 120 && effectiveDesc.length <= 160) {
       points += 20;
     } else if (!effectiveDesc) {
@@ -316,8 +441,8 @@ const SEOScore = () => {
       )}
       
       <Button 
-        isSecondary 
-        isSmall
+        variant="secondary"
+        __next40pxDefaultSize
         onClick={calculateScore}
         style={{ marginTop: '12px', width: '100%' }}
       >
@@ -334,12 +459,33 @@ registerPlugin('asneris-seo-sidebar', {
     );
     const { editPost } = useDispatch('core/editor');
     const { openGeneralSidebar } = useDispatch('core/edit-post');
-    const { createNotice, removeNotice } = useDispatch('core/notices');
+    const { createNotice } = useDispatch('core/notices');
+    
+    // Monitor save errors
+    const saveError = useSelect(select => {
+      const editor = select('core/editor');
+      return editor.getLastEntitySaveError?.('postType', editor.getCurrentPostType(), editor.getCurrentPostId());
+    });
+    
+    useEffect(() => {
+      if (saveError && saveError.message) {
+        // Check if it's a meta validation error
+        if (saveError.message.includes('meta') || saveError.message.includes('WP_Error')) {
+          createNotice(
+            'error',
+            __('Some SEO fields contain invalid data and were not saved. Please check the error messages above each field.', 'asneris-seo-toolkit'),
+            {
+              type: 'snackbar',
+              isDismissible: true,
+            }
+          );
+        }
+      }
+    }, [saveError, createNotice]);
     
     // Auto-open sidebar when accessed via ?asneris-seo-open=1
     useEffect(() => {
       const shouldOpen = sessionStorage.getItem('asneris-seo-open');
-      console.log('Asneris SEO: Checking auto-open flag', { shouldOpen });
       
       if (shouldOpen !== '1') {
         return;
@@ -347,41 +493,13 @@ registerPlugin('asneris-seo-sidebar', {
       
       // Clear the flag so it only opens once
       sessionStorage.removeItem('asneris-seo-open');
-      console.log('Asneris SEO: Auto-open flag detected, attempting to open sidebar');
       
-      // Immediately try to open the sidebar
-      try {
-        console.log('Asneris SEO: openGeneralSidebar function exists?', !!openGeneralSidebar);
+      // Attempt to open the sidebar
+      setTimeout(() => {
         if (openGeneralSidebar) {
           openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
-          console.log('Asneris SEO: Sidebar open command sent');
         }
-      } catch (e) {
-        console.error('Asneris SEO: Error opening sidebar:', e);
-      }
-      
-      // Also try with retries (don't cleanup to avoid React unmount clearing them)
-      setTimeout(() => {
-        try {
-          if (openGeneralSidebar) {
-            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
-            console.log('Asneris SEO: Retry at 500ms');
-          }
-        } catch (e) {
-          console.error('Asneris SEO: Retry failed:', e);
-        }
-      }, 500);
-      
-      setTimeout(() => {
-        try {
-          if (openGeneralSidebar) {
-            openGeneralSidebar('asneris-seo-sidebar/asneris-seo-sidebar');
-            console.log('Asneris SEO: Retry at 1500ms');
-          }
-        } catch (e) {
-          console.error('Asneris SEO: Retry failed:', e);
-        }
-      }, 1500);
+      }, 100);
     }, [openGeneralSidebar]);
     
     return (
@@ -413,7 +531,7 @@ registerPlugin('asneris-seo-sidebar', {
               label={__('SEO Title', 'asneris-seo-toolkit')}
               metaKey="_ASNERISSEO_title" 
               placeholder="Custom title for search engines"
-              help="Leave empty to use the post title"
+              help="Leave empty to use Templates tab title template (fallback: post title)"
             />
             <CharacterCount 
               text={useSelect(select => 
@@ -428,7 +546,7 @@ registerPlugin('asneris-seo-sidebar', {
               metaKey="_ASNERISSEO_description"
               type="textarea"
               placeholder="Brief description of your content"
-              help="This appears in search results"
+              help="Leave empty to use Templates tab description template (fallback: excerpt/content)"
             />
             <CharacterCount 
               text={useSelect(select => 
@@ -542,6 +660,3 @@ registerPlugin('asneris-seo-sidebar', {
     );
   }
 });
-
-// Debug: Verify registerPlugin was called
-console.log('✅ Asneris SEO: Plugin registered successfully');

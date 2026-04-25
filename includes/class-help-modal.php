@@ -61,7 +61,7 @@ class ASNERISSEO_Help_Modal {
 
     $data = json_decode( $json_content, true );
 
-    if ( ! $data ) {
+    if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $data ) ) {
       return [];
     }
 

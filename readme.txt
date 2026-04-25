@@ -4,7 +4,7 @@ Tags: seo, technical seo, indexnow, search console
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 0.1.2
+Stable tag: 0.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +77,12 @@ If you enable IndexNow, you may need to re-save permalinks once so WordPress reg
 5. Gutenberg sidebar panel for per-post SEO settings
 
 == Changelog ==
+
+= 0.1.3 =
+* Fixed WordPress.org security compliance: replaced FILTER_DEFAULT/FILTER_UNSAFE_RAW with map_deep() + sanitize_text_field()
+* Fixed ZIP package filename to exclude version number (WordPress.org requirement)
+* Added -IncludeSource parameter to packaging script for optional source code inclusion
+* Enhanced security: all input sanitization now follows "Sanitize Early" WordPress best practice
 
 = 0.1.2 =
 * Fixed PHP syntax errors in admin tab file

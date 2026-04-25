@@ -32,12 +32,14 @@ class ASNERISSEO_Render {
     $seo_title = get_post_meta($id, '_ASNERISSEO_title', true);
     $desc = get_post_meta($id, '_ASNERISSEO_description', true);
     $custom_canonical = get_post_meta($id, '_ASNERISSEO_canonical', true);
-    $canon = $custom_canonical;
-    if (!is_string($canon) || $canon === '') {
+    if (!empty($custom_canonical)) {
+      $canon = $custom_canonical;
+    } else {
       $canon = get_permalink($id);
     }
-    $canon = esc_url_raw($canon);
-    if (!$canon || !wp_http_validate_url($canon)) {
+    
+    // Validate the URL
+    if (!wp_http_validate_url($canon)) {
       $canon = get_permalink($id);
     }
     
@@ -119,7 +121,7 @@ class ASNERISSEO_Render {
       $author_id = get_post_field('post_author', $id);
       if ($author_id) {
         $author_name = get_the_author_meta('display_name', $author_id);
-        echo '<meta property="article:author" content="' . esc_attr(get_author_posts_url($author_id)) . '">' . "\n";
+        echo '<meta property="article:author" content="' . esc_url(get_author_posts_url($author_id)) . '">' . "\n";
         echo '<meta name="author" content="' . esc_attr($author_name) . '">' . "\n";
       }
       

@@ -221,8 +221,16 @@ jQuery(document).ready(function($) {
               location.reload();
             });
           } else {
+            // Handle validation errors with detailed message
+            let errorMessage = response.data.message || 'An error occurred';
+            
+            if (response.data.errors && Array.isArray(response.data.errors)) {
+              // Show detailed validation errors
+              errorMessage += '\n\n' + response.data.errors.join('\n');
+            }
+            
             $status.empty().append($('<span>').css('color', '#d63638').text('Error: ' + response.data.message));
-            customAlert('Error: ' + response.data.message);
+            customAlert(errorMessage);
             $button.prop('disabled', false).text('Save All Changes');
           }
         },

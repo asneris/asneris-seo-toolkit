@@ -242,15 +242,18 @@
         formValidation: function() {
             $('.ASNERISSEO-settings-form').on('submit', function(e) {
                 let hasErrors = false;
+                let errorMessages = [];
 
                 // Validate URLs
                 $(this).find('input[type="url"]').each(function() {
                     const input = $(this);
                     const value = input.val().trim();
+                    const fieldName = input.closest('tr').find('th label').text() || 'URL field';
                     
                     if (value && !ASNERISSEO_Admin.isValidUrl(value)) {
                         input.addClass('error');
                         hasErrors = true;
+                        errorMessages.push(fieldName + ': Invalid URL format');
                     } else {
                         input.removeClass('error');
                     }
@@ -260,10 +263,12 @@
                 $(this).find('input[type="tel"]').each(function() {
                     const input = $(this);
                     const value = input.val().trim();
+                    const fieldName = input.closest('tr').find('th label').text() || 'Phone field';
                     
                     if (value && !ASNERISSEO_Admin.isValidPhone(value)) {
                         input.addClass('error');
                         hasErrors = true;
+                        errorMessages.push(fieldName + ': Invalid phone number format (use only digits, spaces, dashes, +, and parentheses)');
                     } else {
                         input.removeClass('error');
                     }
@@ -271,7 +276,10 @@
 
                 if (hasErrors) {
                     e.preventDefault();
-                    ASNERISSEO_Admin.showNotice('Please fix validation errors before saving.', 'error');
+                    const errorMsg = 'Please fix validation errors before saving:\n' + errorMessages.join('\n');
+                    ASNERISSEO_Admin.showNotice(errorMsg, 'error');
+                    // Scroll to first error field
+                    $('input.error').first().focus();
                     return false;
                 }
             });

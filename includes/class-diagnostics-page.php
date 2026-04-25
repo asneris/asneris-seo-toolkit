@@ -68,6 +68,21 @@ class ASNERISSEO_Diagnostics_Page {
       return ['error' => 'Invalid URL provided'];
     }
     
+    // SSRF Protection: Only allow URLs from this site
+    $host = wp_parse_url($url, PHP_URL_HOST);
+    $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+    
+    if (!$host || !$site_host || strtolower($host) !== strtolower($site_host)) {
+      return ['error' => 'Security: Only URLs from this site can be analyzed'];
+    }
+    
+    // Rate limiting: Prevent spam requests
+    $throttle_key = 'asneris_analyze_' . md5($url);
+    if (get_transient($throttle_key)) {
+      return ['error' => 'Too many requests. Please wait 5 seconds before analyzing this URL again.'];
+    }
+    set_transient($throttle_key, true, 5);
+    
     $response = wp_remote_get($url, [
       'timeout' => 15,
       'redirection' => 5,
@@ -80,19 +95,39 @@ class ASNERISSEO_Diagnostics_Page {
       return ['error' => $response->get_error_message()];
     }
     
+    // Validate content type (must be HTML)
+    $content_type = wp_remote_retrieve_header($response, 'content-type');
+    if (strpos($content_type, 'text/html') === false) {
+      return ['error' => 'Not an HTML document (Content-Type: ' . esc_html($content_type) . ')'];
+    }
+    
     $html = wp_remote_retrieve_body($response);
     $status_code = wp_remote_retrieve_response_code($response);
     $headers = wp_remote_retrieve_headers($response);
     
+    // Security: Limit response size to prevent memory exhaustion
+    if (strlen($html) > 2 * 1024 * 1024) {
+      return ['error' => 'Response too large (max 2MB)'];
+    }
+    
     libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    @$dom->loadHTML($html);
+    $dom->loadHTML($html);
     libxml_clear_errors();
     $xpath = new DOMXPath($dom);
     
+    // Get final URL after redirects (if any)
+    $final_url = $url;
+    if (isset($response['http_response']) && method_exists($response['http_response'], 'get_response_object')) {
+      $response_obj = $response['http_response']->get_response_object();
+      if (isset($response_obj->url)) {
+        $final_url = $response_obj->url;
+      }
+    }
+    
     $results = [
       'tested_url' => $url,
-      'final_url' => wp_remote_retrieve_header($response, 'location') ?: $url,
+      'final_url' => $final_url,
       'fetch_timestamp' => current_time('mysql'),
       'http_status' => $status_code,
       'x_robots_tag' => wp_remote_retrieve_header($response, 'x-robots-tag'),
@@ -113,8 +148,8 @@ class ASNERISSEO_Diagnostics_Page {
       $results['title_tags'][] = trim($title->textContent);
     }
     
-    // Extract meta description
-    $descriptions = $xpath->query('//meta[@name="description"]');
+    // Extract meta description (case-insensitive)
+    $descriptions = $xpath->query('//meta[translate(@name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")="description"]');
     foreach ($descriptions as $desc) {
       $results['meta_description'][] = $desc->getAttribute('content');
     }
@@ -143,8 +178,8 @@ class ASNERISSEO_Diagnostics_Page {
       }
     }
     
-    // Extract robots meta
-    $robots = $xpath->query('//meta[@name="robots"]');
+    // Extract robots meta (case-insensitive)
+    $robots = $xpath->query('//meta[translate(@name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")="robots"]');
     foreach ($robots as $robot) {
       $results['robots_meta'][] = $robot->getAttribute('content');
     }
@@ -181,13 +216,13 @@ class ASNERISSEO_Diagnostics_Page {
       }
     }
     
-    // Extract verification tags
-    $google = $xpath->query('//meta[@name="google-site-verification"]');
+    // Extract verification tags (case-insensitive)
+    $google = $xpath->query('//meta[translate(@name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")="google-site-verification"]');
     if ($google->length > 0) {
       $results['verification_tags']['google'] = $google->item(0)->getAttribute('content');
     }
     
-    $bing = $xpath->query('//meta[@name="msvalidate.01"]');
+    $bing = $xpath->query('//meta[translate(@name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")="msvalidate.01"]');
     if ($bing->length > 0) {
       $results['verification_tags']['bing'] = $bing->item(0)->getAttribute('content');
     }
