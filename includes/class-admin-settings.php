@@ -62,6 +62,67 @@ class ASNERISSEO_Admin_Settings {
       "      }\n" .
       "    });\n" .
       "  });\n" .
+      "\n" .
+      "  var autoRadio = document.querySelector('input[name=\"" . esc_js(self::OPT) . "[indexnow_key_mode]\"][value=\"auto\"]');\n" .
+      "  var customRadio = document.querySelector('input[name=\"" . esc_js(self::OPT) . "[indexnow_key_mode]\"][value=\"custom\"]');\n" .
+      "  var keyInput = document.getElementById('indexnow_key');\n" .
+      "  var modifiedWarning = document.getElementById('indexnow-key-modified-warning');\n" .
+      "  if (autoRadio && customRadio && keyInput && modifiedWarning) {\n" .
+      "    var initialMode = autoRadio.checked ? 'auto' : 'custom';\n" .
+      "    var initialKey = keyInput.getAttribute('data-initial-value') || '';\n" .
+      "    var hasShownModifyAlert = false;\n" .
+      "\n" .
+      "    var syncReadonly = function() {\n" .
+      "      var isAuto = autoRadio.checked;\n" .
+      "      keyInput.readOnly = isAuto;\n" .
+      "      keyInput.disabled = isAuto;\n" .
+      "    };\n" .
+      "\n" .
+      "    var updateModifiedWarning = function() {\n" .
+      "      if (!customRadio.checked) {\n" .
+      "        modifiedWarning.style.display = 'none';\n" .
+      "        return;\n" .
+      "      }\n" .
+      "\n" .
+      "      var changed = keyInput.value !== initialKey;\n" .
+      "      modifiedWarning.style.display = changed ? 'block' : 'none';\n" .
+      "\n" .
+      "      if (changed && !hasShownModifyAlert) {\n" .
+      "        hasShownModifyAlert = true;\n" .
+      "        window.alert('You have modified the manual IndexNow key. Save settings to apply this change.');\n" .
+      "      }\n" .
+      "    };\n" .
+      "\n" .
+      "    var confirmModeSwitch = function(targetMode) {\n" .
+      "      var hasExistingKey = (initialKey.trim() !== '');\n" .
+      "      if (!hasExistingKey || targetMode === initialMode) {\n" .
+      "        return true;\n" .
+      "      }\n" .
+      "\n" .
+      "      return window.confirm('An IndexNow key already exists. Switching key mode may change how this key is managed. Continue?');\n" .
+      "    };\n" .
+      "\n" .
+      "    autoRadio.addEventListener('change', function() {\n" .
+      "      if (!confirmModeSwitch('auto')) {\n" .
+      "        customRadio.checked = true;\n" .
+      "      }\n" .
+      "      syncReadonly();\n" .
+      "      updateModifiedWarning();\n" .
+      "    });\n" .
+      "\n" .
+      "    customRadio.addEventListener('change', function() {\n" .
+      "      if (!confirmModeSwitch('custom')) {\n" .
+      "        autoRadio.checked = true;\n" .
+      "      }\n" .
+      "      syncReadonly();\n" .
+      "      updateModifiedWarning();\n" .
+      "    });\n" .
+      "\n" .
+      "    keyInput.addEventListener('input', updateModifiedWarning);\n" .
+      "\n" .
+      "    syncReadonly();\n" .
+      "    updateModifiedWarning();\n" .
+      "  }\n" .
       "});";
     wp_add_inline_script('asnerisseo-admin', $inline_js);
     
@@ -255,11 +316,6 @@ class ASNERISSEO_Admin_Settings {
     // Store validation errors as transient to display after redirect
     if (!empty($validation_errors)) {
       set_transient('asneris_settings_validation_errors', $validation_errors, 30);
-      // Log validation errors for debugging (only in development)
-      if (defined('WP_DEBUG') && WP_DEBUG) {
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only active when WP_DEBUG is enabled
-        error_log('ASNERIS SEO: Validation failed with ' . count($validation_errors) . ' errors: ' . implode('; ', $validation_errors));
-      }
       // Strict validation: block save if ANY validation errors exist
       return $existing;
     }
@@ -290,12 +346,6 @@ class ASNERISSEO_Admin_Settings {
       <?php
       // Check for validation errors first
       $validation_errors = get_transient('asneris_settings_validation_errors');
-      
-      // Log for debugging (only in development)
-      if (!empty($validation_errors) && defined('WP_DEBUG') && WP_DEBUG) {
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only active when WP_DEBUG is enabled
-        error_log('ASNERIS SEO: Displaying ' . count($validation_errors) . ' validation errors to user');
-      }
       
       // Display error or success message after settings form submission
       // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display check set by WordPress core after options.php redirect
@@ -675,73 +725,6 @@ class ASNERISSEO_Admin_Settings {
           </tr>
         </table>
       </div>
-
-      <script>
-      (function() {
-        var autoRadio = document.querySelector('input[name="<?php echo esc_js(self::OPT); ?>[indexnow_key_mode]"][value="auto"]');
-        var customRadio = document.querySelector('input[name="<?php echo esc_js(self::OPT); ?>[indexnow_key_mode]"][value="custom"]');
-        var keyInput = document.getElementById('indexnow_key');
-        var modifiedWarning = document.getElementById('indexnow-key-modified-warning');
-        if (!autoRadio || !customRadio || !keyInput || !modifiedWarning) {
-          return;
-        }
-
-        var initialMode = autoRadio.checked ? 'auto' : 'custom';
-        var initialKey = keyInput.getAttribute('data-initial-value') || '';
-        var hasShownModifyAlert = false;
-
-        var syncReadonly = function() {
-          var isAuto = autoRadio.checked;
-          keyInput.readOnly = isAuto;
-          keyInput.disabled = isAuto;
-        };
-
-        var updateModifiedWarning = function() {
-          if (!customRadio.checked) {
-            modifiedWarning.style.display = 'none';
-            return;
-          }
-
-          var changed = keyInput.value !== initialKey;
-          modifiedWarning.style.display = changed ? 'block' : 'none';
-
-          if (changed && !hasShownModifyAlert) {
-            hasShownModifyAlert = true;
-            window.alert('You have modified the manual IndexNow key. Save settings to apply this change.');
-          }
-        };
-
-        var confirmModeSwitch = function(targetMode) {
-          var hasExistingKey = (initialKey.trim() !== '');
-          if (!hasExistingKey || targetMode === initialMode) {
-            return true;
-          }
-
-          return window.confirm('An IndexNow key already exists. Switching key mode may change how this key is managed. Continue?');
-        };
-
-        autoRadio.addEventListener('change', function() {
-          if (!confirmModeSwitch('auto')) {
-            customRadio.checked = true;
-          }
-          syncReadonly();
-          updateModifiedWarning();
-        });
-
-        customRadio.addEventListener('change', function() {
-          if (!confirmModeSwitch('custom')) {
-            autoRadio.checked = true;
-          }
-          syncReadonly();
-          updateModifiedWarning();
-        });
-
-        keyInput.addEventListener('input', updateModifiedWarning);
-
-        syncReadonly();
-        updateModifiedWarning();
-      })();
-      </script>
 
       <?php if (self::get('indexnow_enabled')): ?>
       <div class="ASNERISSEO-info-box ASNERISSEO-success-box">

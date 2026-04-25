@@ -155,9 +155,6 @@ The script:
 - Creates a Unix-compatible ZIP via WSL (required by WordPress.org)
 - Places the final ZIP at the plugin root ready for upload
 
-**Upload to:** https://wordpress.org/plugins/developers/add/
-
----
 
 ## Release checklist (high level)
 
