@@ -22,6 +22,7 @@ import RedirectsPanel from './components/panels/RedirectsPanel';
 import Monitor404Panel from './components/panels/Monitor404Panel';
 import SiteDiagnosticsPanel from './components/panels/SiteDiagnosticsPanel';
 import RobotsPanel from './components/panels/RobotsPanel';
+import AiSearchabilityPanel from './components/panels/AiSearchabilityPanel';
 import BulkEditPanel from './components/panels/BulkEditPanel';
 import Monitor404SettingsPanel from './components/panels/Monitor404SettingsPanel';
 
@@ -152,6 +153,7 @@ const CONFIG_SECTION_LABELS = {
 	schema: __('Schema', 'asneris-seo-toolkit'),
 	indexnow: __('IndexNow', 'asneris-seo-toolkit'),
 	templates: __('Templates', 'asneris-seo-toolkit'),
+	aiSearchability: __('AI Searchability', 'asneris-seo-toolkit'),
 	pageDiagnosticsSettings: __('Page Diagnostics Settings', 'asneris-seo-toolkit'),
 };
 
@@ -199,6 +201,12 @@ const CHECKLIST_SECTION_META = [
 		getHref: (links) => links.settingsPriorityPages,
 	},
 	{
+		keys: ['aisearchability', 'llms', 'llmstxt'],
+		icon: 'dashicons-search',
+		actionLabel: __('Configure', 'asneris-seo-toolkit'),
+		getHref: (links) => links.settingsAiSearchability,
+	},
+	{
 		keys: ['pagediagnosticssettings', 'pagediagnosticsconfig', 'pagediagnosticsscan'],
 		icon: 'dashicons-media-document',
 		actionLabel: __('Configure', 'asneris-seo-toolkit'),
@@ -221,6 +229,7 @@ const SETTINGS_ROUTE_IDS = new Set([
 	'indexnow',
 	'templates',
 	'maintenance',
+	'ai-searchability',
 	'monitor-404-settings',
 	'priority-pages',
 	'page-diagnostics-settings',
@@ -234,6 +243,7 @@ const SETTINGS_TAB_TO_ROUTE_ID = {
 	indexnow: 'indexnow',
 	templates: 'templates',
 	maintenance: 'maintenance',
+	aiSearchability: 'ai-searchability',
 	monitor404: 'monitor-404-settings',
 };
 const SETTINGS_TAB_ICON = {
@@ -246,6 +256,7 @@ const SETTINGS_TAB_ICON = {
 	indexnow: 'flash',
 	templates: 'document',
 	maintenance: 'wrench',
+	'ai-searchability': 'search',
 	'monitor-404-settings': 'alert-circle',
 };
 
@@ -312,6 +323,7 @@ const DEFAULT_ADMIN_LINKS = {
 	settingsIndexNow: 'admin.php?page=asneris-seo-settings&tab=indexnow',
 	settingsTemplates: 'admin.php?page=asneris-seo-settings&tab=templates',
 	settingsMaintenance: 'admin.php?page=asneris-seo-settings&tab=maintenance',
+	settingsAiSearchability: 'admin.php?page=asneris-seo-settings&tab=aiSearchability',
 	settings404Controls: 'admin.php?page=asneris-seo-settings&tab=monitor404',
 	settingsPriorityPages: 'admin.php?page=asneris-seo-settings&tab=priorityPages',
 	settingsPageDiagnostics: 'admin.php?page=asneris-seo-settings&tab=pageDiagnosticsSettings',
@@ -482,6 +494,7 @@ const ReactDashboard = () => {
 	const isIndexNowModule = activeRoute?.id === 'indexnow';
 	const isTemplatesModule = activeRoute?.id === 'templates';
 	const isMaintenanceModule = activeRoute?.id === 'maintenance';
+	const isAiSearchabilityModule = activeRoute?.id === 'ai-searchability';
 	const isMonitor404SettingsModule = activeRoute?.id === 'monitor-404-settings';
 	const isRedirectsModule = activeRoute?.id === 'redirects';
 	const isMonitor404Module = activeRoute?.id === 'monitor-404';
@@ -747,6 +760,7 @@ const ReactDashboard = () => {
 				{ isIndexNowModule ? <IndexNowPanel restUrl={ dashboardData.indexNowSettingsRestUrl } restNonce={ dashboardData.restNonce } onStatus={ handlePanelStatus } /> : null }
 				{ isTemplatesModule ? <TemplatesSettingsPanel restUrl={ dashboardData.templatesSettingsRestUrl } restNonce={ dashboardData.restNonce } onStatus={ handlePanelStatus } templateVariables={ TEMPLATE_VARIABLES } /> : null }
 				{ isMaintenanceModule ? <MaintenanceSettingsPanel restUrl={ dashboardData.maintenanceSettingsRestUrl } restNonce={ dashboardData.restNonce } onStatus={ handlePanelStatus } diagnosticsSummary={ dashboardData?.summary?.diagnostics } /> : null }
+				{ isAiSearchabilityModule ? <AiSearchabilityPanel restUrl={ dashboardData.aiSearchabilityRestUrl } restNonce={ dashboardData.restNonce } onStatus={ handlePanelStatus } /> : null }
 				{ isPageDiagnosticsModule ? <PageDiagnosticsPanel restUrl={ dashboardData.pageDiagnosticsRestUrl } restNonce={ dashboardData.restNonce } onStatus={ handlePanelStatus } normalizeChecks={ normalizeChecks } /> : null }
 				{ isSiteDiagnosticsModule ? <SiteDiagnosticsPanel restUrl={ dashboardData.siteDiagnosticsRestUrl } restNonce={ dashboardData.restNonce } onStatus={ handlePanelStatus } normalizeChecks={ normalizeChecks } formatStatusText={ formatStatusText } /> : null }
 				{ isRedirectsModule ? <RedirectsPanel restUrl={ dashboardData.redirectsRestUrl } restNonce={ dashboardData.restNonce } onStatus={ handlePanelStatus } /> : null }

@@ -155,6 +155,9 @@ const RestSettingsPanel = ({
 					</div>
 				) : null }
 			</div>
+			<p className="ASNERISSEO-react-helper-text ASNERISSEO-react-mb-0">
+				{ __('Note: Cache plugins, server cache, or CDN cache can delay updated settings. If values look stale after saving, clear cache for wp-json routes.', 'asneris-seo-toolkit') }
+			</p>
 		</PanelScaffold>
 	);
 };

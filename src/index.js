@@ -52,6 +52,12 @@ const getRestBaseUrl = () => {
 	return `${ root.replace( /\/$/, '' ) }/${ namespace }`;
 };
 
+const withRestCacheBust = ( url ) => {
+	const requestUrl = new URL( url, window.location.origin );
+	requestUrl.searchParams.set( '_asneris_cache_bust', String( Date.now() ) );
+	return requestUrl.toString();
+};
+
 const isUnifiedContractError = ( payload ) => {
 	const code = String( payload?.code || '' ).toLowerCase();
 	return code.startsWith( 'asnerisseo_unified_contract_' );
@@ -79,9 +85,11 @@ const createRestError = ( payload, response ) => {
 
 const restGet = async ( path ) => {
 	const restNonce = window.asnerisseoData?.restNonce || '';
-	const response = await fetch( `${ getRestBaseUrl() }${ path }`, {
+	const response = await fetch( withRestCacheBust( `${ getRestBaseUrl() }${ path }` ), {
 		method: 'GET',
+		cache: 'no-store',
 		headers: {
+			Accept: 'application/json',
 			'X-WP-Nonce': restNonce,
 		},
 		credentials: 'same-origin',
@@ -105,7 +113,9 @@ const restPost = async ( path, body = null ) => {
 	const restNonce = window.asnerisseoData?.restNonce || '';
 	const requestInit = {
 		method: 'POST',
+		cache: 'no-store',
 		headers: {
+			Accept: 'application/json',
 			'X-WP-Nonce': restNonce,
 		},
 		credentials: 'same-origin',
@@ -570,13 +580,12 @@ const DiagnosticsPreview = ( { onOpenReport } ) => {
 		setError( '' );
 
 		try {
-			const data = await restGet(
-				`/page-diagnostics/overview?postId=${ encodeURIComponent( String( postId ) ) }&scope=all&perPage=1&page=1&postStatus=publish`
+			const data = await restPost(
+				`/page-diagnostics-v2/run/${ encodeURIComponent( String( postId ) ) }?no_store=1`
 			);
-			const firstItem = Array.isArray( data?.items ) ? data.items[ 0 ] : null;
-			if ( firstItem ) {
-				assertUnifiedData( firstItem, 'editor.preview.diagnostics.overview' );
-				setDiagnostics( getUnifiedChecks( firstItem ) );
+			if ( data ) {
+				assertUnifiedData( data, 'editor.preview.diagnostics.v2' );
+				setDiagnostics( getUnifiedChecks( data ) );
 			} else {
 				setDiagnostics( [] );
 			}
@@ -2594,15 +2603,19 @@ const AsnerisSeoSidebar = () => {
 		}
 
 		let isCancelled = false;
-		const requestPath = '/page-diagnostics/draft-policy';
-		const requestBody = {
-			postId: currentPostId,
-			postTitle: scoreContext.postTitle,
-			postExcerpt: scoreContext.postExcerpt,
-			content: scoreContext.content,
-			meta: scoreContext.meta || {},
-			url: scoreContext.permalink || '',
-		};
+		const requestPath = isEditorDirty
+			? '/page-diagnostics-v2/draft-policy'
+			: `/page-diagnostics-v2/run/${ encodeURIComponent( String( currentPostId ) ) }?no_store=1`;
+		const requestBody = isEditorDirty
+			? {
+				postId: currentPostId,
+				postTitle: scoreContext.postTitle,
+				postExcerpt: scoreContext.postExcerpt,
+				content: scoreContext.content,
+				meta: scoreContext.meta || {},
+				url: scoreContext.permalink || '',
+			}
+			: null;
 
 		restPost( requestPath, requestBody )
 			.then( ( payload ) => {
@@ -2695,6 +2708,26 @@ const AsnerisSeoSidebar = () => {
 				opacity: 1 !important;
 				visibility: visible !important;
 				pointer-events: auto !important;
+			}
+
+			.ASNERISSEO-react-pd-embedded.is-report-open > .ASNERISSEO-modal-overlay.active.ASNERISSEO-react-history-modal-overlay {
+				position: fixed !important;
+				top: 0 !important;
+				left: 0 !important;
+				right: 0 !important;
+				bottom: 0 !important;
+				display: flex !important;
+				align-items: center !important;
+				justify-content: center !important;
+				background: rgba( 0, 0, 0, 0.7 ) !important;
+				z-index: 100001 !important;
+			}
+
+			.ASNERISSEO-react-pd-embedded.is-report-open > .ASNERISSEO-modal-overlay.active.ASNERISSEO-react-history-modal-overlay .ASNERISSEO-react-history-modal {
+				width: min( 96vw, 1000px ) !important;
+				max-width: min( 96vw, 1000px ) !important;
+				max-height: 90vh !important;
+				margin: 0 !important;
 			}
 
 			.ASNERISSEO-react-pd-embedded.is-report-open > .ASNERISSEO-modal-overlay.active .ASNERISSEO-react-detail-modal {

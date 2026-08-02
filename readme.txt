@@ -4,7 +4,7 @@ Tags: seo, technical seo, indexnow, search console, diagnostics
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.4
+Stable tag: 0.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,6 +40,7 @@ This plugin focuses on technical SEO configuration and validation using standard
 * Sitemap helper and conflict detection
 * Redirect management
 * Built-in help and documentation
+* AI Searchability for generating llms.txt drafts and published outputs
 
 **Philosophy:** SEO is about making your website understandable, accessible, and discoverable by search engines. Asneris SEO Toolkit validates these technical signals using standard WordPress APIs.
 
@@ -81,6 +82,14 @@ It lets you review previously saved Page Diagnostics results over time.
 
 404 Monitoring records broken URL requests locally in WordPress to help identify missing pages and redirect opportunities.
 
+= What is AI Searchability? =
+
+AI Searchability generates and manages llms.txt content for your site so AI systems and automated tools can discover your most important public pages and resources.
+
+= Can I edit the generated llms.txt draft before publishing? =
+
+Yes. You can review, edit, validate, and publish the generated draft from the AI Searchability panel in the plugin admin.
+
 = How many 404 records are stored? =
 
 Up to 1,000 recent records.
@@ -88,6 +97,18 @@ Up to 1,000 recent records.
 = Does the plugin require WP-Cron? =
 
 No. Core features work without WP-Cron. Scheduled diagnostics and maintenance are available only when native WordPress Cron is supported and enabled.
+
+= What should I exclude from page, REST, or CDN cache? =
+
+Asneris SEO Toolkit sends WordPress no-cache headers for its REST API responses. If your host, reverse proxy, or caching service can serve cached content before WordPress/PHP runs, exclude the plugin REST namespace from LiteSpeed Cache, SpeedLite, WP Rocket, Cloudflare Cache Rules, Nginx FastCGI Cache, Varnish, or similar systems:
+
+`/wp-json/asneris-seo/v1/*`
+
+For plain permalink fallback REST URLs, also exclude:
+
+`/?rest_route=/asneris-seo/v1/*`
+
+The plugin also appends a private cache-bypass parameter to REST read requests from its admin interface, but server or CDN exclusions are still recommended because some caches can respond before WordPress runs.
 
 = Where are Page Diagnostics and 404 Monitoring data stored? =
 
@@ -133,25 +154,20 @@ Only IndexNow submissions when IndexNow is enabled.
 1. Dashboard
 2. Settings
 3. Priority Pages
-4. Page Diagnostics Live Report
-5. Page Diagnostics History
+4. Page Diagnostics
+5. Page Diagnostics Live Report
 6. Site Diagnostics
-7. 404 Monitoring
-8. Redirect Management
-9. Robots.txt Editor
-10. Bulk Edit
+7. AI Searchability
+8. 404 Monitoring
+9. Redirect Management
+10. Robots.txt Editor
+11. Bulk Edit
 
 == Changelog ==
 
-= 0.1.4 =
-* Migrated all administration screens from PHP to React.
-* Added Priority Pages (up to 30 pages).
-* Added Page Diagnostics Live Report.
+= 0.1.5 =
 * Added Page Diagnostics History.
-* Added optional scheduled Page Diagnostics.
-* Added 404 Monitoring with storage for up to 1,000 records.
-* Added optional WordPress Cron background jobs when supported.
-* Performance, UI, UX and maintenance improvements.
+* Performance, UI, UX and maintenance improvements for Page Diagnostics Pages
 
 == IndexNow Notes ==
 

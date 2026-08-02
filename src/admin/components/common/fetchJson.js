@@ -21,13 +21,43 @@ const buildRequestError = (payload, response) => {
 	return error;
 };
 
+const withCacheBust = (url) => {
+	const requestUrl = new URL(url, window.location.origin);
+	requestUrl.searchParams.set('_asneris_cache_bust', String(Date.now()));
+	return requestUrl.toString();
+};
+
 const fetchJson = async (url, options = {}) => {
-	const response = await fetch(url, options);
-	const payload = await response.json().catch(() => null);
-	if (!response.ok) {
-		throw buildRequestError(payload || {}, response);
+	const method = String(options.method || 'GET').toUpperCase();
+	const requestUrl = method === 'GET' ? withCacheBust(url) : url;
+	const fetchOptions = {
+		cache: 'no-store',
+		credentials: 'same-origin',
+		...options,
+		method,
+		headers: {
+			Accept: 'application/json',
+			...(options.headers || {}),
+		},
+	};
+
+	if (options.signal) {
+		fetchOptions.signal = options.signal;
 	}
-	return payload;
+
+	try {
+		const response = await fetch(requestUrl, fetchOptions);
+		const payload = await response.json().catch(() => null);
+		if (!response.ok) {
+			throw buildRequestError(payload || {}, response);
+		}
+		return payload;
+	} catch (error) {
+		if (error?.name === 'AbortError') {
+			throw error;
+		}
+		throw error;
+	}
 };
 
 export default fetchJson;

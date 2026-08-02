@@ -54,10 +54,11 @@ const SeoReadinessPanel = ( { activeRoute, expandedSection, onExpand } ) => {
 		const restNamespace = String( window.asnerisseoData?.restNamespace || 'asneris-seo/v1' );
 		const restBase = `${ restRoot.replace( /\/+$/, '' ) }/${ restNamespace.replace( /^\/+|\/+$/g, '' ) }`;
 		const endpoint = isEditorDirty
-			? `${ restBase }/page-diagnostics/draft-policy`
-			: `${ restBase }/page-diagnostics/overview?postId=${ encodeURIComponent( String( currentPostId ) ) }&scope=all&perPage=1&page=1&postStatus=publish`;
+			? `${ restBase }/page-diagnostics-v2/draft-policy`
+			: `${ restBase }/page-diagnostics-v2/run/${ encodeURIComponent( String( currentPostId ) ) }?no_store=1`;
 		const requestOptions = {
-			method: isEditorDirty ? 'POST' : 'GET',
+			method: 'POST',
+			cache: 'no-store',
 			headers: {
 				'X-WP-Nonce': window.asnerisseoData?.restNonce || '',
 			},
@@ -84,9 +85,7 @@ const SeoReadinessPanel = ( { activeRoute, expandedSection, onExpand } ) => {
 				return response.json();
 			} )
 			.then( ( payload ) => {
-				const item = isEditorDirty
-					? payload
-					: ( Array.isArray( payload?.items ) ? payload.items[0] : null );
+				const item = payload;
 				assertUnifiedData( item, 'readiness.overviewItem' );
 
 				const computed = getUnifiedComputed( item );
