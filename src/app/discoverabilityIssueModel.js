@@ -1,6 +1,16 @@
 import { __ } from '@wordpress/i18n';
 import { categorizeDiscoverabilityCheck } from './discoverabilityDataModel';
 
+const asArray = (value) => {
+	if (Array.isArray(value)) {
+		return value;
+	}
+	if (value && typeof value === 'object') {
+		return Object.values(value);
+	}
+	return [];
+};
+
 export const mapDiscoverabilityStatus = (status, passed = null) => {
 	const normalized = String(status || '').toLowerCase();
 	if (normalized === 'pass') {
@@ -29,7 +39,7 @@ export const buildTopIssueCategories = (checks = []) => {
 		[ 'ai', { label: __( 'AI Discoverability', 'asneris-seo-toolkit' ), hasFail: false, hasWarning: false } ],
 	]);
 
-	(checks || []).forEach((check) => {
+	asArray(checks).forEach((check) => {
 		const status = mapDiscoverabilityStatus(check?.status, check?.passed);
 		if (status === 'pass') {
 			return;
@@ -80,7 +90,7 @@ export const buildIssueBreakdownRows = (checks = [], options = {}) => {
 			.filter(Boolean)
 	);
 
-	const candidates = (checks || [])
+	const candidates = asArray(checks)
 		.filter((check) => includePass || mapDiscoverabilityStatus(check?.status, check?.passed) !== 'pass')
 		.map((check) => {
 			const rawLabel = String(check?.label || '').trim();

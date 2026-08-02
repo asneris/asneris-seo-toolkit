@@ -4,19 +4,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class ASNERISSEO_SEO_Generator {
-	const MANUAL_TITLE_KEY = '_ASNERISSEO_title';
-	const MANUAL_DESCRIPTION_KEY = '_ASNERISSEO_description';
-	const MANUAL_TITLE_KEY_ALT = '_asneris_seo_title';
+	const MANUAL_TITLE_KEY           = '_ASNERISSEO_title';
+	const MANUAL_DESCRIPTION_KEY     = '_ASNERISSEO_description';
+	const MANUAL_TITLE_KEY_ALT       = '_asneris_seo_title';
 	const MANUAL_DESCRIPTION_KEY_ALT = '_asneris_meta_description';
 
 	// Spec-defined generated storage keys.
-	const GENERATED_TITLE_KEY = '_asneris_generated_title';
+	const GENERATED_TITLE_KEY       = '_asneris_generated_title';
 	const GENERATED_DESCRIPTION_KEY = '_asneris_generated_description';
-	const GENERATED_HASH_KEY = '_asneris_generated_hash';
+	const GENERATED_HASH_KEY        = '_asneris_generated_hash';
 
-	const BATCH_CURSOR_OPTION = 'asneris_seo_generator_batch_cursor';
+	const BATCH_CURSOR_OPTION      = 'asneris_seo_generator_batch_cursor';
 	const BATCH_FAILURE_LOG_OPTION = 'asneris_seo_generator_batch_failures';
-	const BATCH_METRICS_OPTION = 'asneris_seo_generator_batch_metrics';
+	const BATCH_METRICS_OPTION     = 'asneris_seo_generator_batch_metrics';
 
 	public static function init() {
 		add_action( 'save_post', array( __CLASS__, 'on_save_post' ), 20, 3 );
@@ -62,42 +62,55 @@ class ASNERISSEO_SEO_Generator {
 	public static function generate_for_post( $post_id, $skip_if_manual_exists = true, $force_regenerate = false ) {
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return array( 'updated' => false, 'reason' => 'missing_post' );
+			return array(
+				'updated' => false,
+				'reason'  => 'missing_post',
+			);
 		}
 
-		$collector = new ASNERISSEO_SEO_Data_Collector();
-		$cleaner = new ASNERISSEO_SEO_Content_Cleaner();
-		$keyword_detector = new ASNERISSEO_SEO_Keyword_Detector();
-		$title_generator = new ASNERISSEO_SEO_Title_Generator();
+		$collector             = new ASNERISSEO_SEO_Data_Collector();
+		$cleaner               = new ASNERISSEO_SEO_Content_Cleaner();
+		$keyword_detector      = new ASNERISSEO_SEO_Keyword_Detector();
+		$title_generator       = new ASNERISSEO_SEO_Title_Generator();
 		$description_generator = new ASNERISSEO_SEO_Description_Generator();
-		$validator = new ASNERISSEO_SEO_Validator();
-		$duplicate_checker = new ASNERISSEO_SEO_Duplicate_Checker();
-		$storage = new ASNERISSEO_SEO_Metadata_Storage();
+		$validator             = new ASNERISSEO_SEO_Validator();
+		$duplicate_checker     = new ASNERISSEO_SEO_Duplicate_Checker();
+		$storage               = new ASNERISSEO_SEO_Metadata_Storage();
 
 		$data = $collector->collect( $post );
 		$data = $cleaner->clean( $data );
 
-		$source_hash = md5( wp_json_encode( array(
-			'post_title' => (string) $data['post_title'],
-			'slug' => (string) $data['slug'],
-			'excerpt' => (string) $data['excerpt'],
-			'content' => (string) $data['content'],
-			'first_paragraph' => (string) $data['first_paragraph'],
-			'h1' => (string) $data['h1'],
-			'categories' => (array) $data['categories'],
-		) ) );
+		$source_hash = md5(
+			wp_json_encode(
+				array(
+					'post_title'      => (string) $data['post_title'],
+					'slug'            => (string) $data['slug'],
+					'excerpt'         => (string) $data['excerpt'],
+					'content'         => (string) $data['content'],
+					'first_paragraph' => (string) $data['first_paragraph'],
+					'h1'              => (string) $data['h1'],
+					'categories'      => (array) $data['categories'],
+				)
+			)
+		);
 
 		$existing_hash = (string) get_post_meta( $post_id, self::GENERATED_HASH_KEY, true );
 		if ( ! $force_regenerate && $existing_hash !== '' && hash_equals( $existing_hash, $source_hash ) ) {
-			return array( 'updated' => false, 'reason' => 'unchanged_source' );
+			return array(
+				'updated' => false,
+				'reason'  => 'unchanged_source',
+			);
 		}
 
-		$manual_title = self::get_manual_title( $post_id );
+		$manual_title       = self::get_manual_title( $post_id );
 		$manual_description = self::get_manual_description( $post_id );
 
 		if ( $skip_if_manual_exists && ( $manual_title !== '' || $manual_description !== '' ) ) {
 			update_post_meta( $post_id, self::GENERATED_HASH_KEY, $source_hash );
-			return array( 'updated' => false, 'reason' => 'manual_exists' );
+			return array(
+				'updated' => false,
+				'reason'  => 'manual_exists',
+			);
 		}
 
 		$primary_keyword = $keyword_detector->detect( $data );
@@ -113,9 +126,9 @@ class ASNERISSEO_SEO_Generator {
 		update_post_meta( $post_id, self::GENERATED_HASH_KEY, $source_hash );
 
 		return array(
-			'updated' => (bool) $storage_result,
-			'keyword' => $primary_keyword,
-			'generatedTitle' => $title,
+			'updated'              => (bool) $storage_result,
+			'keyword'              => $primary_keyword,
+			'generatedTitle'       => $title,
 			'generatedDescription' => $description,
 		);
 	}
@@ -186,9 +199,9 @@ class ASNERISSEO_SEO_Generator {
 	}
 
 	public static function run_batch( $batch_size = 50, $options = array() ) {
-		$batch_size = max( 1, min( 100, (int) $batch_size ) );
-		$reset_cursor = ! empty( $options['resetCursor'] );
-		$force_regenerate = ! empty( $options['regenerate'] );
+		$batch_size            = max( 1, min( 100, (int) $batch_size ) );
+		$reset_cursor          = ! empty( $options['resetCursor'] );
+		$force_regenerate      = ! empty( $options['regenerate'] );
 		$skip_if_manual_exists = ! isset( $options['skipManual'] ) || (bool) $options['skipManual'];
 
 		if ( $reset_cursor ) {
@@ -197,43 +210,45 @@ class ASNERISSEO_SEO_Generator {
 
 		$cursor = $reset_cursor ? 0 : max( 0, (int) get_option( self::BATCH_CURSOR_OPTION, 0 ) );
 
-		$query = new WP_Query( array(
-			'post_type' => get_post_types( array( 'public' => true ), 'names' ),
-			'post_status' => array( 'publish', 'draft', 'pending', 'private', 'future' ),
-			'fields' => 'ids',
-			'posts_per_page' => $batch_size,
-			'offset' => $cursor,
-			'orderby' => 'ID',
-			'order' => 'ASC',
-			'no_found_rows' => false,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-		) );
+		$query = new WP_Query(
+			array(
+				'post_type'              => get_post_types( array( 'public' => true ), 'names' ),
+				'post_status'            => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+				'fields'                 => 'ids',
+				'posts_per_page'         => $batch_size,
+				'offset'                 => $cursor,
+				'orderby'                => 'ID',
+				'order'                  => 'ASC',
+				'no_found_rows'          => false,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
 
-		$processed = 0;
-		$updated = 0;
-		$skipped_manual = 0;
+		$processed         = 0;
+		$updated           = 0;
+		$skipped_manual    = 0;
 		$skipped_unchanged = 0;
-		$failures = array();
-		$total_elapsed_ms = 0.0;
+		$failures          = array();
+		$total_elapsed_ms  = 0.0;
 
 		foreach ( (array) $query->posts as $post_id ) {
-			$processed++;
+			++$processed;
 			$started_at = microtime( true );
 			try {
 				$result = self::generate_for_post( (int) $post_id, $skip_if_manual_exists, $force_regenerate );
 				if ( ! empty( $result['updated'] ) ) {
-					$updated++;
+					++$updated;
 				} elseif ( isset( $result['reason'] ) && 'manual_exists' === $result['reason'] ) {
-					$skipped_manual++;
+					++$skipped_manual;
 				} elseif ( isset( $result['reason'] ) && 'unchanged_source' === $result['reason'] ) {
-					$skipped_unchanged++;
+					++$skipped_unchanged;
 				}
 			} catch ( Throwable $e ) {
-				$failure = array(
+				$failure    = array(
 					'post_id' => (int) $post_id,
-					'error' => self::redact_failure_message( $e->getMessage() ),
-					'time' => gmdate( 'c' ),
+					'error'   => self::redact_failure_message( $e->getMessage() ),
+					'time'    => gmdate( 'c' ),
 				);
 				$failures[] = $failure;
 				self::append_failure_log( $failure );
@@ -244,7 +259,7 @@ class ASNERISSEO_SEO_Generator {
 
 		$next_cursor = $cursor + $processed;
 		$total_posts = (int) $query->found_posts;
-		$completed = $next_cursor >= $total_posts;
+		$completed   = $next_cursor >= $total_posts;
 
 		if ( $completed ) {
 			delete_option( self::BATCH_CURSOR_OPTION );
@@ -253,33 +268,33 @@ class ASNERISSEO_SEO_Generator {
 		}
 
 		$avg_generation_ms = $processed > 0 ? round( $total_elapsed_ms / $processed, 2 ) : 0;
-		$batch_metrics = array(
-			'processed' => $processed,
-			'updated' => $updated,
-			'skippedManual' => $skipped_manual,
+		$batch_metrics     = array(
+			'processed'        => $processed,
+			'updated'          => $updated,
+			'skippedManual'    => $skipped_manual,
 			'skippedUnchanged' => $skipped_unchanged,
-			'failed' => count( $failures ),
-			'avgGenerationMs' => $avg_generation_ms,
-			'elapsedMs' => round( $total_elapsed_ms, 2 ),
-			'generatedAt' => gmdate( 'c' ),
-			'mode' => $force_regenerate ? 'regenerate' : 'generate',
+			'failed'           => count( $failures ),
+			'avgGenerationMs'  => $avg_generation_ms,
+			'elapsedMs'        => round( $total_elapsed_ms, 2 ),
+			'generatedAt'      => gmdate( 'c' ),
+			'mode'             => $force_regenerate ? 'regenerate' : 'generate',
 		);
 		update_option( self::BATCH_METRICS_OPTION, $batch_metrics, false );
 
 		return array(
-			'batchSize' => $batch_size,
-			'processed' => $processed,
-			'updated' => $updated,
-			'skippedManual' => $skipped_manual,
+			'batchSize'        => $batch_size,
+			'processed'        => $processed,
+			'updated'          => $updated,
+			'skippedManual'    => $skipped_manual,
 			'skippedUnchanged' => $skipped_unchanged,
-			'failed' => count( $failures ),
-			'failures' => $failures,
-			'avgGenerationMs' => $avg_generation_ms,
-			'elapsedMs' => round( $total_elapsed_ms, 2 ),
-			'mode' => $force_regenerate ? 'regenerate' : 'generate',
-			'cursor' => $next_cursor,
-			'total' => $total_posts,
-			'completed' => $completed,
+			'failed'           => count( $failures ),
+			'failures'         => $failures,
+			'avgGenerationMs'  => $avg_generation_ms,
+			'elapsedMs'        => round( $total_elapsed_ms, 2 ),
+			'mode'             => $force_regenerate ? 'regenerate' : 'generate',
+			'cursor'           => $next_cursor,
+			'total'            => $total_posts,
+			'completed'        => $completed,
 		);
 	}
 
@@ -325,47 +340,47 @@ class ASNERISSEO_SEO_Generator {
 
 class ASNERISSEO_SEO_Data_Collector {
 	public function collect( WP_Post $post ) {
-		$post_id = (int) $post->ID;
+		$post_id     = (int) $post->ID;
 		$content_raw = (string) $post->post_content;
 		$excerpt_raw = (string) $post->post_excerpt;
 
-		$h1 = $this->extract_heading( $content_raw, 'h1' );
-		$h2 = $this->extract_all_headings( $content_raw, 'h2' );
+		$h1              = $this->extract_heading( $content_raw, 'h1' );
+		$h2              = $this->extract_all_headings( $content_raw, 'h2' );
 		$first_paragraph = $this->extract_first_paragraph( $content_raw );
 
-		$categories = array();
+		$categories     = array();
 		$category_terms = get_the_terms( $post_id, 'category' );
 		if ( is_array( $category_terms ) ) {
 			$categories = wp_list_pluck( $category_terms, 'name' );
 		}
 
-		$tags = array();
+		$tags      = array();
 		$tag_terms = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tag_terms ) ) {
 			$tags = wp_list_pluck( $tag_terms, 'name' );
 		}
 
 		$author_name = '';
-		$author = get_userdata( (int) $post->post_author );
+		$author      = get_userdata( (int) $post->post_author );
 		if ( $author ) {
 			$author_name = (string) $author->display_name;
 		}
 
 		return array(
-			'post_id' => $post_id,
-			'post_title' => (string) $post->post_title,
-			'slug' => (string) $post->post_name,
-			'excerpt' => $excerpt_raw,
-			'content' => $content_raw,
+			'post_id'         => $post_id,
+			'post_title'      => (string) $post->post_title,
+			'slug'            => (string) $post->post_name,
+			'excerpt'         => $excerpt_raw,
+			'content'         => $content_raw,
 			'first_paragraph' => $first_paragraph,
-			'h1' => $h1,
-			'h2_headings' => $h2,
-			'categories' => $categories,
-			'tags' => $tags,
-			'author' => $author_name,
-			'site_name' => get_bloginfo( 'name' ),
-			'post_type' => (string) $post->post_type,
-			'date' => get_the_date( 'Y-m-d', $post_id ),
+			'h1'              => $h1,
+			'h2_headings'     => $h2,
+			'categories'      => $categories,
+			'tags'            => $tags,
+			'author'          => $author_name,
+			'site_name'       => get_bloginfo( 'name' ),
+			'post_type'       => (string) $post->post_type,
+			'date'            => get_the_date( 'Y-m-d', $post_id ),
 		);
 	}
 
@@ -473,12 +488,12 @@ class ASNERISSEO_SEO_Keyword_Detector {
 	}
 
 	private function normalize_phrase( $text ) {
-		$text = strtolower( trim( (string) $text ) );
-		$text = preg_replace( '/[^a-z0-9\s-]/', ' ', $text );
-		$text = preg_replace( '/\s+/', ' ', $text );
-		$parts = array_filter( explode( ' ', $text ) );
+		$text       = strtolower( trim( (string) $text ) );
+		$text       = preg_replace( '/[^a-z0-9\s-]/', ' ', $text );
+		$text       = preg_replace( '/\s+/', ' ', $text );
+		$parts      = array_filter( explode( ' ', $text ) );
 		$stop_words = array( 'the', 'a', 'an', 'and', 'or', 'for', 'to', 'of', 'in', 'on', 'with', 'by', 'at', 'is', 'are', 'be' );
-		$filtered = array();
+		$filtered   = array();
 		foreach ( $parts as $part ) {
 			if ( strlen( $part ) > 2 && ! in_array( $part, $stop_words, true ) ) {
 				$filtered[] = $part;
@@ -495,7 +510,7 @@ class ASNERISSEO_SEO_Keyword_Detector {
 		}
 
 		$stop_words = array( 'the', 'a', 'an', 'and', 'or', 'for', 'to', 'of', 'in', 'on', 'with', 'by', 'at', 'is', 'are', 'be' );
-		$freq = array();
+		$freq       = array();
 		foreach ( $words as $word ) {
 			$word = trim( $word );
 			if ( strlen( $word ) <= 3 || in_array( $word, $stop_words, true ) ) {
@@ -512,7 +527,7 @@ class ASNERISSEO_SEO_Keyword_Detector {
 
 class ASNERISSEO_SEO_Title_Generator {
 	public function generate( array $data, $keyword ) {
-		$template = ASNERISSEO_Admin_Settings::get( 'title_templates', array() );
+		$template  = ASNERISSEO_Admin_Settings::get( 'title_templates', array() );
 		$post_type = (string) $data['post_type'];
 		$separator = (string) ASNERISSEO_Admin_Settings::get( 'title_separator', '|' );
 		$separator = trim( $separator ) !== '' ? trim( $separator ) : '|';
@@ -531,11 +546,11 @@ class ASNERISSEO_SEO_Title_Generator {
 		}
 
 		$replacements = array(
-			'%title%' => $title_text,
-			'%sitename%' => (string) $data['site_name'],
-			'%category%' => isset( $data['categories'][0] ) ? (string) $data['categories'][0] : '',
-			'%author%' => (string) $data['author'],
-			'%date%' => (string) $data['date'],
+			'%title%'     => $title_text,
+			'%sitename%'  => (string) $data['site_name'],
+			'%category%'  => isset( $data['categories'][0] ) ? (string) $data['categories'][0] : '',
+			'%author%'    => (string) $data['author'],
+			'%date%'      => (string) $data['date'],
 			'%separator%' => $separator,
 		);
 
@@ -554,7 +569,7 @@ class ASNERISSEO_SEO_Title_Generator {
 			return $text;
 		}
 
-		$trimmed = mb_substr( $text, 0, $max + 1 );
+		$trimmed    = mb_substr( $text, 0, $max + 1 );
 		$last_space = mb_strrpos( $trimmed, ' ' );
 		if ( false !== $last_space && $last_space >= $min ) {
 			return trim( mb_substr( $trimmed, 0, $last_space ) );
@@ -564,8 +579,8 @@ class ASNERISSEO_SEO_Title_Generator {
 
 	private function remove_repeated_words( $text ) {
 		$parts = preg_split( '/\s+/', (string) $text );
-		$out = array();
-		$seen = array();
+		$out   = array();
+		$seen  = array();
 		foreach ( (array) $parts as $part ) {
 			$key = strtolower( preg_replace( '/[^a-z0-9]/i', '', $part ) );
 			if ( $key === '' ) {
@@ -575,7 +590,7 @@ class ASNERISSEO_SEO_Title_Generator {
 				continue;
 			}
 			$seen[ $key ] = true;
-			$out[] = $part;
+			$out[]        = $part;
 		}
 
 		return implode( ' ', $out );
@@ -617,7 +632,7 @@ class ASNERISSEO_SEO_Description_Generator {
 			return $this->ensure_sentence_end( $text );
 		}
 
-		$trimmed = mb_substr( $text, 0, $max + 1 );
+		$trimmed          = mb_substr( $text, 0, $max + 1 );
 		$last_punctuation = max(
 			(int) mb_strrpos( $trimmed, '.' ),
 			(int) mb_strrpos( $trimmed, '!' ),
@@ -655,7 +670,7 @@ class ASNERISSEO_SEO_Description_Generator {
 
 		$candidate = ucfirst( $keyword ) . ': ' . ltrim( (string) $description );
 		if ( mb_strlen( $candidate ) > $max ) {
-			return (new self())->trim_to_sentence( $candidate, $max, 120 );
+			return ( new self() )->trim_to_sentence( $candidate, $max, 120 );
 		}
 		return $candidate;
 	}
@@ -668,7 +683,7 @@ class ASNERISSEO_SEO_Validator {
 		$title = $this->remove_excessive_separators( $title );
 
 		if ( mb_strlen( $title ) > 60 ) {
-			$title = rtrim( mb_substr( $title, 0, 60 ) );
+			$title      = rtrim( mb_substr( $title, 0, 60 ) );
 			$last_space = mb_strrpos( $title, ' ' );
 			if ( false !== $last_space ) {
 				$title = mb_substr( $title, 0, $last_space );
@@ -687,7 +702,7 @@ class ASNERISSEO_SEO_Validator {
 
 		if ( mb_strlen( $description ) > 160 ) {
 			$description = rtrim( mb_substr( $description, 0, 160 ) );
-			$last_space = mb_strrpos( $description, ' ' );
+			$last_space  = mb_strrpos( $description, ' ' );
 			if ( false !== $last_space ) {
 				$description = mb_substr( $description, 0, $last_space );
 			}
@@ -722,7 +737,7 @@ class ASNERISSEO_SEO_Duplicate_Checker {
 		}
 
 		$cache_key = 'title_exists:' . md5( strtolower( $base ) . '|' . (int) $post_id );
-		$exists = wp_cache_get( $cache_key, 'asnerisseo_seo' );
+		$exists    = wp_cache_get( $cache_key, 'asnerisseo_seo' );
 
 		if ( false === $exists ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Prepared and cached metadata existence lookup for duplicate-title validation.
@@ -748,11 +763,13 @@ class ASNERISSEO_SEO_Duplicate_Checker {
 			return $base;
 		}
 
-		$suffixes = array_filter( array(
-			(string) $data['site_name'],
-			isset( $data['categories'][0] ) ? (string) $data['categories'][0] : '',
-			gmdate( 'Y' ),
-		) );
+		$suffixes = array_filter(
+			array(
+				(string) $data['site_name'],
+				isset( $data['categories'][0] ) ? (string) $data['categories'][0] : '',
+				gmdate( 'Y' ),
+			)
+		);
 
 		foreach ( $suffixes as $suffix ) {
 			$candidate = trim( $base . ' | ' . $suffix );
@@ -767,7 +784,7 @@ class ASNERISSEO_SEO_Duplicate_Checker {
 
 class ASNERISSEO_SEO_Metadata_Storage {
 	public function store_generated( $post_id, $title, $description ) {
-		$title = sanitize_text_field( (string) $title );
+		$title       = sanitize_text_field( (string) $title );
 		$description = sanitize_text_field( (string) $description );
 
 		$ok1 = update_post_meta( $post_id, ASNERISSEO_SEO_Generator::GENERATED_TITLE_KEY, $title );

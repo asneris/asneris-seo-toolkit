@@ -5,68 +5,80 @@
  * Purpose: Explain concepts and set expectations
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class ASNERISSEO_Help {
 
-public static function register_menu() {
-add_submenu_page(
-ASNERIS_MENU_SLUG,
-__( 'Help', 'asneris-seo-toolkit' ),
-__( 'Help', 'asneris-seo-toolkit' ),
-'manage_options',
-ASNERIS_MENU_SLUG . '-help',
-array( __CLASS__, 'render_page' )
-);
-}
+	public static function register_menu() {
+		add_submenu_page(
+			ASNERIS_MENU_SLUG,
+			__( 'Help', 'asneris-seo-toolkit' ),
+			__( 'Help', 'asneris-seo-toolkit' ),
+			'manage_options',
+			ASNERIS_MENU_SLUG . '-help',
+			array( __CLASS__, 'render_page' )
+		);
+	}
 
-public static function enqueue_assets($hook) {
-if ($hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-help') return;
+	public static function enqueue_assets( $hook ) {
+		if ( $hook !== 'asneris-seo-toolkit_page_' . ASNERIS_MENU_SLUG . '-help' ) {
+			return;
+		}
 
-$react_asset_path = ASNERISSEO_DIR . 'build/admin/index.asset.php';
-if (file_exists($react_asset_path)) {
-$react_asset = include $react_asset_path;
-wp_enqueue_script(
-'asnerisseo-admin-dashboard',
-ASNERISSEO_URL . 'build/admin/index.js',
-$react_asset['dependencies'],
-$react_asset['version'],
-true
-);
+		$react_asset_path = ASNERISSEO_DIR . 'build/admin/index.asset.php';
+		if ( file_exists( $react_asset_path ) ) {
+			$react_asset = include $react_asset_path;
+			wp_enqueue_script(
+				'asnerisseo-admin-dashboard',
+				ASNERISSEO_URL . 'build/admin/index.js',
+				$react_asset['dependencies'],
+				$react_asset['version'],
+				true
+			);
 
-$summary_payload = ASNERISSEO_Dashboard::get_dashboard_summary_payload();
-wp_localize_script('asnerisseo-admin-dashboard', 'asnerisseoAdminDashboardData', [
-'summary' => $summary_payload,
-'dashboardSummaryRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/dashboard-summary' ) ),
-'socialSettingsRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-settings/social' ) ),
-'schemaSettingsRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-settings/schema' ) ),
-'indexNowSettingsRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-settings/indexnow' ) ),
-'pageDiagnosticsRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/page-diagnostics/overview' ) ),
-'diagnosticsUrlRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/diagnostics-url' ) ),
-'siteDiagnosticsRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-diagnostics' ) ),
-'siteDiagnosticsUrlCheckRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-diagnostics/url-check' ) ),
-'redirectsRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/redirects' ) ),
-'robotsRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/robots' ) ),
-'bulkEditContentRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/bulk-edit/content' ) ),
-'bulkEditSaveRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/bulk-edit/save' ) ),
-'restNonce' => wp_create_nonce( 'wp_rest' ),
-'mountSelector' => '.asnerisseo-fallback-help',
-'hideFallback' => true,
-]);
-}
+			$summary_payload = ASNERISSEO_Dashboard::get_dashboard_summary_payload();
+			wp_localize_script(
+				'asnerisseo-admin-dashboard',
+				'asnerisseoAdminDashboardData',
+				array(
+					'summary'                        => $summary_payload,
+					'dashboardSummaryRestUrl'        => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/dashboard-summary' ) ),
+					'socialSettingsRestUrl'          => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-settings/social' ) ),
+					'schemaSettingsRestUrl'          => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-settings/schema' ) ),
+					'indexNowSettingsRestUrl'        => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-settings/indexnow' ) ),
+					'pageDiagnosticsRestUrl'         => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/page-diagnostics/overview' ) ),
+					'diagnosticsUrlRestUrl'          => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/diagnostics-url' ) ),
+					'siteDiagnosticsRestUrl'         => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-diagnostics' ) ),
+					'siteDiagnosticsUrlCheckRestUrl' => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/site-diagnostics/url-check' ) ),
+					'redirectsRestUrl'               => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/redirects' ) ),
+					'robotsRestUrl'                  => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/robots' ) ),
+					'aiSearchabilityRestUrl'         => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/ai-searchability' ) ),
+					'bulkEditContentRestUrl'         => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/bulk-edit/content' ) ),
+					'bulkEditSaveRestUrl'            => esc_url_raw( rest_url( ASNERISSEO_REST_API::NAMESPACE . '/bulk-edit/save' ) ),
+					'restNonce'                      => wp_create_nonce( 'wp_rest' ),
+					'mountSelector'                  => '.asnerisseo-fallback-help',
+					'hideFallback'                   => true,
+				)
+			);
+		}
 
-wp_enqueue_style('asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', [], ASNERISSEO_VERSION);
-}
+		wp_enqueue_style( 'asnerisseo-admin', ASNERISSEO_URL . 'assets/css/admin-style.css', array(), ASNERISSEO_VERSION );
+	}
 
-public static function render_page() {
-?>
+	public static function render_page() {
+		?>
 <div class="wrap ASNERISSEO-admin-wrap">
 <div id="asnerisseo-react-admin-shell-root"></div>
-<?php if ( defined( 'ASNERISSEO_REACT_ONLY_ADMIN' ) && ASNERISSEO_REACT_ONLY_ADMIN ) { ?></div><?php return; } ?>
+		<?php
+		if ( defined( 'ASNERISSEO_REACT_ONLY_ADMIN' ) && ASNERISSEO_REACT_ONLY_ADMIN ) {
+			?>
+			</div><?php return; } ?>
 <div class="asnerisseo-fallback-help">
 <h1>
 <span class="dashicons dashicons-editor-help"></span>
-<?php esc_html_e( 'Help &amp; Documentation', 'asneris-seo-toolkit' ); ?>
+		<?php esc_html_e( 'Help &amp; Documentation', 'asneris-seo-toolkit' ); ?>
 </h1>
 
 <div class="ASNERISSEO-card">
@@ -149,7 +161,7 @@ public static function render_page() {
 <div class="ASNERISSEO-card" style="background: #f6f7f7; border-left: 4px solid #2271b1;">
 <h2><?php esc_html_e( 'Our Philosophy', 'asneris-seo-toolkit' ); ?></h2>
 <p style="font-size: 16px; line-height: 1.8;">
-<?php esc_html_e( 'SEO is not about gaming algorithms or chasing scores. It is about making your content clear, accessible, and understandable to search engines. This plugin helps you validate that clarity - nothing more, nothing less.', 'asneris-seo-toolkit' ); ?>
+		<?php esc_html_e( 'SEO is not about gaming algorithms or chasing scores. It is about making your content clear, accessible, and understandable to search engines. This plugin helps you validate that clarity - nothing more, nothing less.', 'asneris-seo-toolkit' ); ?>
 </p>
 <p style="font-size: 14px; color: #646970; margin-top: 15px;">
 <em><?php esc_html_e( '"Asneris SEO Toolkit validates what search engines can see. It does not predict rankings."', 'asneris-seo-toolkit' ); ?></em>
@@ -158,6 +170,6 @@ public static function render_page() {
 
 </div><!-- .asnerisseo-fallback-help -->
 </div>
-<?php
-}
+		<?php
+	}
 }

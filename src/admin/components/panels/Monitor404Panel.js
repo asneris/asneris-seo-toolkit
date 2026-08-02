@@ -19,7 +19,7 @@ const getRelativeDateInput = (daysFromToday = 0) => {
 const DEFAULT_FILTERS = {
 	search: '',
 	priority_filter: ['all'],
-	recommendation_filter: ['all'],
+	recommendation_filter: ['proposed_redirect_url'],
 	status: 'active',
 	sort_by: 'last_seen',
 	sort_dir: 'desc',
@@ -679,17 +679,15 @@ const Monitor404Panel = ({ logsRestUrl, statsRestUrl, bulkRestUrl, exportRestUrl
 	};
 
 	const setRecommendationFilterValue = (selectedValues) => {
-		const allowedValues = ['all', 'proposed_redirect_url', 'hotfix_broken_url', 'find_redirect_page'];
+		const allowedValues = ['proposed_redirect_url'];
 		let normalized = Array.isArray(selectedValues)
 			? selectedValues.map((value) => String(value || '').trim().toLowerCase()).filter(Boolean)
 			: [];
 
 		normalized = normalized.filter((value) => allowedValues.includes(value));
 
-		if (normalized.length === 0 || normalized.includes('all')) {
-			normalized = ['all'];
-		} else {
-			normalized = normalized.filter((value) => value !== 'all');
+		if (normalized.length === 0) {
+			normalized = ['proposed_redirect_url'];
 		}
 
 		setFilterValue('recommendation_filter', normalized);
@@ -729,10 +727,7 @@ const Monitor404Panel = ({ logsRestUrl, statsRestUrl, bulkRestUrl, exportRestUrl
 	};
 
 	const recommendationOptions = [
-		{ value: 'all', label: __('All', 'asneris-seo-toolkit') },
 		{ value: 'proposed_redirect_url', label: __('Proposed Redirect Page', 'asneris-seo-toolkit') },
-		{ value: 'hotfix_broken_url', label: __('HotFix Broken URL', 'asneris-seo-toolkit') },
-		{ value: 'find_redirect_page', label: __('Find Redirect Page', 'asneris-seo-toolkit') },
 	];
 	const priorityOptions = activeMonitorView === TAB_RECOMMANDATION
 		? [

@@ -14,15 +14,13 @@ using standard WordPress APIs.
 
 ------------------------------------------------------------------------
 
-## What's New in 0.1.4
+## What's New in 0.1.5
 
--   Complete administration interface migrated from PHP to React.
--   New **Priority Pages** supporting up to **30** monitored pages.
--   New **Page Diagnostics Live Report**.
--   New **Page Diagnostics History**.
--   New **404 Monitoring** storing up to **1,000** recent records.
--   Optional background processing using native WordPress Cron.
--   Improved administration performance, usability and maintainability.
+-   Improved AI Searchability output formatting and Markdown-style draft generation.
+-   Added draft editing and review flow for llms.txt content.
+-   Preserved user-edited draft content when saving or approving.
+-   Improved validation and preview behavior for generated llms.txt content.
+-   Continued refinements to admin usability and release packaging.
 
 ------------------------------------------------------------------------
 
@@ -41,6 +39,7 @@ using standard WordPress APIs.
 -   Robots.txt tools
 -   Bulk SEO editing
 -   JSON-LD Schema support
+-   AI Searchability for llms.txt generation and review
 
 ------------------------------------------------------------------------
 
@@ -81,6 +80,12 @@ using standard WordPress APIs.
 
 -   Priority Pages (30)
 -   404 Monitoring (1,000 records)
+
+### AI Searchability
+
+-   Generate llms.txt drafts for public content discovery
+-   Review and edit draft content before publishing
+-   Validate and publish the final llms.txt output
 
 ### Productivity
 
@@ -181,6 +186,13 @@ packages.
 ------------------------------------------------------------------------
 
 ## Changelog
+
+### 0.1.5
+
+-   Improved AI Searchability draft generation output formatting.
+-   Added editable draft review workflow for llms.txt generation.
+-   Preserved user-edited content when saving or approving drafts.
+-   Improved preview and validation behavior.
 
 ### 0.1.4
 

@@ -54,8 +54,9 @@ const toPercent = (passed, total) => {
 };
 
 const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, formatStatusText }) => {
-	const [data, setData] = useState({ sitemap: {}, duplicates: {}, robots: {}, canonical: {}, summary: {} });
+	const [data, setData] = useState({ sitemap: {}, duplicates: {}, robots: {}, llms: {}, canonical: {}, summary: {} });
 	const [isLoading, setIsLoading] = useState(false);
+	const [hasLoaded, setHasLoaded] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [expandedDetailSection, setExpandedDetailSection] = useState(null);
 
@@ -76,9 +77,11 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 					sitemap: payload?.sitemap || {},
 					duplicates: payload?.duplicates || {},
 					robots: payload?.robots || {},
+					llms: payload?.llms || {},
 					canonical: payload?.canonical || {},
 					summary: payload?.summary || {},
 				});
+				setHasLoaded(true);
 			})
 			.catch((error) => {
 				const message = error.message || __('Unable to load site diagnostics.', 'asneris-seo-toolkit');
@@ -95,6 +98,11 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 	const activePlugins = Array.isArray(data.duplicates?.active_plugins) ? data.duplicates.active_plugins : [];
 	const duplicateSignals = data.duplicates?.duplicates || {};
 	const robotChecks = normalizeChecks(data.robots?.checks).map((check) => ({
+		label: check?.label || '-',
+		status: check?.status || 'warning',
+		details: check?.message || '-',
+	}));
+	const llmsChecks = normalizeChecks(data.llms?.checks).map((check) => ({
 		label: check?.label || '-',
 		status: check?.status || 'warning',
 		details: check?.message || '-',
@@ -130,6 +138,7 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 	const conflictsCount = Number(data.summary?.conflicts || 0);
 	const hasPluginConflicts = activePlugins.length > 0;
 	const robotsStatus = normalizeStatus(data.robots?.status);
+	const llmsStatus = normalizeStatus(data.llms?.status);
 	const canonicalHasConflicts = Boolean(data.canonical?.has_conflicts);
 	const canonicalHasWarnings = Boolean(data.canonical?.has_warnings);
 
@@ -150,6 +159,11 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 			details: data.robots?.message || __('Crawling rules require review.', 'asneris-seo-toolkit'),
 		},
 		{
+			label: __('llms.txt Validation', 'asneris-seo-toolkit'),
+			status: llmsStatus === 'success' || llmsStatus === 'pass' ? 'pass' : (llmsStatus === 'error' ? 'issue' : 'warning'),
+			details: data.llms?.message || __('AI crawler guidance requires review.', 'asneris-seo-toolkit'),
+		},
+		{
 			label: __('Canonical Conflicts', 'asneris-seo-toolkit'),
 			status: canonicalHasConflicts ? 'issue' : 'pass',
 			details: canonicalHasConflicts ? __('Conflicts detected.', 'asneris-seo-toolkit') : __('No conflicts detected.', 'asneris-seo-toolkit'),
@@ -164,7 +178,7 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 			status: hasPluginConflicts ? 'issue' : 'pass',
 			details: hasPluginConflicts ? activePlugins.join(', ') : __('No plugin conflicts detected.', 'asneris-seo-toolkit'),
 		},
-	]), [activePlugins, canonicalHasConflicts, canonicalHasWarnings, data.robots?.message, data.sitemap?.found, data.sitemap?.http_message, data.sitemap?.http_status, data.sitemap?.url, hasPluginConflicts, robotsStatus]);
+	]), [activePlugins, canonicalHasConflicts, canonicalHasWarnings, data.llms?.message, data.robots?.message, data.sitemap?.found, data.sitemap?.http_message, data.sitemap?.http_status, data.sitemap?.url, hasPluginConflicts, llmsStatus, robotsStatus]);
 
 	const detailSectionsByCategory = useMemo(() => ([
 		{
@@ -189,6 +203,13 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 			items: robotChecks.length > 0 ? robotChecks : [{ label: __('Robots checks', 'asneris-seo-toolkit'), status: 'warning', details: __('No robots diagnostics returned.', 'asneris-seo-toolkit') }],
 		},
 		{
+			key: 'llms',
+			label: __('LLMs.txt', 'asneris-seo-toolkit'),
+			title: __('llms.txt Validation', 'asneris-seo-toolkit'),
+			description: __('Checks AI crawler guidance coverage and file readiness', 'asneris-seo-toolkit'),
+			items: llmsChecks.length > 0 ? llmsChecks : [{ label: __('llms.txt checks', 'asneris-seo-toolkit'), status: 'warning', details: __('No llms diagnostics returned.', 'asneris-seo-toolkit') }],
+		},
+		{
 			key: 'sitemap',
 			label: __('Sitemap', 'asneris-seo-toolkit'),
 			title: __('Sitemap Visibility', 'asneris-seo-toolkit'),
@@ -202,7 +223,7 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 			description: __('Checks for duplicate or conflicting SEO outputs', 'asneris-seo-toolkit'),
 			items: duplicateItems,
 		},
-	]), [canonicalItems, duplicateItems, robotChecks, sitemapChecks, technicalChecks]);
+	]), [canonicalItems, duplicateItems, llmsChecks, robotChecks, sitemapChecks, technicalChecks]);
 
 	const discoverabilityCards = useMemo(() => {
 		const makeCard = (section) => {
@@ -245,6 +266,12 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 			detail: __('Crawling rules could not be fully validated.', 'asneris-seo-toolkit'),
 			learnMoreUrl: SITE_DIAGNOSTICS_EDUCATION_URLS.robots,
 			learnMoreTopic: __('robots.txt', 'asneris-seo-toolkit'),
+		} : null,
+		llmsStatus !== 'success' && llmsStatus !== 'pass' ? {
+			key: 'llms-warning',
+			tone: 'warning',
+			title: __('llms.txt needs review', 'asneris-seo-toolkit'),
+			detail: data.llms?.detected ? __('The AI guidance file exists but still needs validation.', 'asneris-seo-toolkit') : __('Create and publish llms.txt so AI systems can discover your best public content.', 'asneris-seo-toolkit'),
 		} : null,
 		hasPluginConflicts ? {
 			key: 'plugin-conflicts',
@@ -298,6 +325,15 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 			});
 		}
 
+		if (llmsStatus !== 'success' && llmsStatus !== 'pass') {
+			warningSteps.push({
+				key: 'step-llms-publish',
+				title: __('Create or publish llms.txt', 'asneris-seo-toolkit'),
+				detail: __('Add a public AI guidance file so crawlers and assistants can discover your best content.', 'asneris-seo-toolkit'),
+				tone: 'warning',
+			});
+		}
+
 		if (hasPluginConflicts || duplicateItems.some((item) => item.status === 'issue')) {
 			issueSteps.push({
 				key: 'step-duplicates-fix',
@@ -342,7 +378,7 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 		});
 
 		return [ ...issueSteps, ...warningSteps, ...infoSteps ].slice(0, 5);
-	}, [canonicalHasConflicts, canonicalHasWarnings, data.sitemap?.found, data.sitemap?.in_robots, duplicateItems, hasPluginConflicts, robotsStatus]);
+	}, [canonicalHasConflicts, canonicalHasWarnings, data.llms?.detected, data.sitemap?.found, data.sitemap?.in_robots, duplicateItems, hasPluginConflicts, llmsStatus, robotsStatus]);
 
 	return (
 		<PanelScaffold
@@ -374,9 +410,18 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 				</div>
 			</div>
 
-			{ isLoading ? <p>{ __('Loading site diagnostics...', 'asneris-seo-toolkit') }</p> : null }
+			{ isLoading && !hasLoaded ? (
+				<div className="ASNERISSEO-progress-container" role="status" aria-live="polite">
+					<div className="ASNERISSEO-progress-bar" aria-hidden="true">
+						<div className="ASNERISSEO-progress-fill" style={ { width: '100%' } } />
+					</div>
+					<p className="ASNERISSEO-progress-text">{ __('Scanning site diagnostics...', 'asneris-seo-toolkit') }</p>
+				</div>
+			) : null }
 			{ errorMessage ? <p className="ASNERISSEO-react-text-danger">{ errorMessage }</p> : null }
 
+			{ hasLoaded ? (
+			<>
 			<div className="ASNERISSEO-react-site-report-kpi-grid ASNERISSEO-react-block">
 				<div className="ASNERISSEO-react-site-report-kpi-card is-health">
 					<div className="ASNERISSEO-react-site-report-kpi-head"><span className="ASNERISSEO-react-site-report-kpi-icon is-health" aria-hidden="true">+</span><p className="ASNERISSEO-react-site-report-kpi-label">{ __('Overall Health', 'asneris-seo-toolkit') }</p></div>
@@ -531,6 +576,8 @@ const SiteDiagnosticsPanel = ({ restUrl, restNonce, onStatus, normalizeChecks, f
 					<li>{ __('Results reflect the website state at the time of this scan.', 'asneris-seo-toolkit') }</li>
 				</ul>
 			</div>
+			</>
+			) : null }
 		</PanelScaffold>
 	);
 };

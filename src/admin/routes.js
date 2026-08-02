@@ -91,11 +91,11 @@ export const getAdminRoutes = (links = {}) => [
 		tab: 'indexnow',
 	},
 	{
-		id: 'maintenance',
-		label: __('Maintenance', 'asneris-seo-toolkit'),
-		href: links.settingsMaintenance || links.settings || '#',
+		id: 'ai-searchability',
+		label: __('AI Searchability', 'asneris-seo-toolkit'),
+		href: links.settingsAiSearchability || links.settings || '#',
 		page: 'asneris-seo-settings',
-		tab: 'maintenance',
+		tab: 'aiSearchability',
 	},
 	{
 		id: 'priority-pages',
@@ -117,6 +117,13 @@ export const getAdminRoutes = (links = {}) => [
 		href: links.settings404Controls || links.settings || '#',
 		page: 'asneris-seo-settings',
 		tab: 'monitor404',
+	},
+	{
+		id: 'maintenance',
+		label: __('Maintenance', 'asneris-seo-toolkit'),
+		href: links.settingsMaintenance || links.settings || '#',
+		page: 'asneris-seo-settings',
+		tab: 'maintenance',
 	},
 ];
 

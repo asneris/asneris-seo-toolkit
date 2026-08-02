@@ -4,6 +4,8 @@ export const DISCOVERABILITY_DATA_SOURCES = {
 };
 
 export const OVERVIEW_PRIMARY_FIELDS = [
+	'Page Fetch',
+	'Local Fallback',
 	'HTTP Status',
 	'Robots Meta',
 	'SEO Title Length',
@@ -11,6 +13,8 @@ export const OVERVIEW_PRIMARY_FIELDS = [
 	'H1 Presence',
 	'Internal Links',
 	'Content Depth (Word Count)',
+	'Post Freshness',
+	'Post Context',
 ];
 
 export const normalizeOverviewFieldLabel = (value = '') => {
@@ -37,18 +41,24 @@ export const PROPOSED_FIELDS_REVIEW = {
 		'Meta Description',
 		'Meta Description Length',
 		'Google Preview',
+		'Open Graph Setup',
 		'Open Graph Title',
 		'Open Graph Description',
 		'Open Graph Image',
 		'Twitter Card',
 	],
 	indexability: [
+		'Redirect Status',
+		'Final Destination',
 		'Canonical Exists',
 		'Self Canonical',
 		'Canonical Valid URL',
+		'Canonical Target HTTP 200',
 		'Robots Meta',
 		'X-Robots-Tag',
 		'HTTP Status',
+		'Indexability',
+		'Follow Directive',
 	],
 	contentQuality: [
 		'SEO Title',
@@ -76,14 +86,22 @@ export const PROPOSED_FIELDS_REVIEW = {
 		'Nofollow Links',
 	],
 	structuredData: [
+		'Schema Settings',
+		'Structured Data Found',
 		'Structured Data Present',
-		'JSON-LD Valid',
+		'Schema Validation',
 		'Primary Schema',
+		'Primary Entity',
 		'Organization Schema',
+		'Article Schema',
 		'FAQ Schema',
 		'Breadcrumb Schema',
 	],
 	aiDiscoverability: [
+		'Content Structure',
+		'Author Information',
+		'Machine Readability',
+		'Primary Entity',
 		'Topic Consistency',
 		'Clear Page Purpose',
 		'Summary Section',
@@ -91,11 +109,19 @@ export const PROPOSED_FIELDS_REVIEW = {
 		'Brand Mentions',
 		'Product/Context Mentions',
 		'Trust Signals',
+		'Structured Content',
 		'Table/List Detection',
 		'Definition Content',
+		'FAQ Ready',
+		'FAQ Content',
 		'FAQ Signals',
 		'Language Declaration',
 		'Internal References',
+		'External References',
+		'Published Date',
+		'Last Updated Date',
+		'Organization Information',
+		'Media Context',
 	],
 };
 
@@ -118,8 +144,11 @@ export const getCanonicalModelTabKeys = (options = {}) => {
 
 // Canonical scoring authority -> raw evidence mapping.
 // This is the single JS source of truth for UI transparency and evidence lookups.
+// UNIFIED DESIGN FIX: Updated to include completeness and metadata fields from response contract
 export const CANONICAL_RAW_FIELD_MAP = {
 	overview: {
+		'Page Fetch': ['source', 'httpStatus'],
+		'Local Fallback': ['source', 'sourceIsStale'],
 		'Robots Meta': ['robotsIndex', 'robotsFollow'],
 		'HTTP Status': ['httpStatus'],
 		'SEO Title': ['metaTitle'],
@@ -132,6 +161,10 @@ export const CANONICAL_RAW_FIELD_MAP = {
 		'Image ALT Coverage': ['imageCount', 'imagesMissingAlt'],
 		'Internal Links': ['internalLinks'],
 		'Content Depth (Word Count)': ['contentWords'],
+		'Post Freshness': ['modifiedGmt'],
+		'Post Context': ['postType', 'postStatus'],
+		'Data Source': ['source'],
+		'Data Freshness': ['sourceIsStale', 'lastScanGmt'],
 	},
 	searchAppearance: {
 		'SEO Title': ['metaTitle', 'seoTitle'],
@@ -140,18 +173,24 @@ export const CANONICAL_RAW_FIELD_MAP = {
 		'Meta Description Length': ['descriptionLength', 'effectiveDescriptionLength'],
 		'Google Preview': ['metaTitle', 'seoTitle', 'metaDescription', 'seoDescription', 'url'],
 		Canonical: ['hasCanonical', 'canonical'],
+		'Open Graph Setup': ['ogTitle', 'ogDescription', 'ogImage'],
 		'Open Graph Title': ['ogTitle'],
 		'Open Graph Description': ['ogDescription'],
 		'Open Graph Image': ['ogImage'],
 		'Twitter Card': ['ogTitle', 'ogDescription', 'ogImage'],
 	},
 	indexability: {
+		'Redirect Status': ['httpStatus', 'url'],
+		'Final Destination': ['url'],
 		'HTTP Status': ['httpStatus'],
 		'Robots Meta': ['robotsIndex', 'robotsFollow'],
-		'Canonical Exists': ['hasCanonical', 'canonical'],
+		'Canonical Exists': ['hasCanonical', 'canonical', 'canonicalCount'],
 		'Self Canonical': ['canonical', 'url'],
 		'Canonical Valid URL': ['canonical'],
+		'Canonical Target HTTP 200': ['canonical', 'httpStatus'],
 		'X-Robots-Tag': ['xRobotsTag'],
+		'Indexability': ['robotsIndex', 'xRobotsTag', 'httpStatus'],
+		'Follow Directive': ['robotsFollow'],
 	},
 	contentQuality: {
 		'SEO Title': ['metaTitle'],
@@ -181,16 +220,20 @@ export const CANONICAL_RAW_FIELD_MAP = {
 		'Nofollow Links': ['nofollowLinks'],
 	},
 	structuredData: {
+		'Schema Settings': ['schemaEnabled', 'schemaType'],
+		'Structured Data Found': ['schemaEnabled', 'schemaType', 'faqCount'],
 		'Structured Data Present': ['schemaEnabled', 'schemaType', 'faqCount'],
-		'JSON-LD Valid': ['schemaEnabled', 'schemaType'],
+		'Schema Validation': ['schemaEnabled', 'schemaType'],
 		'Organization Schema': ['organizationSchema'],
+		'Article Schema': ['schemaType'],
 		'Primary Schema': ['schemaType'],
+		'Primary Entity': ['schemaType'],
 		'FAQ Schema': ['faqCount', 'schemaType'],
 		'Breadcrumb Schema': ['breadcrumbSchema'],
 	},
 	aiDiscoverability: {
 		'Content Structure': ['h1Present', 'headingHierarchyValid', 'sectionsCoverage', 'listDetected', 'tableDetected', 'summaryPattern'],
-		'Author Information': ['authorName', 'authorInformation', 'organizationInformation'],
+		'Author Information': ['author', 'authorName', 'authorInformation', 'organizationInformation'],
 		'Machine Readability': ['languageDeclaration', 'avgSentenceLength'],
 		'Primary Entity': ['schemaType', 'primaryEntity'],
 		'Topic Consistency': ['keywordTopCount', 'keywordRatio'],
@@ -200,11 +243,27 @@ export const CANONICAL_RAW_FIELD_MAP = {
 		'Brand Mentions': ['siteName', 'siteNameMentioned'],
 		'Product/Context Mentions': ['productContextPattern'],
 		'Trust Signals': ['trustPattern'],
+		'Structured Content': ['listDetected', 'tableDetected'],
 		'Table/List Detection': ['listDetected', 'tableDetected'],
 		'Definition Content': ['definitionPattern'],
+		'FAQ Ready': ['faqPattern', 'faqCount', 'schemaType'],
+		'FAQ Content': ['faqPattern'],
 		'FAQ Signals': ['faqPattern'],
 		'Language Declaration': ['languageDeclaration'],
 		'Internal References': ['internalLinks'],
+		'External References': ['externalLinks'],
+		'Published Date': ['publishedGmt', 'modifiedGmt'],
+		'Last Updated Date': ['modifiedGmt'],
+		'Organization Information': ['organizationSchema', 'schemaType'],
+		'Media Context': ['imageCount', 'imagesMissingAlt', 'imagesEmptyAlt'],
+	},
+	// UNIFIED DESIGN FIX: Completeness tracking metadata available in all response structures
+	completeness: {
+		'Data Capture Quality': ['completeness.captureQuality'],
+		'Captured Fields': ['completeness.capturedFields'],
+		'Missing Fields': ['completeness.missingFields'],
+		'Check Completeness': ['isDataComplete'],
+		'Check Missing Fields': ['missingFields'],
 	},
 };
 
@@ -382,7 +441,7 @@ export const DISCOVERABILITY_EXPECTED_CHECKS = {
 	],
 	structuredData: [
 		'Structured Data Present',
-		'JSON-LD Valid',
+		'Schema Validation',
 		'Organization Schema',
 		'Primary Schema',
 		'FAQ Schema',
@@ -413,7 +472,7 @@ export const DISCOVERABILITY_DETAIL_PATTERNS = {
 	indexability: /http status|robots meta|canonical exists|self canonical|canonical valid url|x-robots-tag/i,
 	content: /seo title|meta description|h1 heading|content quality|h1 presence|multiple h1|heading structure|heading hierarchy|content depth|content present|readability/i,
 	searchAppearance: /seo title|seo title length|meta description|meta description length|google preview|open graph title|open graph description|open graph image|twitter card|\bcanonical\b(?!\s+(exists|valid|validation|target|self))/i,
-	structuredData: /structured data present|json-ld valid|organization schema|primary schema|faq schema|breadcrumb schema/i,
+	structuredData: /structured data present|schema validation|json-ld valid|organization schema|primary schema|faq schema|breadcrumb schema/i,
 	links: /internal links|external links|nofollow links/i,
 	images: /images found|image alt coverage|missing alt|empty alt|featured image/i,
 	ai: /content structure|author information|machine readability|internal references|primary entity|topic consistency|clear page purpose|summary section|content completeness|brand mentions|product\/context mentions|trust signals|table\/list detection|definition content|faq signals|language declaration/i,
@@ -438,7 +497,7 @@ const CHECK_PATTERNS = {
 		/internal links|external links|nofollow links/i,
 	],
 	schema: [
-		/structured data present|json-ld valid|organization schema|primary schema|faq schema|breadcrumb schema/i,
+		/structured data present|schema validation|json-ld valid|organization schema|primary schema|faq schema|breadcrumb schema/i,
 	],
 	images: [
 		/images found|image alt coverage|missing alt|empty alt|featured image|images? & alt/i,
@@ -598,4 +657,68 @@ export const getDiscoverabilityModelInvariantViolations = () => {
 	});
 
 	return violations;
+};
+
+// UNIFIED DESIGN FIX #4: Helper functions for working with completeness metadata from unified response
+export const getResponseCompletenessStatus = (response = {}) => {
+	const completeness = response?.completeness;
+	if (!completeness) {
+		return {
+			isComplete: true,
+			captureQuality: 'complete',
+			missingFields: [],
+			capturedFields: [],
+		};
+	}
+
+	return {
+		isComplete: !completeness.missingFields || completeness.missingFields.length === 0,
+		captureQuality: completeness.captureQuality || 'complete',
+		missingFields: completeness.missingFields || [],
+		capturedFields: completeness.capturedFields || [],
+	};
+};
+
+export const getCheckCompletenessStatus = (check = {}) => {
+	return {
+		isDataComplete: check?.isDataComplete !== false,
+		missingFields: check?.missingFields || [],
+	};
+};
+
+export const getResponseSourceLabel = (response = {}) => {
+	const source = response?.source || 'live-scan';
+	const isStale = response?.sourceIsStale === true;
+	
+	const sourceMap = {
+		'live-scan': 'Live Scan',
+		'live-scan-no-store': 'Live Scan (Draft)',
+		'live-scan-non-priority': 'Live Scan',
+		'fallback-local': 'Local Data',
+		'cron-scan': 'Background Scan',
+		'snapshot-skip': 'Cached Data',
+	};
+	
+	const label = sourceMap[source] || 'Unknown Source';
+	return isStale ? `${label} (stale)` : label;
+};
+
+export const shouldDegradeCheckStatus = (check = {}) => {
+	return check?.isDataComplete === false && Array.isArray(check?.missingFields) && check.missingFields.length > 0;
+};
+
+export const degradeCheckStatus = (originalStatus, check = {}) => {
+	if (!shouldDegradeCheckStatus(check)) {
+		return originalStatus;
+	}
+
+	// Degrade status when data is incomplete
+	if (originalStatus === 'pass') {
+		return 'warning';
+	}
+	if (originalStatus === 'warning') {
+		return 'fail';
+	}
+
+	return originalStatus;
 };
